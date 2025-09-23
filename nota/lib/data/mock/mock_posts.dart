@@ -1,4 +1,4 @@
-import 'package:nota/data/models/Post.dart';
+import 'package:nota/data/models/post.dart';
 
 final List<Post> mockPosts = [
   Post(

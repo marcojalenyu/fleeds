@@ -11,6 +11,8 @@ class Post {
 
   String get title => _title;
   String get content => _content;
+  String get authorId => _authorId;
+  DateTime get createdAt => _createdAt ?? DateTime.now();
 
   Post({
     required String id,
