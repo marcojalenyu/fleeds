@@ -23,9 +23,9 @@ class PostController extends ChangeNotifier {
     }
   }
 
-  Future<bool> addPost(String userId, String title, String content) async {
-    if (title.isEmpty || content.isEmpty) {
-      error = 'Title and content cannot be empty.';
+  Future<bool> addPost(String userId, String content) async {
+    if (content.isEmpty) {
+      error = 'Content cannot be empty.';
       notifyListeners();
       return false;
     }
@@ -33,7 +33,7 @@ class PostController extends ChangeNotifier {
     notifyListeners();
 
     try {
-      await PostService.addPost(userId, title, content);
+      await PostService.addPost(userId, content);
       isLoading = false;
       notifyListeners();
       return true;

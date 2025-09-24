@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:nota/data/mock/mock_posts.dart';
 import 'package:nota/data/models/post.dart';
+import 'package:nota/data/services/auth_service.dart';
 import 'package:nota/data/services/user_service.dart';
 import 'package:nota/features/post/logic/post_controller.dart';
 import 'package:nota/features/post/presentation/post_dialog.dart';
+import 'package:nota/widgets/post_card.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -19,6 +20,13 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
+    final user = AuthService.currentUser;
+    if (user == null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        Navigator.pushReplacementNamed(context, '/login');
+      });
+      return;
+    }
     _fetchPosts();
   }
 
@@ -35,10 +43,11 @@ class _HomeScreenState extends State<HomeScreen> {
       builder: (context) => AddPostDialog(),
     );
 
-    if (result != null) {
+    final currentUser = AuthService.currentUser;
+
+    if (result != null && currentUser != null) {
       final success = await _postController.addPost(
-        'user1',
-        result['title'] ?? '',
+        currentUser.id,
         result['content'] ?? '',
       );
       if (success) {
@@ -65,7 +74,10 @@ class _HomeScreenState extends State<HomeScreen> {
           IconButton(
             icon: CircleAvatar(child: Icon(Icons.person)), 
             onPressed: () {
-
+              final user = AuthService.currentUser;
+              if (user != null) {
+                Navigator.of(context).pushNamed('/profile', arguments: user);
+              }
             }
           ),
         ],
@@ -75,20 +87,7 @@ class _HomeScreenState extends State<HomeScreen> {
         itemBuilder: (context, index) {
           final post = _posts[index];
           final user = UserService.getUserById(post.authorId);
-          final username = user?.username ?? 'Unknown';
-          final formattedDate = '${post.createdAt.day}/${post.createdAt.month}/${post.createdAt.year}, ${post.createdAt.hour}:${post.createdAt.minute.toString().padLeft(2, '0')}';
-          
-          return ListTile(
-            title: Text(post.title),
-            subtitle: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(post.content),
-                SizedBox(height: 4),
-                Text('By $username on $formattedDate', style: TextStyle(fontSize: 12, color: Colors.grey)),
-              ],
-            ),
-          );
+          return PostCard(post: post, user: user!);
         },
       ),
       bottomNavigationBar: BottomNavigationBar(items: [

@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:nota/data/mock/mock_posts.dart';
-import 'package:nota/data/models/Post.dart';
 
 class AddPostDialog extends StatefulWidget {
   @override
@@ -8,7 +6,6 @@ class AddPostDialog extends StatefulWidget {
 }
 
 class _AddPostDialogState extends State<AddPostDialog> {
-  final _titleController = TextEditingController();
   final _contentController = TextEditingController();
 
   @override
@@ -18,10 +15,6 @@ class _AddPostDialogState extends State<AddPostDialog> {
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          TextField(
-            controller: _titleController,
-            decoration: InputDecoration(labelText: 'Title'),
-          ),
           TextField(
             controller: _contentController,
             decoration: InputDecoration(labelText: 'Content'),
@@ -38,7 +31,6 @@ class _AddPostDialogState extends State<AddPostDialog> {
         ElevatedButton(
           onPressed: () {
             Navigator.of(context).pop({
-              'title': _titleController.text,
               'content': _contentController.text,
             });
           },

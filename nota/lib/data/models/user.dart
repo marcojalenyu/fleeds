@@ -5,6 +5,7 @@ class User {
   String displayName;
   final DateTime createdAt;
   DateTime? updatedAt;
+  List<String> likedPosts = []; // List of post IDs the user has liked
 
   User({
     required this.id,
@@ -14,4 +15,14 @@ class User {
     DateTime? createdAt,
     this.updatedAt,
   }) : createdAt = createdAt ?? DateTime.now();
+
+  void likePost(String postId) {
+    if (!likedPosts.contains(postId)) {
+      likedPosts.add(postId);
+    }
+  }
+
+  void unlikePost(String postId) {
+    likedPosts.remove(postId);
+  }
 }

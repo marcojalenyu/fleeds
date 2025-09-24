@@ -9,4 +9,15 @@ class UserService {
       return null;
     }
   }
+
+  static void likePost(String userId, String postId, bool liked) {
+    final user = getUserById(userId);
+    if (user != null) {
+      if (liked) {
+        user.likePost(postId);
+      } else {
+        user.unlikePost(postId);
+      }
+    }
+  }
 }
