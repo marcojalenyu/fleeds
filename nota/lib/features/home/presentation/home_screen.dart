@@ -40,7 +40,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> _showAddPostDialog(BuildContext context) async {
     final result = await showDialog<Map<String, String>>(
       context: context,
-      builder: (context) => AddPostDialog(),
+      builder: (context) => AddPostDialog(user: AuthService.currentUser!),
     );
 
     final currentUser = AuthService.currentUser;
@@ -82,14 +82,28 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
-      body: ListView.builder(
-        itemCount: _posts.length,
-        itemBuilder: (context, index) {
-          final post = _posts[index];
-          final user = UserService.getUserById(post.authorId);
-          return PostCard(post: post, user: user!);
-        },
-      ),
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Text(
+              'Home',
+              style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
+            ),
+          ),
+          Expanded(
+            child: ListView.builder(
+              itemCount: _posts.length,
+              itemBuilder: (context, index) {
+                final post = _posts[index];
+                final user = UserService.getUserById(post.authorId);
+                return PostCard(post: post, user: user!);
+              },
+            ),
+          )
+        ]
+      ),      
       bottomNavigationBar: BottomNavigationBar(items: [
         BottomNavigationBarItem(
           icon: Icon(Icons.home),

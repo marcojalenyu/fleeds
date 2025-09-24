@@ -26,6 +26,10 @@ class _PostCardState extends State<PostCard> {
         });
     }
 
+    void _goToProfile() {
+        Navigator.of(context).pushNamed('/profile', arguments: widget.user);
+    }
+
     @override
     Widget build(BuildContext context) {
         final post = widget.post;
@@ -47,15 +51,19 @@ class _PostCardState extends State<PostCard> {
                     ),
                 ],
             ),
+            constraints: BoxConstraints(maxWidth: 600),
             child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start, // Align avatar to top
                 children: [
-                    Padding(
-                        padding: const EdgeInsets.only(top: 4, right: 12),
-                        child: CircleAvatar(
-                        radius: 24,
-                        backgroundColor: Colors.grey,
-                        child: Icon(Icons.person, color: Colors.white),
+                    GestureDetector(
+                        onTap: _goToProfile,
+                        child: Padding(
+                          padding: const EdgeInsets.only(top: 4, right: 12),
+                          child: CircleAvatar(
+                            radius: 24,
+                            backgroundColor: Colors.grey,
+                            child: Icon(Icons.person, color: Colors.white),
+                          ),
                         ),
                     ),
                     Expanded(
@@ -64,10 +72,13 @@ class _PostCardState extends State<PostCard> {
                         children: [
                             Row(
                                 children: [
-                                    Text(
-                                        user.displayName,
-                                        style: textStyle.copyWith(fontWeight: FontWeight.bold),
+                                  GestureDetector(
+                                    onTap: _goToProfile,
+                                    child: Text(
+                                      user.displayName,
+                                      style: textStyle.copyWith(fontWeight: FontWeight.bold),
                                     ),
+                                  ),
                                     const SizedBox(width: 6),
                                     Text(
                                         '@${user.username}',
@@ -80,7 +91,7 @@ class _PostCardState extends State<PostCard> {
                                     ),
                                 ],
                             ),
-                            const SizedBox(height: 4),
+                            const SizedBox(height: 2),
                             Text(post.content, style: textStyle),
                             const SizedBox(height: 4),
                             Row(
