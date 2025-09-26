@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:nota/core/constants/constants.dart';
+import 'package:nota/data/services/auth_service.dart';
 import 'package:nota/widgets/logo.dart';
 import 'package:nota/widgets/login_form.dart';
 import 'package:nota/widgets/signup_form.dart';
@@ -25,6 +26,18 @@ class _LoginScreenState extends State<LoginScreen> {
       _showSignup = false;
     });
     Navigator.pushReplacementNamed(context, '/');
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    final user = AuthService.currentUser;
+    if (user != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        Navigator.pushReplacementNamed(context, '/');
+      });
+      return;
+    }
   }
 
   @override

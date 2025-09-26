@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:nota/data/models/user.dart';
 import 'package:nota/data/services/auth_service.dart';
+import 'package:nota/widgets/main_scaffold.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -31,90 +32,87 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
     final user = ModalRoute.of(context)!.settings.arguments as User;
     isOwnProfile = AuthService.currentUser?.id == user.id;
 
-    // Use user to display profile info
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('@${user.username}'),
-      ),
-      body: Column(
-        children: [
-          // Stack for cover photo and overlapping profile photo
-          Stack(
-            clipBehavior: Clip.none,
+    Widget profileBody = Column(
+      children: [
+        Stack(
+          clipBehavior: Clip.none,
+          children: [
+            Container(
+              height: 120,
+              color: Colors.grey[300],
+              child: Center(child: Text('No Cover Photo')),
+            ),
+            Positioned(
+              left: 16,
+              bottom: -40,
+              child: CircleAvatar(
+                radius: 40,
+                backgroundColor: Colors.grey,
+                child: Icon(Icons.person, color: Colors.white, size: 40),
+              ),
+            ),
+          ],
+        ),
+        SizedBox(height: 48),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Cover photo
-              Container(
-                height: 120,
-                width: double.infinity,
-                color: Colors.grey[300],
-                child: Center(child: Text('No Cover Photo')),
-              ),
-              // Profile photo overlapping bottom left
-              Positioned(
-                left: 16,
-                bottom: -40, // Half of avatar radius to overlap
-                child: CircleAvatar(
-                  radius: 40,
-                  backgroundColor: Colors.grey,
-                  child: Icon(Icons.person, color: Colors.white, size: 40),
-                ),
+              Text(user.displayName, style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+              SizedBox(height: 4),
+              Text('@${user.username}', style: TextStyle(color: Colors.grey[600])),
+              SizedBox(height: 8),
+              Text("Bio"),
+              SizedBox(height: 8),
+              Row(
+                children: [
+                  Text('${1} Followers'),
+                  SizedBox(width: 16),
+                  Text('${0} Following'),
+                  Spacer(),
+                  if (!isOwnProfile)
+                    ElevatedButton(
+                      onPressed: () {
+                        setState(() {
+                          isFollowing = !isFollowing;
+                        });
+                      },
+                      child: Text(isFollowing ? 'Unfollow' : 'Follow'),
+                    ),
+                ],
               ),
             ],
           ),
-          SizedBox(height: 48), // Space for the overlapping avatar
-          // User info
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(user.displayName, style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                SizedBox(height: 4),
-                Text('@${user.username}', style: TextStyle(color: Colors.grey[600])),
-                SizedBox(height: 8),
-                Text("Bio"),
-                SizedBox(height: 8),
-                Row(
-                  children: [
-                    Text('${1} Followers'),
-                    SizedBox(width: 16),
-                    Text('${0} Following'),
-                    Spacer(),
-                    if (!isOwnProfile)
-                      ElevatedButton(
-                        onPressed: () {
-                          setState(() {
-                            isFollowing = !isFollowing;
-                          });
-                        },
-                        child: Text(isFollowing ? 'Unfollow' : 'Follow'),
-                      ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          // Tabs
-          TabBar(
+        ),
+        TabBar(
+          controller: _tabController,
+          tabs: [
+            Tab(text: 'Posts'),
+            Tab(text: 'Replies'),
+            Tab(text: 'Likes'),
+          ],
+        ),
+        Expanded(
+          child: TabBarView(
             controller: _tabController,
-            tabs: [
-              Tab(text: 'Posts'),
-              Tab(text: 'Replies'),
-              Tab(text: 'Likes'),
+            children: [
+              Center(child: Text('User Posts')),
+              Center(child: Text('User Replies')),
+              Center(child: Text('User Likes')),
             ],
           ),
-          // List of posts for the selected tab
-          Expanded(
-            child: TabBarView(
-              controller: _tabController,
-              children: [
-                Center(child: Text('User Posts')),
-                Center(child: Text('User Replies')),
-                Center(child: Text('User Likes')),
-              ],
-            ),
-          ),
-        ],
+        ),
+      ],
+    );
+
+    return MainScaffold(
+      currentIndex: 1,
+      body: Scaffold(
+        appBar: AppBar(
+          title: Text('@${user.username}'),
+        ),
+        body: profileBody,
       ),
     );
   }

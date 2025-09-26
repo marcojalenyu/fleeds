@@ -4,7 +4,7 @@ import 'package:nota/data/services/auth_service.dart';
 import 'package:nota/data/services/user_service.dart';
 import 'package:nota/features/post/logic/post_controller.dart';
 import 'package:nota/features/post/presentation/post_dialog.dart';
-import 'package:nota/widgets/logo.dart';
+import 'package:nota/widgets/main_scaffold.dart';
 import 'package:nota/widgets/post_card.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -63,21 +63,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        leading: ClickableLogo(),
-        actions: [
-          IconButton(
-            icon: CircleAvatar(child: Icon(Icons.person)), 
-            onPressed: () {
-              final user = AuthService.currentUser;
-              if (user != null) {
-                Navigator.of(context).pushNamed('/profile', arguments: user);
-              }
-            }
-          ),
-        ],
-      ),
+    return MainScaffold(
+      currentIndex: 0, // Home tab
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -99,25 +86,8 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           )
         ]
-      ),      
-      bottomNavigationBar: BottomNavigationBar(items: [
-        BottomNavigationBarItem(
-          icon: Icon(Icons.home),
-          label: 'Home',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.search),
-          label: 'Search',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.notifications),
-          label: 'Notifications',
-        ),
-      ]),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => _showAddPostDialog(context),
-        child: const Icon(Icons.add),
       ),
+      onAddPost: () => _showAddPostDialog(context),
     );
   }
 }

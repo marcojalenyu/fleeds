@@ -51,7 +51,6 @@ class _PostCardState extends State<PostCard> {
                     ),
                 ],
             ),
-            constraints: BoxConstraints(maxWidth: 600),
             child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start, // Align avatar to top
                 children: [
