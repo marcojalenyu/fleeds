@@ -15,15 +15,13 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    final isLoggedIn = AuthService.currentUser != null;
-
     return MaterialApp(
       title: 'Nota',
       theme: AppTheme.theme,
       initialRoute: '/',
       routes: {
-        '/': (context) => isLoggedIn ? const HomeScreen() : const LoginScreen(),
-        '/login': (context) => isLoggedIn ? const HomeScreen() : const LoginScreen(),
+        '/': (context) => const HomeScreen(),
+        '/login': (context) => const LoginScreen(),
         '/profile': (context) => const ProfileScreen(),
       },
     );
