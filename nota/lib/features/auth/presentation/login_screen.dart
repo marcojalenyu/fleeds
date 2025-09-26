@@ -2,25 +2,40 @@ import 'package:flutter/material.dart';
 import 'package:nota/core/constants/constants.dart';
 import 'package:nota/widgets/logo.dart';
 import 'package:nota/widgets/login_form.dart';
+import 'package:nota/widgets/signup_form.dart';
 
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
-  void _navigateToSignup(BuildContext context) {
-    Navigator.pushNamed(context, '/signup');
+  @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  bool _showSignup = false;
+
+  void _toggleForm() {
+    setState(() {
+      _showSignup = !_showSignup;
+    });
+  }
+
+  void _onSignupSuccess() {
+    setState(() {
+      _showSignup = false;
+    });
+    Navigator.pushReplacementNamed(context, '/');
   }
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(builder: 
-      (context, constraints) {
-        if (constraints.maxWidth < kDesktopBreakpoint) {
-          return _buildMobileLayout(context);
-        } else {
-          return _buildDesktopLayout(context);
-        }
+    return LayoutBuilder(builder: (context, constraints) {
+      if (constraints.maxWidth < kDesktopBreakpoint) {
+        return _buildMobileLayout(context);
+      } else {
+        return _buildDesktopLayout(context);
       }
-    );
+    });
   }
 
   Widget _buildMobileLayout(BuildContext context) {
@@ -33,9 +48,20 @@ class LoginScreen extends StatelessWidget {
             children: [
               Logo(size: kLoginLogoSizeMobile),
               const SizedBox(height: 16),
-              Text('Welcome to Nota', style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold)),
+              Text(
+                'Welcome to Nota',
+                style: Theme.of(context)
+                    .textTheme
+                    .headlineSmall
+                    ?.copyWith(fontWeight: FontWeight.bold),
+              ),
               const SizedBox(height: 8),
-              LoginForm(onSignup: () => _navigateToSignup(context)),
+              _showSignup
+                  ? SignupForm(
+                      onSignupSuccess: _onSignupSuccess,
+                      onBackToLogin: _toggleForm,
+                    )
+                  : LoginForm(onSignup: _toggleForm),
             ],
           ),
         ),
@@ -60,11 +86,20 @@ class LoginScreen extends StatelessWidget {
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Text('Welcome to Nota', 
-                          style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
+                        Text(
+                          'Welcome to Nota',
+                          style: Theme.of(context)
+                              .textTheme
+                              .headlineSmall
+                              ?.copyWith(fontWeight: FontWeight.bold),
                         ),
                         const SizedBox(height: 16),
-                        LoginForm(onSignup: () => _navigateToSignup(context)),
+                        _showSignup
+                            ? SignupForm(
+                                onSignupSuccess: _onSignupSuccess,
+                                onBackToLogin: _toggleForm,
+                              )
+                            : LoginForm(onSignup: _toggleForm),
                       ],
                     ),
                   ),

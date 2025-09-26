@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:nota/core/constants/constants.dart';
+import 'package:nota/core/constants/theme.dart';
 import 'package:nota/data/services/auth_service.dart';
 import 'package:nota/features/auth/presentation/login_screen.dart';
-import 'package:nota/features/auth/presentation/signup_screen.dart';
 import 'package:nota/features/profile/presentation/profile_screen.dart';
 import 'features/home/presentation/home_screen.dart';
 
@@ -20,42 +19,11 @@ class MyApp extends StatelessWidget {
 
     return MaterialApp(
       title: 'Nota',
-      theme: ThemeData(
-        scaffoldBackgroundColor: Colors.white,
-        appBarTheme: const AppBarTheme(
-          backgroundColor: Colors.white,
-          foregroundColor: Colors.black,
-          elevation: 1,
-        ),
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: primaryColor,
-          primary: primaryColor,
-          secondary: Colors.blueAccent,
-        ),
-        bottomAppBarTheme: BottomAppBarThemeData(
-          surfaceTintColor: Colors.white,
-          color: Colors.black87,
-          elevation: 4,
-        ),
-        elevatedButtonTheme: ElevatedButtonThemeData(
-          style: ElevatedButton.styleFrom(
-            backgroundColor: primaryColor,
-            foregroundColor: Colors.white,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
-          ),
-        ),
-        textTheme: const TextTheme(
-          bodyMedium: TextStyle(fontSize: 16, color: Colors.black87),
-        ),
-      ),
+      theme: AppTheme.theme,
       initialRoute: '/',
       routes: {
         '/': (context) => isLoggedIn ? const HomeScreen() : const LoginScreen(),
-        '/home': (context) => const HomeScreen(),
-        '/login': (context) => const LoginScreen(),
-        '/signup': (context) => const SignupScreen(),
+        '/login': (context) => isLoggedIn ? const HomeScreen() : const LoginScreen(),
         '/profile': (context) => const ProfileScreen(),
       },
     );

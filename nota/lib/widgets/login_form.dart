@@ -19,7 +19,7 @@ class _LoginFormState extends State<LoginForm> {
     final password = _passwordController.text;
     final success = AuthService.login(username, password);
     if (success) {
-      Navigator.pushReplacementNamed(context, '/home');
+      Navigator.pushReplacementNamed(context, '/');
     } else {
       setState(() {
         _error = 'Invalid username or password.';
@@ -42,7 +42,18 @@ class _LoginFormState extends State<LoginForm> {
           decoration: const InputDecoration(labelText: 'Password'),
           obscureText: true,
         ),
-        const SizedBox(height: 32),
+        if (_error != null)
+          Padding(
+            padding: const EdgeInsets.only(top: 16),
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                _error!,
+                style: const TextStyle(color: Colors.red),
+              ),
+            ),
+          ),
+        SizedBox(height: (_error != null) ? 16 : 32),
         ElevatedButton(
           onPressed: _login,
           child: const Text('Login'),
@@ -52,11 +63,6 @@ class _LoginFormState extends State<LoginForm> {
           onPressed: widget.onSignup,
           child: const Text('Don\'t have an account? Sign up'),
         ),
-        if (_error != null)
-          Padding(
-            padding: const EdgeInsets.only(top: 8),
-            child: Text(_error!, style: const TextStyle(color: Colors.red)),
-          ),
       ],
     );
   }
