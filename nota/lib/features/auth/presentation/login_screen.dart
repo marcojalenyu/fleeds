@@ -1,67 +1,77 @@
 import 'package:flutter/material.dart';
-import 'package:nota/data/services/auth_service.dart';
+import 'package:nota/core/constants/constants.dart';
+import 'package:nota/widgets/logo.dart';
+import 'package:nota/widgets/login_form.dart';
 
-class LoginScreen extends StatefulWidget {
+class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
 
-  @override
-  State<LoginScreen> createState() => _LoginScreenState();
-
-}
-
-class _LoginScreenState extends State<LoginScreen> {
-  final _usernameController = TextEditingController();
-  final _passwordController = TextEditingController();
-  String? _error;
-
-  void _login() {
-    final username = _usernameController.text;
-    final password = _passwordController.text;
-    final success = AuthService.login(username, password);
-    if (success) {
-      Navigator.pushReplacementNamed(context, '/home');
-    } else {
-      setState(() {
-        _error = 'Invalid username or password';
-      });
-    }
+  void _navigateToSignup(BuildContext context) {
+    Navigator.pushNamed(context, '/signup');
   }
 
   @override
   Widget build(BuildContext context) {
+    return LayoutBuilder(builder: 
+      (context, constraints) {
+        if (constraints.maxWidth < kDesktopBreakpoint) {
+          return _buildMobileLayout(context);
+        } else {
+          return _buildDesktopLayout(context);
+        }
+      }
+    );
+  }
+
+  Widget _buildMobileLayout(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Login'),
-      ),
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            TextField(
-              controller: _usernameController,
-              decoration: const InputDecoration(labelText: 'Username'),
-            ),
-            TextField(
-              controller: _passwordController,
-              decoration: const InputDecoration(labelText: 'Password'),
-              obscureText: true,
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: _login,
-              child: const Text('Login'),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pushNamed('/signup');
-              },
-              child: const Text('Don\'t have an account? Sign Up'),
-            ),
-            if (_error != null) ...[
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(32),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Logo(size: kLoginLogoSizeMobile),
               const SizedBox(height: 16),
-              Text(_error!, style: TextStyle(color: Colors.red)),
+              Text('Welcome to Nota', style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold)),
+              const SizedBox(height: 8),
+              LoginForm(onSignup: () => _navigateToSignup(context)),
             ],
-          ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDesktopLayout(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(32),
+          child: Row(
+            children: [
+              Expanded(
+                child: Logo(size: kLoginLogoSizeDesktop),
+              ),
+              Expanded(
+                child: Center(
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(maxWidth: 400),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text('Welcome to Nota', 
+                          style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
+                        ),
+                        const SizedBox(height: 16),
+                        LoginForm(onSignup: () => _navigateToSignup(context)),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

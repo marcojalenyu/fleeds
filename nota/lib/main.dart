@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:nota/core/constants/constants.dart';
 import 'package:nota/data/services/auth_service.dart';
 import 'package:nota/features/auth/presentation/login_screen.dart';
 import 'package:nota/features/auth/presentation/signup_screen.dart';
@@ -26,9 +27,19 @@ class MyApp extends StatelessWidget {
           foregroundColor: Colors.black,
           elevation: 1,
         ),
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: primaryColor,
+          primary: primaryColor,
+          secondary: Colors.blueAccent,
+        ),
+        bottomAppBarTheme: BottomAppBarThemeData(
+          surfaceTintColor: Colors.white,
+          color: Colors.black87,
+          elevation: 4,
+        ),
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.blue,
+            backgroundColor: primaryColor,
             foregroundColor: Colors.white,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(8),
@@ -39,8 +50,9 @@ class MyApp extends StatelessWidget {
           bodyMedium: TextStyle(fontSize: 16, color: Colors.black87),
         ),
       ),
-      initialRoute: isLoggedIn ? '/home' : '/login',
+      initialRoute: '/',
       routes: {
+        '/': (context) => isLoggedIn ? const HomeScreen() : const LoginScreen(),
         '/home': (context) => const HomeScreen(),
         '/login': (context) => const LoginScreen(),
         '/signup': (context) => const SignupScreen(),

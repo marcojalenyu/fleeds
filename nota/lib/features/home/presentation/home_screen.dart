@@ -4,6 +4,7 @@ import 'package:nota/data/services/auth_service.dart';
 import 'package:nota/data/services/user_service.dart';
 import 'package:nota/features/post/logic/post_controller.dart';
 import 'package:nota/features/post/presentation/post_dialog.dart';
+import 'package:nota/widgets/logo.dart';
 import 'package:nota/widgets/post_card.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -64,12 +65,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton(
-          icon: Image.asset('assets/icon.png'), 
-          onPressed: () {
-
-          }
-        ),
+        leading: ClickableLogo(),
         actions: [
           IconButton(
             icon: CircleAvatar(child: Icon(Icons.person)), 
