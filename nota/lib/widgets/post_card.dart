@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:nota/core/utils/date_utils.dart';
 import 'package:nota/data/models/post.dart';
 import 'package:nota/data/models/user.dart';
 import 'package:nota/data/services/post_service.dart';
@@ -79,15 +80,7 @@ class _PostCardState extends State<PostCard> {
                                     ),
                                   ),
                                     const SizedBox(width: 6),
-                                    Text(
-                                        '@${user.username}',
-                                        style: textStyle.copyWith(color: Colors.grey[600]),
-                                    ),
-                                    const SizedBox(width: 6),
-                                    Text(
-                                        '· $formattedDate',
-                                        style: textStyle.copyWith(color: Colors.grey[600]),
-                                    ),
+                                    Text('· ${DisplayDateUtils.displayTimeAgo(post.createdAt)}', style: textStyle.copyWith(color: Colors.grey[600])),
                                 ],
                             ),
                             const SizedBox(height: 2),
