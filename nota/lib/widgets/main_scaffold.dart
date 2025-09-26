@@ -135,10 +135,12 @@ class MainScaffold extends StatelessWidget {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: onAddPost,
-        child: const Icon(Icons.add),
-      ),
+      floatingActionButton: onAddPost != null
+          ? FloatingActionButton(
+              onPressed: onAddPost,
+              child: const Icon(Icons.add),
+            )
+          : null,
     );
   }
 }

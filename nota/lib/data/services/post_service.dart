@@ -3,10 +3,23 @@ import 'package:nota/data/models/post.dart';
 import 'package:nota/data/services/user_service.dart';
 
 class PostService {
+
+  static Future<List<Post>> fetchLikedPostsByUser(String userId) async {
+    // Simulate network delay
+    await Future.delayed(const Duration(milliseconds: 300));
+    final user = UserService.getUserById(userId);
+    if (user == null) {
+      return [];
+    }
+    return mockPosts.where((post) => user.likedPosts.contains(post.id)).toList();
+  }
+
   static Future<List<Post>> fetchPosts() async {
     // Simulate network delay
     await Future.delayed(const Duration(milliseconds: 300));
-    return mockPosts;
+    List<Post> posts = List.from(mockPosts)
+      ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+    return posts;
   }
 
   static Future<List<Post>> fetchPostsByUser(String userId) async {

@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:nota/data/models/post.dart';
 import 'package:nota/data/models/user.dart';
 import 'package:nota/data/services/auth_service.dart';
+import 'package:nota/features/post/logic/post_controller.dart';
 import 'package:nota/widgets/main_scaffold.dart';
+import 'package:nota/widgets/post_list.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -15,10 +18,39 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
   bool isFollowing = false;
   bool isOwnProfile = false;
 
+  final _postController = PostController();
+  List<Post> _posts = [];
+  List<Post> _likedPosts = [];
+  late User user;
+
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
+    // user will be assigned in didChangeDependencies
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    user = ModalRoute.of(context)!.settings.arguments as User;
+    isOwnProfile = AuthService.currentUser?.id == user.id;
+    _fetchUserPosts(user.id);
+    _fetchLikedPostsByUser(user.id);
+  }
+
+  void _fetchUserPosts(String userId) async {
+    final posts = await _postController.fetchPostsByUser(userId);
+    setState(() {
+      _posts = posts;
+    });
+  }
+
+  void _fetchLikedPostsByUser(String userId) async {
+    final posts = await _postController.fetchLikedPostsByUser(userId);
+    setState(() {
+      _likedPosts = posts;
+    });
   }
 
   @override
@@ -29,81 +61,81 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
 
   @override
   Widget build(BuildContext context) {
-    final user = ModalRoute.of(context)!.settings.arguments as User;
-    isOwnProfile = AuthService.currentUser?.id == user.id;
-
-    Widget profileBody = Column(
-      children: [
-        Stack(
-          clipBehavior: Clip.none,
-          children: [
-            Container(
-              height: 120,
-              color: Colors.grey[300],
-              child: Center(child: Text('No Cover Photo')),
-            ),
-            Positioned(
-              left: 16,
-              bottom: -40,
-              child: CircleAvatar(
-                radius: 40,
-                backgroundColor: Colors.grey,
-                child: Icon(Icons.person, color: Colors.white, size: 40),
-              ),
-            ),
-          ],
-        ),
-        SizedBox(height: 48),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+    Widget profileBody = SingleChildScrollView(
+      child: Column(
+        children: [
+          Stack(
+            clipBehavior: Clip.none,
             children: [
-              Text(user.displayName, style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-              SizedBox(height: 4),
-              Text('@${user.username}', style: TextStyle(color: Colors.grey[600])),
-              SizedBox(height: 8),
-              Text("Bio"),
-              SizedBox(height: 8),
-              Row(
-                children: [
-                  Text('${1} Followers'),
-                  SizedBox(width: 16),
-                  Text('${0} Following'),
-                  Spacer(),
-                  if (!isOwnProfile)
-                    ElevatedButton(
-                      onPressed: () {
-                        setState(() {
-                          isFollowing = !isFollowing;
-                        });
-                      },
-                      child: Text(isFollowing ? 'Unfollow' : 'Follow'),
-                    ),
-                ],
+              Container(
+                height: 120,
+                color: Colors.grey[300],
+                child: Center(child: Text('No Cover Photo')),
+              ),
+              Positioned(
+                left: 16,
+                bottom: -40,
+                child: CircleAvatar(
+                  radius: 40,
+                  backgroundColor: Colors.grey,
+                  child: Icon(Icons.person, color: Colors.white, size: 40),
+                ),
               ),
             ],
           ),
-        ),
-        TabBar(
-          controller: _tabController,
-          tabs: [
-            Tab(text: 'Posts'),
-            Tab(text: 'Replies'),
-            Tab(text: 'Likes'),
-          ],
-        ),
-        Expanded(
-          child: TabBarView(
+          SizedBox(height: 48),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(user.displayName, style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                SizedBox(height: 4),
+                Text('@${user.username}', style: TextStyle(color: Colors.grey[600])),
+                SizedBox(height: 8),
+                Text("Bio"),
+                SizedBox(height: 8),
+                Row(
+                  children: [
+                    Text('${1} Followers'),
+                    SizedBox(width: 16),
+                    Text('${0} Following'),
+                    Spacer(),
+                    if (!isOwnProfile)
+                      ElevatedButton(
+                        onPressed: () {
+                          setState(() {
+                            isFollowing = !isFollowing;
+                          });
+                        },
+                        child: Text(isFollowing ? 'Unfollow' : 'Follow'),
+                      ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          TabBar(
             controller: _tabController,
-            children: [
-              Center(child: Text('User Posts')),
-              Center(child: Text('User Replies')),
-              Center(child: Text('User Likes')),
+            tabs: [
+              Tab(text: 'Posts'),
+              Tab(text: 'Replies'),
+              Tab(text: 'Likes'),
             ],
           ),
-        ),
-      ],
+          SizedBox(
+            height: 600, // Set a fixed height for TabBarView to allow scrolling
+            child: TabBarView(
+              controller: _tabController,
+              children: [
+                PostList(initialPosts: _posts),
+                Center(child: Text('User Replies')),
+                PostList(initialPosts: _likedPosts),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
 
     return MainScaffold(
@@ -114,6 +146,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
         ),
         body: profileBody,
       ),
+      
     );
   }
 }

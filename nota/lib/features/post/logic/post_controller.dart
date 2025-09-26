@@ -23,6 +23,40 @@ class PostController extends ChangeNotifier {
     }
   }
 
+  Future<List<Post>> fetchPostsByUser(String userId) async {
+    isLoading = true;
+    notifyListeners();
+
+    try {
+      final posts = await PostService.fetchPostsByUser(userId);
+      isLoading = false;
+      notifyListeners();
+      return posts;
+    } catch (e) {
+      error = 'Failed to fetch user posts: $e';
+      isLoading = false;
+      notifyListeners();
+      return [];
+    }
+  }
+
+  Future<List<Post>> fetchLikedPostsByUser(String userId) async {
+    isLoading = true;
+    notifyListeners();
+
+    try {
+      final posts = await PostService.fetchLikedPostsByUser(userId);
+      isLoading = false;
+      notifyListeners();
+      return posts;
+    } catch (e) {
+      error = 'Failed to fetch liked posts: $e';
+      isLoading = false;
+      notifyListeners();
+      return [];
+    }
+  }
+
   Future<bool> addPost(String userId, String content) async {
     if (content.isEmpty) {
       error = 'Content cannot be empty.';

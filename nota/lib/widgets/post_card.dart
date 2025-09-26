@@ -35,7 +35,6 @@ class _PostCardState extends State<PostCard> {
     Widget build(BuildContext context) {
         final post = widget.post;
         final user = widget.user;
-        final formattedDate = '${post.createdAt.day}/${post.createdAt.month}/${post.createdAt.year}, ${post.createdAt.hour}:${post.createdAt.minute.toString().padLeft(2, '0')}';
         const textStyle = TextStyle(fontSize: 16);
         
         return Container(

@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:nota/data/models/post.dart';
 import 'package:nota/data/services/auth_service.dart';
-import 'package:nota/data/services/user_service.dart';
 import 'package:nota/features/post/logic/post_controller.dart';
 import 'package:nota/features/post/presentation/post_dialog.dart';
 import 'package:nota/widgets/main_scaffold.dart';
-import 'package:nota/widgets/post_card.dart';
+import 'package:nota/widgets/post_list.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -52,7 +51,7 @@ class _HomeScreenState extends State<HomeScreen> {
         result['content'] ?? '',
       );
       if (success) {
-        setState(() {}); // Refresh the UI to show the new post
+        await _fetchPosts();
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(_postController.error ?? 'Unknown error')),
@@ -76,14 +75,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
           Expanded(
-            child: ListView.builder(
-              itemCount: _posts.length,
-              itemBuilder: (context, index) {
-                final post = _posts[index];
-                final user = UserService.getUserById(post.authorId);
-                return PostCard(post: post, user: user!);
-              },
-            ),
+            child: PostList(initialPosts: _posts)
           )
         ]
       ),
