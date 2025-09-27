@@ -75,7 +75,10 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
           Expanded(
-            child: PostList(initialPosts: _posts)
+            child: PostList(
+              initialPosts: _posts,
+              onPostChanged: (_) => _fetchPosts(),
+            ),
           )
         ]
       ),

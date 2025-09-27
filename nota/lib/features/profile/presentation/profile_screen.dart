@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:nota/data/models/post.dart';
 import 'package:nota/data/models/user.dart';
+import 'package:nota/data/services/auth_service.dart';
+import 'package:nota/data/services/user_service.dart';
 import 'package:nota/features/profile/logic/profile_controller.dart';
 import 'package:nota/features/post/logic/post_controller.dart';
 import 'package:nota/widgets/main_scaffold.dart';
@@ -9,7 +11,8 @@ import 'package:nota/widgets/profile_btn.dart';
 import 'package:nota/widgets/profile_pic.dart';
 
 class ProfileScreen extends StatefulWidget {
-  const ProfileScreen({super.key});
+  final String? userId;
+  const ProfileScreen({super.key, this.userId});
 
   @override
   State<ProfileScreen> createState() => _ProfileScreenState();
@@ -31,7 +34,13 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final user = ModalRoute.of(context)!.settings.arguments as User;
+    String? userId = widget.userId;
+    User user;
+    if (userId == null) {
+      user = AuthService.currentUser!;
+    } else {
+      user = UserService.getUserById(userId) ?? AuthService.currentUser!;
+    }
     _profileController = ProfileController(user);
     _fetchUserPosts(user.id);
     _fetchPostsLikedByUser(user.id);

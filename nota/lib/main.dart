@@ -23,6 +23,16 @@ class MyApp extends StatelessWidget {
         '/login': (context) => LoginScreen(),
         '/profile': (context) => ProfileScreen(),
       },
+      onGenerateRoute: (settings) {
+        if (settings.name != null && settings.name!.startsWith('/profile/')) {
+          final userId = settings.name!.substring('/profile/'.length);
+          return MaterialPageRoute(
+            builder: (context) => ProfileScreen(userId: userId),
+            settings: settings,
+          );
+        }
+        return null;
+      },
     );
   }
 }
