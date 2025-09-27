@@ -11,8 +11,15 @@ import 'package:nota/widgets/profile_pic.dart';
 class PostCard extends StatefulWidget {
     final Post post;
     final User user;
+    final void Function(Post)? onPostChanged;
 
-    const PostCard({super.key, required this.post, required this.user});
+    const PostCard({
+      super.key, 
+      required this.post, 
+      required this.user,
+      this.onPostChanged,
+    });
+
     @override
     State<PostCard> createState() => _PostCardState();
 }
@@ -30,6 +37,7 @@ class _PostCardState extends State<PostCard> {
       setState(() {
           isLiking = false;
       });
+      widget.onPostChanged?.call(widget.post);
     }
 
     @override

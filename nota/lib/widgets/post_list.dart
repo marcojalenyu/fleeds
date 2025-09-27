@@ -6,11 +6,13 @@ import 'package:nota/data/services/user_service.dart';
 class PostList extends StatefulWidget {
   final List<Post> initialPosts;
   final Future<List<Post>> Function()? onLoadMore;
+  final void Function(Post)? onPostChanged; 
 
   const PostList({
     super.key,
     required this.initialPosts,
     this.onLoadMore,
+    this.onPostChanged,
   });
 
   @override
@@ -66,7 +68,11 @@ class _PostListState extends State<PostList> {
         if (index < posts.length) {
           final post = posts[index];
           final user = UserService.getUserById(post.authorId);
-          return PostCard(post: post, user: user!);
+          return PostCard(
+            post: post, 
+            user: user!,
+            onPostChanged: widget.onPostChanged, // Pass the callback
+          );
         } else {
           return const Padding(
             padding: EdgeInsets.all(16.0),
