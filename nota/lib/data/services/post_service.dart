@@ -4,13 +4,14 @@ import 'package:nota/data/services/user_service.dart';
 
 class PostService {
 
-  static Future<List<Post>> fetchLikedPostsByUser(String userId) async {
+  static Future<List<Post>> fetchPostsLikedByUser(String userId) async {
     // Simulate network delay
     await Future.delayed(const Duration(milliseconds: 300));
     final user = UserService.getUserById(userId);
     if (user == null) {
       return [];
     }
+    
     return mockPosts.where((post) => user.likedPosts.contains(post.id)).toList();
   }
 

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:nota/core/constants/theme.dart';
-import 'package:nota/data/services/auth_service.dart';
-import 'package:nota/features/auth/presentation/login_screen.dart';
+import 'package:nota/features/login/presentation/login_screen.dart';
 import 'package:nota/features/profile/presentation/profile_screen.dart';
 import 'features/home/presentation/home_screen.dart';
 
@@ -20,9 +19,9 @@ class MyApp extends StatelessWidget {
       theme: AppTheme.theme,
       initialRoute: '/',
       routes: {
-        '/': (context) => const HomeScreen(),
-        '/login': (context) => const LoginScreen(),
-        '/profile': (context) => const ProfileScreen(),
+        '/': (context) => HomeScreen(),
+        '/login': (context) => LoginScreen(),
+        '/profile': (context) => ProfileScreen(),
       },
     );
   }

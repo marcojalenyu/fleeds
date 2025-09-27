@@ -40,12 +40,12 @@ class PostController extends ChangeNotifier {
     }
   }
 
-  Future<List<Post>> fetchLikedPostsByUser(String userId) async {
+  Future<List<Post>> fetchPostsLikedByUser(String userId) async {
     isLoading = true;
     notifyListeners();
 
     try {
-      final posts = await PostService.fetchLikedPostsByUser(userId);
+      final posts = await PostService.fetchPostsLikedByUser(userId);
       isLoading = false;
       notifyListeners();
       return posts;

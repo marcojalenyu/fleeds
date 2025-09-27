@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:nota/core/utils/date_utils.dart';
+import 'package:nota/core/utils/navigation_utils.dart';
 import 'package:nota/data/models/post.dart';
 import 'package:nota/data/models/user.dart';
+import 'package:nota/data/services/auth_service.dart';
 import 'package:nota/data/services/post_service.dart';
+import 'package:nota/widgets/clickable.dart';
+import 'package:nota/widgets/profile_pic.dart';
 
 class PostCard extends StatefulWidget {
     final Post post;
@@ -17,24 +21,22 @@ class _PostCardState extends State<PostCard> {
 
     bool isLiking = false;
 
-    void _toggleLike() async {
-        setState(() {
-            isLiking = true;
-        });
-        await PostService.likePost(widget.post.id, widget.user.id);
-        setState(() {
-            isLiking = false;
-        });
-    }
-
-    void _goToProfile() {
-        Navigator.of(context).pushNamed('/profile', arguments: widget.user);
+    void _toggleLikeBy(User? user) async {
+      if (user == null) return;
+      setState(() {
+          isLiking = true;
+      });
+      await PostService.likePost(widget.post.id, user.id);
+      setState(() {
+          isLiking = false;
+      });
     }
 
     @override
     Widget build(BuildContext context) {
         final post = widget.post;
         final user = widget.user;
+        final currentUser = AuthService.currentUser;
         const textStyle = TextStyle(fontSize: 16);
         
         return Container(
@@ -54,25 +56,15 @@ class _PostCardState extends State<PostCard> {
             child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start, // Align avatar to top
                 children: [
-                    GestureDetector(
-                        onTap: _goToProfile,
-                        child: Padding(
-                          padding: const EdgeInsets.only(top: 4, right: 12),
-                          child: CircleAvatar(
-                            radius: 24,
-                            backgroundColor: Colors.grey,
-                            child: Icon(Icons.person, color: Colors.white),
-                          ),
-                        ),
-                    ),
+                    ClickableProfilePic(user: user, imageUrl: ''),
                     Expanded(
                         child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                             Row(
                                 children: [
-                                  GestureDetector(
-                                    onTap: _goToProfile,
+                                  Clickable(
+                                    onTap: () => goToProfile(context, user),
                                     child: Text(
                                       user.displayName,
                                       style: textStyle.copyWith(fontWeight: FontWeight.bold),
@@ -87,7 +79,7 @@ class _PostCardState extends State<PostCard> {
                             const SizedBox(height: 4),
                             Row(
                                 children: [
-                                    GestureDetector(
+                                    Clickable(
                                         onTap: () {
 
                                         },
@@ -96,16 +88,16 @@ class _PostCardState extends State<PostCard> {
                                     const SizedBox(width: 4),
                                     Text('${post.commentCount}', style: textStyle.copyWith(color: Colors.grey[600])),
                                     const SizedBox(width: 32),
-                                    GestureDetector(
+                                    Clickable(
                                         onTap: () {
                                             if (!isLiking) {
-                                                _toggleLike();
+                                                _toggleLikeBy(currentUser);
                                             }
                                         },
                                         child: Icon(
-                                            post.likedBy(user.id) ? Icons.favorite : Icons.favorite_border,
+                                            post.likedBy(currentUser!.id) ? Icons.favorite : Icons.favorite_border,
                                             size: 20,
-                                            color: post.likedBy(user.id) ? Colors.red : Colors.grey[600],
+                                            color: post.likedBy(currentUser.id) ? Colors.red : Colors.grey[600],
                                         ),
                                     ),
                                     const SizedBox(width: 4),

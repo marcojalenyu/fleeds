@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:nota/data/models/post.dart';
 import 'package:nota/data/models/user.dart';
-import 'package:nota/data/services/auth_service.dart';
+import 'package:nota/features/profile/logic/profile_controller.dart';
 import 'package:nota/features/post/logic/post_controller.dart';
 import 'package:nota/widgets/main_scaffold.dart';
 import 'package:nota/widgets/post_list.dart';
+import 'package:nota/widgets/profile_btn.dart';
+import 'package:nota/widgets/profile_pic.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -15,28 +17,26 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  bool isFollowing = false;
-  bool isOwnProfile = false;
+  late ProfileController _profileController;
 
   final _postController = PostController();
   List<Post> _posts = [];
   List<Post> _likedPosts = [];
-  late User user;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
-    // user will be assigned in didChangeDependencies
+    // _profileController will be assigned in didChangeDependencies
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    user = ModalRoute.of(context)!.settings.arguments as User;
-    isOwnProfile = AuthService.currentUser?.id == user.id;
+    final user = ModalRoute.of(context)!.settings.arguments as User;
+    _profileController = ProfileController(user);
     _fetchUserPosts(user.id);
-    _fetchLikedPostsByUser(user.id);
+    _fetchPostsLikedByUser(user.id);
   }
 
   void _fetchUserPosts(String userId) async {
@@ -46,10 +46,10 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
     });
   }
 
-  void _fetchLikedPostsByUser(String userId) async {
-    final posts = await _postController.fetchLikedPostsByUser(userId);
+  void _fetchPostsLikedByUser(String userId) async {
+    final likedPosts = await _postController.fetchPostsLikedByUser(userId);
     setState(() {
-      _likedPosts = posts;
+      _likedPosts = likedPosts;
     });
   }
 
@@ -61,92 +61,105 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
 
   @override
   Widget build(BuildContext context) {
-    Widget profileBody = SingleChildScrollView(
-      child: Column(
-        children: [
-          Stack(
-            clipBehavior: Clip.none,
-            children: [
-              Container(
-                height: 120,
-                color: Colors.grey[300],
-                child: Center(child: Text('No Cover Photo')),
-              ),
-              Positioned(
-                left: 16,
-                bottom: -40,
-                child: CircleAvatar(
-                  radius: 40,
-                  backgroundColor: Colors.grey,
-                  child: Icon(Icons.person, color: Colors.white, size: 40),
-                ),
-              ),
-            ],
-          ),
-          SizedBox(height: 48),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(user.displayName, style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                SizedBox(height: 4),
-                Text('@${user.username}', style: TextStyle(color: Colors.grey[600])),
-                SizedBox(height: 8),
-                Text("Bio"),
-                SizedBox(height: 8),
-                Row(
-                  children: [
-                    Text('${1} Followers'),
-                    SizedBox(width: 16),
-                    Text('${0} Following'),
-                    Spacer(),
-                    if (!isOwnProfile)
-                      ElevatedButton(
-                        onPressed: () {
-                          setState(() {
-                            isFollowing = !isFollowing;
-                          });
-                        },
-                        child: Text(isFollowing ? 'Unfollow' : 'Follow'),
-                      ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          TabBar(
-            controller: _tabController,
-            tabs: [
-              Tab(text: 'Posts'),
-              Tab(text: 'Replies'),
-              Tab(text: 'Likes'),
-            ],
-          ),
-          SizedBox(
-            height: 600, // Set a fixed height for TabBarView to allow scrolling
-            child: TabBarView(
-              controller: _tabController,
-              children: [
-                PostList(initialPosts: _posts),
-                Center(child: Text('User Replies')),
-                PostList(initialPosts: _likedPosts),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-
     return MainScaffold(
       currentIndex: 1,
       body: Scaffold(
         appBar: AppBar(
-          title: Text('@${user.username}'),
+          title: AnimatedBuilder(
+            animation: _profileController,
+            builder: (context, _) => Text('@${_profileController.user.username}'),
+          ),
         ),
-        body: profileBody,
+        body: AnimatedBuilder(
+          animation: _profileController,
+          builder: (context, _) {
+            final user = _profileController.user;
+            return SingleChildScrollView(
+              child: Column(
+                children: [
+                  Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      Container(
+                        height: 120,
+                        color: Colors.grey[300],
+                      ),
+                      Positioned(
+                        left: 16,
+                        bottom: -40,
+                        child: ProfilePic(user: user, size: 40.0),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 16),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      _profileController.isOwnProfile
+                          ? ProfileBtn(
+                              label: 'Edit Profile',
+                              onPressed: () {
+                                // Navigate to edit profile screen (to be implemented)
+                              },
+                            )
+                          : ProfileBtn(
+                              label: _profileController.isFollowing ? 'Unfollow' : 'Follow',
+                              isFollowing: _profileController.isFollowing,
+                              showHoverUnfollow: true,
+                              onPressed: _profileController.followUser,
+                            ),
+                      SizedBox(width: 16),
+                    ],
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(user.displayName, style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                        Text('@${user.username}', style: TextStyle(color: Colors.grey[600])),
+                        user.bio.isNotEmpty
+                            ? Padding(
+                                padding: const EdgeInsets.only(top: 8.0),
+                                child: Text(user.bio),
+                              )
+                            : SizedBox.shrink(),
+                        SizedBox(height: 8),
+                        Row(
+                          children: [
+                            Text('${user.followers.length} Followers'),
+                            SizedBox(width: 16),
+                            Text('${user.following.length} Following'),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  TabBar(
+                    controller: _tabController,
+                    tabs: [
+                      Tab(text: 'Posts'),
+                      Tab(text: 'Replies'),
+                      Tab(text: 'Likes'),
+                    ],
+                  ),
+                  SizedBox(
+                    height: 600,
+                    child: TabBarView(
+                      controller: _tabController,
+                      children: [
+                        PostList(initialPosts: _posts),
+                        Center(child: Text('User Replies')),
+                        PostList(initialPosts: _likedPosts),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        ),
       ),
-      
     );
   }
 }
