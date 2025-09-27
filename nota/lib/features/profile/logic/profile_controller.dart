@@ -8,8 +8,12 @@ class ProfileController extends ChangeNotifier {
   bool isFollowing = false;
   bool isOwnProfile = false;
 
-  ProfileController(User profileUser) {
-    user = profileUser;
+  ProfileController(String profileUserId) {
+    if (profileUserId.isEmpty) {
+      user = AuthService.currentUser!;
+    } else {
+      user = UserService.getUserById(profileUserId)!;
+    }
     isOwnProfile = AuthService.currentUser?.id == user.id;
     isFollowing = AuthService.currentUser?.following.contains(user.id) ?? false;
   }

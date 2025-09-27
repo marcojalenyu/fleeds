@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:nota/core/utils/navigation_utils.dart';
 import 'package:nota/data/models/post.dart';
 import 'package:nota/data/models/user.dart';
-import 'package:nota/data/services/auth_service.dart';
-import 'package:nota/data/services/user_service.dart';
 import 'package:nota/features/profile/logic/profile_controller.dart';
 import 'package:nota/features/post/logic/post_controller.dart';
+import 'package:nota/widgets/clickable.dart';
 import 'package:nota/widgets/main_scaffold.dart';
 import 'package:nota/widgets/post_list.dart';
 import 'package:nota/widgets/profile_btn.dart';
@@ -34,16 +34,10 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    String? userId = widget.userId;
-    User user;
-    if (userId == null) {
-      user = AuthService.currentUser!;
-    } else {
-      user = UserService.getUserById(userId) ?? AuthService.currentUser!;
-    }
-    _profileController = ProfileController(user);
-    _fetchUserPosts(user.id);
-    _fetchPostsLikedByUser(user.id);
+    String userId = widget.userId ?? '';
+    _profileController = ProfileController(userId);
+    _fetchUserPosts(_profileController.user.id);
+    _fetchPostsLikedByUser(_profileController.user.id);
   }
 
   void _fetchUserPosts(String userId) async {
@@ -170,8 +164,10 @@ class _ProfileButtonRow extends StatelessWidget {
 }
 
 class _ProfileStats extends StatelessWidget {
+
   final User user;
   const _ProfileStats({required this.user});
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -190,9 +186,15 @@ class _ProfileStats extends StatelessWidget {
           SizedBox(height: 8),
           Row(
             children: [
-              Text('${user.followers.length} Followers'),
+              Clickable(
+                child: Text('${user.followers.length} Followers'),
+                onTap: () => goToUsersList(context, user.id, 'Followers'),
+              ),
               SizedBox(width: 16),
-              Text('${user.following.length} Following'),
+              Clickable(
+                child: Text('${user.following.length} Following'),
+                onTap: () => goToUsersList(context, user.id, 'Following'),
+              ),
             ],
           ),
         ],

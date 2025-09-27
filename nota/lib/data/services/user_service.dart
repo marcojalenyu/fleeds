@@ -41,4 +41,14 @@ class UserService {
       }
     }
   }
+
+  static Future<List<User>> getFollowers(String userId) async {
+    final user = getUserById(userId);
+    return user?.followers.map((followerId) => getUserById(followerId)).whereType<User>().toList() ?? [];
+  }
+
+  static Future<List<User>> getFollowing(String userId) async {
+    final user = getUserById(userId);
+    return user?.following.map((followingId) => getUserById(followingId)).whereType<User>().toList() ?? [];
+  }
 }
