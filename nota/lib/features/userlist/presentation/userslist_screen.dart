@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:nota/features/userlist/logic/userslist_controller.dart';
 import 'package:nota/widgets/main_scaffold.dart';
 import 'package:nota/widgets/profile_pic.dart';
+import 'package:nota/widgets/user_card.dart';
 
 class UsersListScreen extends StatefulWidget {
   final String userId;
@@ -45,19 +46,23 @@ class _UsersListScreenState extends State<UsersListScreen> {
       currentIndex: 0,
       body: Scaffold(
         appBar: AppBar(title: Text(widget.type)),
-        body: users.isEmpty
-            ? Center(child: Text('No users found'))
-            : ListView.builder(
-                itemCount: users.length,
-                itemBuilder: (context, index) {
-                  final user = users[index];
-                  return ListTile(
-                    leading: ProfilePic(user: user, size: 32),
-                    title: Text(user.displayName),
-                    subtitle: Text('@${user.username}'),
-                  );
-                },
-              ),
+        body: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          child: users.isEmpty
+              ? Center(child: Text('No users found'))
+              : ListView.builder(
+                  itemCount: users.length,
+                  itemBuilder: (context, index) {
+                    final user = users[index];
+                    return UserCard(
+                      user: user,
+                      onTap: () {
+                        // Navigate to user profile
+                      },
+                    );
+                  },
+                ),
+        ),
       ),
     );
   }

@@ -27,6 +27,9 @@ class MainScaffold extends StatelessWidget {
         Navigator.of(context).pushNamed('/profile', arguments: AuthService.currentUser);
         break;
       case 2:
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('This feature is not yet available.')),
+        );
         break;
       case 3:
         AuthService.logout();

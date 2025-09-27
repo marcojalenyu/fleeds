@@ -11,7 +11,6 @@ class UsersListController extends ChangeNotifier {
 
   UsersListController(String userid, String label) {
     _label = label;
-    print(1);
     if (label == 'Followers') {
       UserService.getFollowers(userid).then((fetchedUsers) {
         _users = fetchedUsers;
