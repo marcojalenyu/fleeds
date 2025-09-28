@@ -9,6 +9,7 @@ import 'package:nota/widgets/main_scaffold.dart';
 import 'package:nota/widgets/post_list.dart';
 import 'package:nota/widgets/profile_btn.dart';
 import 'package:nota/widgets/profile_pic.dart';
+import 'package:nota/features/profile/presentation/profile_edit_dialog.dart'; // Import where showProfileEditDialog is defined
 
 class ProfileScreen extends StatefulWidget {
   final String? userId;
@@ -141,6 +142,17 @@ class _ProfileHeader extends StatelessWidget {
 class _ProfileButtonRow extends StatelessWidget {
   final ProfileController controller;
   const _ProfileButtonRow({required this.controller});
+
+  Future<void> showProfileEditDialog(BuildContext context, User user) async {
+    final result = await showDialog(
+      context: context,
+      builder: (context) => ProfileEditDialog(user: user),
+    );
+    if (result != null && result['bio'] != null) {
+      controller.updateProfile(result['displayName'], result['bio']);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Row(
@@ -149,7 +161,7 @@ class _ProfileButtonRow extends StatelessWidget {
         controller.isOwnProfile
             ? ProfileBtn(
                 label: 'Edit Profile',
-                onPressed: () {},
+                onPressed: () => showProfileEditDialog(context, controller.user),
               )
             : ProfileBtn(
                 label: controller.isFollowing ? 'Unfollow' : 'Follow',

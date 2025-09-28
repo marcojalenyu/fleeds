@@ -54,7 +54,7 @@ class _SignupFormState extends State<SignupForm> {
         TextField(
           controller: _displayNameController,
           decoration: const InputDecoration(labelText: 'Display Name'),
-          maxLength: 32,
+          maxLength: 16,
         ),
         TextField(
           controller: _usernameController,

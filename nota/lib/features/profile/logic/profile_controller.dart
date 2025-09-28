@@ -25,10 +25,17 @@ class ProfileController extends ChangeNotifier {
     notifyListeners();
   }
 
-  void updateBio(String newBio) {
+  void updateDisplayName(String newName) {
     if (AuthService.currentUser == null || !isOwnProfile) return;
+    UserService.updateDisplayName(user.id, newName);
+    user.updateDisplayName(newName);
+    notifyListeners();
+  }
+
+  void updateProfile(String newDisplayName, String newBio) {
+    if (AuthService.currentUser == null || !isOwnProfile) return;
+    UserService.updateDisplayName(user.id, newDisplayName);
     UserService.updateBio(user.id, newBio);
-    user.updateBio(newBio);
     notifyListeners();
   }
 }

@@ -10,6 +10,13 @@ class UserService {
     }
   }
 
+  static void updateDisplayName(String userId, String newName) {
+    final user = getUserById(userId);
+    if (user != null) {
+      user.updateDisplayName(newName);
+    }
+  }
+
   static void updateBio(String userId, String newBio) {
     final user = getUserById(userId);
     if (user != null) {

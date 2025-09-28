@@ -21,6 +21,11 @@ class User {
     this.updatedAt,
   }) : createdAt = createdAt ?? DateTime.now();
 
+  void updateDisplayName(String newName) {
+    displayName = newName;
+    updatedAt = DateTime.now();
+  }
+
   void updateBio(String newBio) {
     bio = newBio;
     updatedAt = DateTime.now();

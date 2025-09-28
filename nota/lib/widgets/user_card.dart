@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:nota/core/utils/navigation_utils.dart';
 import 'package:nota/data/models/user.dart';
 import 'package:nota/widgets/card.dart';
+import 'package:nota/widgets/clickable.dart';
 import 'package:nota/widgets/profile_pic.dart';
 
 class UserCard extends StatefulWidget {
@@ -22,21 +24,34 @@ class _UserCardState extends State<UserCard> {
   Widget build(BuildContext context) {
     return CustomCard(
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           ClickableProfilePic(imageUrl: '', user: widget.user),
-          const SizedBox(width: 8),
+          const SizedBox(width: 0),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(widget.user.displayName, style: TextStyle(fontWeight: FontWeight.bold)),
-                Text('@${widget.user.username}'),
+                Clickable(
+                  child: Text(widget.user.displayName, style: TextStyle(fontWeight: FontWeight.bold)),
+                  onTap: () => goToProfile(context, widget.user),
+                ),
+                Clickable(
+                  child: Text('@${widget.user.username}', style: TextStyle(color: Colors.grey[600])),
+                  onTap: () => goToProfile(context, widget.user),
+                ),
+                widget.user.bio.isNotEmpty
+                    ? Padding(
+                        padding: const EdgeInsets.only(top: 4.0),
+                        child: Text(
+                          widget.user.bio,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      )
+                    : SizedBox.shrink(),
               ],
             ),
-          ),
-          IconButton(
-            icon: Icon(Icons.more_vert),
-            onPressed: widget.onTap,
           ),
         ],
       ),
