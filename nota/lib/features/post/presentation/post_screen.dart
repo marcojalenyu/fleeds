@@ -104,7 +104,7 @@ class _PostScreenState extends State<PostScreen> {
     setState(() {
       _loadingReplies = true;
     });
-    replies = await _postController.fetchReplies(post.id) as List<Post>;
+    replies = await _postController.fetchReplies(post.id);
     setState(() {
       _loadingReplies = false;
     });

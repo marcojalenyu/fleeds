@@ -20,11 +20,17 @@ class MyApp extends StatelessWidget {
       theme: AppTheme.theme,
       initialRoute: '/',
       routes: {
-        '/': (context) => HomeScreen(),
         '/login': (context) => LoginScreen(),
         '/profile': (context) => ProfileScreen(),
       },
       onGenerateRoute: (settings) {
+        if (settings.name == '/') {
+          final keywords = settings.arguments as List<String>?;
+          return MaterialPageRoute(
+            builder: (context) => HomeScreen(keywords: keywords),
+            settings: settings,
+          );
+        }
         if (settings.name != null && settings.name!.startsWith('/profile/')) {
           final userId = settings.name!.substring('/profile/'.length);
           return MaterialPageRoute(

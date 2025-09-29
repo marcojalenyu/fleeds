@@ -21,12 +21,19 @@ class PostService {
     return mockPosts.where((post) => user.likedPosts.contains(post.id) && !post.deleted && !post.isAReply()).toList();
   }
 
-  static Future<List<Post>> fetchPosts() async {
+  static Future<List<Post>> fetchPosts({List<String> keywords = const []}) async {
     // Simulate network delay
     await Future.delayed(const Duration(milliseconds: 300));
     List<Post> posts = List.from(
       mockPosts.where((post) => !post.deleted && !post.isAReply())
     )..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+
+    if (keywords.isNotEmpty) {
+      posts = posts.where((post) {
+        return keywords.any((keyword) => post.content.contains(keyword));
+      }).toList();
+    }
+
     return posts;
   }
 

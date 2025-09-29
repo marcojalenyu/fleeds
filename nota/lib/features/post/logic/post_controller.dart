@@ -22,12 +22,12 @@ class PostController extends ChangeNotifier {
     }
   }
 
-  Future<List<Post>> fetchPosts() async {
+  Future<List<Post>> fetchPosts({List<String> keywords = const []}) async {
     isLoading = true;
     notifyListeners();
 
     try {
-      final posts = await PostService.fetchPosts();
+      final posts = await PostService.fetchPosts(keywords: keywords);
       isLoading = false;
       notifyListeners();
       return posts;

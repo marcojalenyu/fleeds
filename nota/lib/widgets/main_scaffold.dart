@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:nota/core/constants/constants.dart';
 import 'package:nota/data/services/auth_service.dart';
+import 'package:nota/features/search/presentation/search_panel.dart';
+import 'package:nota/features/search/presentation/search_screen.dart';
 import 'package:nota/widgets/bottom_bar.dart';
 import 'package:nota/widgets/logo.dart';
 
@@ -27,9 +29,16 @@ class MainScaffold extends StatelessWidget {
         Navigator.of(context).pushNamed('/profile', arguments: AuthService.currentUser);
         break;
       case 2:
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('This feature is not yet available.')),
-        );
+        if (MediaQuery.of(context).size.width < kDesktopBreakpoint) {
+          // Mobile: navigate to SearchScreen
+          Navigator.of(context).push(
+            MaterialPageRoute(builder: (_) => SearchScreen()),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('This feature is not yet available.')),
+          );
+        }
         break;
       case 3:
         AuthService.logout();
@@ -134,7 +143,7 @@ class MainScaffold extends StatelessWidget {
           // Search Panel: 30%
           Flexible(
             flex: 2, // 30%
-            child: searchPanel ?? Container(),
+            child: searchPanel ?? SearchPanel(onSearch: (query) {}, results: []),
           ),
         ],
       ),

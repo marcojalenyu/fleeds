@@ -7,7 +7,8 @@ import 'package:nota/widgets/main_scaffold.dart';
 import 'package:nota/widgets/post_list.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  final List<String>? keywords;
+  const HomeScreen({super.key, this.keywords});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -31,7 +32,9 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _fetchPosts() async {
-    final posts = await _postController.fetchPosts();
+    final posts = await _postController.fetchPosts(
+      keywords: widget.keywords ?? [],
+    );
     setState(() {
       _posts = posts;
     });
