@@ -5,6 +5,22 @@ import 'package:nota/data/services/post_service.dart';
 class PostController extends ChangeNotifier {
   bool isLoading = false;
   String? error;
+  late Post post;
+
+  Future<void> fetchPost(String postId) async {
+    isLoading = true;
+    notifyListeners();
+
+    try {
+      post = await PostService.fetchPost(postId);
+      isLoading = false;
+      notifyListeners();
+    } catch (e) {
+      error = 'Failed to fetch post: $e';
+      isLoading = false;
+      notifyListeners();
+    }
+  }
 
   Future<List<Post>> fetchPosts() async {
     isLoading = true;
@@ -73,6 +89,23 @@ class PostController extends ChangeNotifier {
       return true;
     } catch (e) {
       error = 'Failed to add post: $e';
+      isLoading = false;
+      notifyListeners();
+      return false;
+    }
+  }
+
+  Future<bool> likePost(String postId, String userId) async {
+    isLoading = true;
+    notifyListeners();
+
+    try {
+      await PostService.likePost(postId, userId);
+      isLoading = false;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      error = 'Failed to like post: $e';
       isLoading = false;
       notifyListeners();
       return false;

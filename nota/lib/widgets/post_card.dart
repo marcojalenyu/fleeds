@@ -43,12 +43,15 @@ class _PostCardState extends State<PostCard> {
 
     @override
     Widget build(BuildContext context) {
-        final post = widget.post;
-        final user = widget.user;
-        final currentUser = AuthService.currentUser;
-        const textStyle = TextStyle(fontSize: 16);
+      final post = widget.post;
+      final user = widget.user;
+      final currentUser = AuthService.currentUser;
+      const textStyle = TextStyle(fontSize: 16);
 
-        return CustomCard(
+      return Clickable( 
+        onTap: () => goToPost(context, post: post, user: user),
+        hoverOpacity: false,
+        child: CustomCard(
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -66,6 +69,8 @@ class _PostCardState extends State<PostCard> {
                               style: textStyle.copyWith(fontWeight: FontWeight.bold),
                             ),
                           ),
+                          const SizedBox(width: 6),
+                          Text('@${user.username}', style: textStyle.copyWith(color: Colors.grey[600])),
                             const SizedBox(width: 6),
                             Text('· ${DisplayDateUtils.displayTimeAgo(post.createdAt)}', style: textStyle.copyWith(color: Colors.grey[600])),
                         ],
@@ -105,6 +110,7 @@ class _PostCardState extends State<PostCard> {
               ),
             ],
           ),
-        );
+        ),
+      );
     }
 }

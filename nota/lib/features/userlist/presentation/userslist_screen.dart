@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:nota/features/userlist/logic/userslist_controller.dart';
 import 'package:nota/widgets/main_scaffold.dart';
-import 'package:nota/widgets/profile_pic.dart';
 import 'package:nota/widgets/user_card.dart';
 
 class UsersListScreen extends StatefulWidget {

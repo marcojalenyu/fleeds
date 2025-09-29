@@ -1,9 +1,18 @@
 class DisplayDateUtils {
   // Utility methods for date formatting can be added here
-  
-  // 01/01/2024 · 14:05
+
+  // 2:05 PM · January 1, 2024
   static String displayDate(DateTime date) {
-    return "${date.day}/${date.month}/${date.year} · ${date.hour}:${date.minute.toString().padLeft(2, '0')}";
+    int hour = date.hour % 12 == 0 ? 12 : date.hour % 12;
+    String minute = date.minute.toString().padLeft(2, '0');
+    String period = date.hour < 12 ? 'AM' : 'PM';
+    List<String> months = [
+      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+    ];
+    String monthWord = months[date.month - 1];
+    String dateStr = "$monthWord ${date.day}, ${date.year}";
+    return "$hour:$minute $period · $dateStr";
   }
 
   // now, 30m, 2h, 5d, 3w, 4m, 1y

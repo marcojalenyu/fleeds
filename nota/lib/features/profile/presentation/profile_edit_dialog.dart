@@ -47,6 +47,7 @@ class _ProfileEditDialogState extends State<ProfileEditDialog> {
           color: Colors.white,
           boxShadow: [
             BoxShadow(
+              // ignore: deprecated_member_use
               color: Colors.grey.withOpacity(0.2),
               spreadRadius: 2,
               blurRadius: 5,

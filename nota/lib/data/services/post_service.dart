@@ -4,6 +4,12 @@ import 'package:nota/data/services/user_service.dart';
 
 class PostService {
 
+  static Future<Post> fetchPost(String postId) async {
+    // Simulate network delay
+    await Future.delayed(const Duration(milliseconds: 300));
+    return mockPosts.firstWhere((post) => post.id == postId);
+  }
+
   static Future<List<Post>> fetchPostsLikedByUser(String userId) async {
     // Simulate network delay
     await Future.delayed(const Duration(milliseconds: 300));

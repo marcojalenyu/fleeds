@@ -4,11 +4,13 @@ import 'package:flutter/services.dart';
 class Clickable extends StatefulWidget {
   final VoidCallback? onTap;
   final Widget child;
+  final bool hoverOpacity;
 
   const Clickable({
     super.key,
     required this.child,
     this.onTap,
+    this.hoverOpacity = true,
   });
 
   @override
@@ -20,7 +22,7 @@ class _ClickableState extends State<Clickable> {
 
   void _onEnter(PointerEnterEvent event) {
     setState(() {
-      _opacity = 0.5;
+      _opacity = widget.hoverOpacity ? 0.5 : 1.0;
     });
   }
 

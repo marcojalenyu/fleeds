@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:nota/core/constants/theme.dart';
 import 'package:nota/features/login/presentation/login_screen.dart';
+import 'package:nota/features/post/presentation/post_screen.dart';
 import 'package:nota/features/profile/presentation/profile_screen.dart';
 import 'features/home/presentation/home_screen.dart';
 
@@ -30,6 +31,26 @@ class MyApp extends StatelessWidget {
             builder: (context) => ProfileScreen(userId: userId),
             settings: settings,
           );
+        }
+        if (settings.name != null && settings.name!.startsWith('/post/')) {
+          final postId = settings.name!.substring('/post/'.length);
+          final args = settings.arguments as Map<String, dynamic>?;
+
+          if (args != null && args['post'] != null && args['user'] != null) {
+            return MaterialPageRoute(
+              builder: (context) => PostScreen(
+                postId: postId,
+                post: args['post'],
+                user: args['user'],
+              ),
+              settings: settings,
+            );
+          } else {
+            return MaterialPageRoute(
+              builder: (context) => PostScreen(postId: postId),
+              settings: settings,
+            );
+          }
         }
         return null;
       },

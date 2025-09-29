@@ -53,6 +53,7 @@ class _HomeScreenState extends State<HomeScreen> {
       if (success) {
         await _fetchPosts();
       } else {
+        // ignore: use_build_context_synchronously
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(_postController.error ?? 'Unknown error')),
         );
