@@ -1,6 +1,7 @@
 class Post {
   final String _id;
   final String _authorId;
+  final String _repliedToPostId;
   
   final String _content;
   String? _imageUrl;
@@ -13,6 +14,7 @@ class Post {
   String get id => _id;
   String get content => _content;
   String get authorId => _authorId;
+  String get repliedToPostId => _repliedToPostId;
   DateTime get createdAt => _createdAt ?? DateTime.now();
   int get likeCount => _likes.length;
   int get commentCount => _comments.length;
@@ -20,6 +22,7 @@ class Post {
   Post({
     required String id,
     required String authorId,
+    String repliedToPostId = '',
     String content = '',
     DateTime? createdAt,
     DateTime? updatedAt,
@@ -28,6 +31,7 @@ class Post {
   })  : 
     _id = id,
     _authorId = authorId,
+    _repliedToPostId = repliedToPostId,
     _content = content,
     _createdAt = createdAt,
     _updatedAt = updatedAt,
@@ -46,5 +50,14 @@ class Post {
       _likes.add(userId);
       return true;
     }
+  }
+
+  bool isAReply({String originalPostId = ''}) {
+    return _repliedToPostId.isNotEmpty && (_repliedToPostId == originalPostId || originalPostId.isEmpty);
+  }
+
+  void addReply(String replyId) {
+    _comments.add(replyId);
+    _comments.sort((a, b) => a.compareTo(b));
   }
 }

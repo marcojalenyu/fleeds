@@ -111,4 +111,43 @@ class PostController extends ChangeNotifier {
       return false;
     }
   }
+
+  Future<List<Post>> fetchReplies(String postId) async {
+    isLoading = true;
+    notifyListeners();
+
+    try {
+      final replies = await PostService.fetchReplies(postId);
+      isLoading = false;
+      notifyListeners();
+      return replies;
+    } catch (e) {
+      error = 'Failed to fetch replies: $e';
+      isLoading = false;
+      notifyListeners();
+      return [];
+    }
+  }
+
+  Future<bool> replyToPost(String postId, String userId, String content) async {
+    if (content.isEmpty) {
+      error = 'Content cannot be empty.';
+      notifyListeners();
+      return false;
+    }
+    isLoading = true;
+    notifyListeners();
+
+    try {
+      await PostService.addReply(userId, content, postId);
+      isLoading = false;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      error = 'Failed to reply to post: $e';
+      isLoading = false;
+      notifyListeners();
+      return false;
+    }
+  }
 }

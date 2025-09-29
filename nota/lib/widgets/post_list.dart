@@ -7,12 +7,16 @@ class PostList extends StatefulWidget {
   final List<Post> initialPosts;
   final Future<List<Post>> Function()? onLoadMore;
   final void Function(Post)? onPostChanged; 
+  final bool shrinkWrap;
+  final ScrollPhysics? physics;
 
   const PostList({
     super.key,
     required this.initialPosts,
     this.onLoadMore,
     this.onPostChanged,
+    this.shrinkWrap = false,
+    this.physics,
   });
 
   @override
@@ -21,14 +25,16 @@ class PostList extends StatefulWidget {
 
 class _PostListState extends State<PostList> {
   late List<Post> posts;
-  final ScrollController _controller = ScrollController();
+  ScrollController? _controller;
   bool _isLoading = false;
 
   @override
   void initState() {
     super.initState();
     posts = List.from(widget.initialPosts);
-    _controller.addListener(_onScroll);
+    if (widget.onLoadMore != null && !widget.shrinkWrap) {
+      _controller = ScrollController()..addListener(_onScroll);
+    }
   }
 
   @override
@@ -43,12 +49,13 @@ class _PostListState extends State<PostList> {
 
   @override
   void dispose() {
-    _controller.dispose();
+    _controller?.dispose();
     super.dispose();
   }
 
   void _onScroll() async {
-    if (_controller.position.pixels >= _controller.position.maxScrollExtent - 200 && !_isLoading && widget.onLoadMore != null) {
+    if (_controller == null) return;
+    if (_controller!.position.pixels >= _controller!.position.maxScrollExtent - 200 && !_isLoading && widget.onLoadMore != null) {
       setState(() => _isLoading = true);
       final newPosts = await widget.onLoadMore!();
       setState(() {
@@ -63,6 +70,8 @@ class _PostListState extends State<PostList> {
     return ListView.builder(
       padding: const EdgeInsets.symmetric(vertical: 16.0),
       controller: _controller,
+      shrinkWrap: widget.shrinkWrap,
+      physics: widget.physics ?? (widget.shrinkWrap ? const NeverScrollableScrollPhysics() : null),
       itemCount: posts.length + (_isLoading ? 1 : 0),
       itemBuilder: (context, index) {
         if (index < posts.length) {
@@ -71,7 +80,7 @@ class _PostListState extends State<PostList> {
           return PostCard(
             post: post, 
             user: user!,
-            onPostChanged: widget.onPostChanged, // Pass the callback
+            onPostChanged: widget.onPostChanged,
           );
         } else {
           return const Padding(
