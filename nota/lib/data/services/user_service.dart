@@ -82,10 +82,46 @@ class UserService {
     }
   }
 
-  static Future<bool> followUser(String userId, List<String> following) async {
-    final docRef = FirebaseFirestore.instance.collection('users').doc(userId);
+  static Future<bool> follow(String currentUserId, String targetUserId) async {
+    final currentUserRef = FirebaseFirestore.instance.collection('users').doc(currentUserId);
+    final targetUserRef = FirebaseFirestore.instance.collection('users').doc(targetUserId);
+
     try {
-      await docRef.update({'following': following, 'updatedAt': FieldValue.serverTimestamp()});
+      // Update current user's following
+      await currentUserRef.update({
+        'following': FieldValue.arrayUnion([targetUserId]),
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
+
+      // Update target user's followers
+      await targetUserRef.update({
+        'followers': FieldValue.arrayUnion([currentUserId]),
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
+
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  static Future<bool> unfollow(String currentUserId, String targetUserId) async {
+    final currentUserRef = FirebaseFirestore.instance.collection('users').doc(currentUserId);
+    final targetUserRef = FirebaseFirestore.instance.collection('users').doc(targetUserId);
+
+    try {
+      // Remove from current user's following
+      await currentUserRef.update({
+        'following': FieldValue.arrayRemove([targetUserId]),
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
+
+      // Remove from target user's followers
+      await targetUserRef.update({
+        'followers': FieldValue.arrayRemove([currentUserId]),
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
+
       return true;
     } catch (e) {
       return false;

@@ -190,7 +190,7 @@ class _ProfileButtonRow extends StatelessWidget {
                 label: controller.isFollowing ? 'Unfollow' : 'Follow',
                 isFollowing: controller.isFollowing,
                 showHoverUnfollow: true,
-                onPressed: () => controller.followUser(controller.user.id),
+                onPressed: () => controller.toggleFollowUser(controller.user.id),
               ),
         SizedBox(width: 16),
       ],

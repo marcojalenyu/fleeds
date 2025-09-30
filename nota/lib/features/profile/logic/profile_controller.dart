@@ -22,15 +22,38 @@ class ProfileController extends ChangeNotifier {
     return controller;
   }
 
-  Future<void> followUser(String userId) async {
+  Future<void> toggleFollowUser(String userId) async {
     final currentUser = AuthService.currentUser;
     if (currentUser == null || isOwnProfile) return;
-    
-    user = currentUser.follow(userId);
-    AuthService.setCurrentUser(user);
 
-    await UserService.followUser(user.id, user.following);
-    isFollowing = user.following.contains(userId);
+    bool alreadyFollowing = currentUser.following.contains(userId);
+
+    User updatedUser;
+    if (alreadyFollowing) {
+      // Unfollow logic
+      updatedUser = currentUser.unfollow(userId);
+      AuthService.setCurrentUser(updatedUser);
+      await UserService.unfollow(updatedUser.id, userId);
+
+      // Update viewed user's followers list locally
+      user = user.copyWith(
+        followers: user.followers.where((id) => id != currentUser.id).toList(),
+        updatedAt: DateTime.now(),
+      );
+    } else {
+      // Follow logic
+      updatedUser = currentUser.follow(userId);
+      AuthService.setCurrentUser(updatedUser);
+      await UserService.follow(updatedUser.id, userId);
+
+      // Update viewed user's followers list locally
+      user = user.copyWith(
+        followers: [...user.followers, currentUser.id],
+        updatedAt: DateTime.now(),
+      );
+    }
+
+    isFollowing = updatedUser.following.contains(userId);
     notifyListeners();
   }
 
