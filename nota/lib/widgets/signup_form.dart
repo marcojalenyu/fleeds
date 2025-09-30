@@ -18,24 +18,34 @@ class _SignupFormState extends State<SignupForm> {
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
   final _displayNameController = TextEditingController();
+  final _emailController = TextEditingController();
   String? _error;
 
-  void _signup() {
+  void _signup() async {
     final username = _usernameController.text;
     final password = _passwordController.text;
     final displayName = _displayNameController.text;
+    final email = _emailController.text;
     if (!_isFormValid) {
       setState(() {
         _error = 'Please fill in all fields.';
       });
       return;
     }
-    final success = AuthService.signup(username, password, displayName);
+    setState(() {
+      _error = null;
+    });
+    final success = await AuthService.signup(
+      displayName,
+      username,
+      email,
+      password,
+    );
     if (success) {
       widget.onSignupSuccess();
     } else {
       setState(() {
-        _error = 'Username already exists.';
+        _error = 'Signup failed: Username or email already exists.';
       });
     }
   }
@@ -43,7 +53,8 @@ class _SignupFormState extends State<SignupForm> {
   bool get _isFormValid {
     return _usernameController.text.isNotEmpty &&
         _passwordController.text.isNotEmpty &&
-        _displayNameController.text.isNotEmpty;
+        _displayNameController.text.isNotEmpty &&
+        _emailController.text.isNotEmpty;
   }
 
   @override
@@ -60,6 +71,11 @@ class _SignupFormState extends State<SignupForm> {
           controller: _usernameController,
           decoration: const InputDecoration(labelText: 'Unique Username'),
           maxLength: 16,
+        ),
+        TextField(
+          controller: _emailController,
+          decoration: const InputDecoration(labelText: 'Email'),
+          maxLength: 64,
         ),
         TextField(
           controller: _passwordController,

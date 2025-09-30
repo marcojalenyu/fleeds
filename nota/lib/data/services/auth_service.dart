@@ -1,37 +1,111 @@
-import 'package:nota/data/mock/mock_users.dart';
+import 'package:firebase_auth/firebase_auth.dart' as fb;
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:nota/data/models/user.dart';
 
 class AuthService {
-
   static User? _currentUser;
   static User? get currentUser => _currentUser;
 
-  static bool login(String username, String password) {
+  static Future<void> initializeCurrentUser() async {
+    final fbUser = fb.FirebaseAuth.instance.currentUser;
+    if (fbUser != null) {
+      // Fetch user data from Firestore if needed
+      final doc = await FirebaseFirestore.instance.collection('users').doc(fbUser.uid).get();
+      if (doc.exists) {
+        _currentUser = User.fromFirestore(fbUser.uid, doc.data()!, email: fbUser.email ?? '');
+      }
+    }
+  }
+
+  static Future<bool> login(String username, String password) async {
     try {
-      final user = mockUsers.firstWhere((user) => user.username == username && user.password == password);
-      _currentUser = user;
-      return true;
+      final query = await FirebaseFirestore.instance
+          .collection('users')
+          .where('username', isEqualTo: username)
+          .limit(1)
+          .get();
+      
+      if (query.docs.isEmpty) return false;
+
+      final userData = query.docs.first.data();
+      final email = userData['email'] as String?;
+
+      if (email == null) return false;
+
+      final credential = await fb.FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+
+      _currentUser = User.fromFirestore(
+        credential.user!.uid, 
+        userData, 
+        email: email
+      );
+
     } catch (e) {
+      return false;
+    }
+
+    return true;
+  }
+
+  static Future<bool> signup(
+    String displayName,
+    String username,
+    String email,
+    String password,
+  ) async {
+    try {
+      // Check if username already exists
+      final usernameQuery = await FirebaseFirestore.instance
+          .collection('users')
+          .where('username', isEqualTo: username)
+          .limit(1)
+          .get();
+
+      if (usernameQuery.docs.isNotEmpty) return false;
+
+      // Create user in Firebase Auth
+      final credential = await fb.FirebaseAuth.instance.createUserWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+      await credential.user?.updateDisplayName(displayName);
+
+      // Create user document in Firestore
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(credential.user!.uid)
+          .set({
+        'username': username,
+        'displayName': displayName,
+        'email': email,
+        'bio': '',
+        'followers': [],
+        'following': [],
+        'likedPosts': [],
+        'createdAt': FieldValue.serverTimestamp(),
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
+
+      _currentUser = User(
+        id: credential.user!.uid,
+        username: username,
+        displayName: displayName,
+        createdAt: DateTime.now(),
+      );
+
+      return true;
+
+    } catch (e) {
+      print(e);
       return false;
     }
   }
 
-  static bool signup(String username, String password, String displayName) {
-    if (mockUsers.any((user) => user.username == username)) {
-      return false; // Username already exists
-    }
-    final newUser = User(
-      id: 'user${mockUsers.length + 1}',
-      username: username,
-      password: password,
-      displayName: displayName,
-    );
-    mockUsers.add(newUser);
-    _currentUser = newUser;
-    return true;
-  }
-
-  static void logout() {
+  static Future<void> logout() async {
+    await fb.FirebaseAuth.instance.signOut();
     _currentUser = null;
   }
 }

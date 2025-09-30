@@ -1,11 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
+
 import 'package:nota/core/constants/theme.dart';
+import 'package:nota/data/services/auth_service.dart';
 import 'package:nota/features/login/presentation/login_screen.dart';
 import 'package:nota/features/post/presentation/post_screen.dart';
 import 'package:nota/features/profile/presentation/profile_screen.dart';
+import 'package:nota/firebase_options.dart';
 import 'features/home/presentation/home_screen.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform
+  );
+  await AuthService.initializeCurrentUser();
   runApp(const MyApp());
 }
 

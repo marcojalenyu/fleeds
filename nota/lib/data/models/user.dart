@@ -1,22 +1,41 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class User {
+
   final String id;
   String username;
-  String password;
   String displayName;
-
-  final DateTime createdAt;
-  DateTime? updatedAt;
-
   String bio = '';
+ 
   List<String> followers = []; // List of user IDs who follow this user
   List<String> following = []; // List of user IDs this user follows
   List<String> likedPosts = []; // List of post IDs the user has liked
 
+  final DateTime createdAt;
+  DateTime? updatedAt;
+
+  factory User.fromFirestore(String id, Map<String, dynamic> data, {String? email}) {
+    return User(
+      id: id,
+      username: data['username'] ?? '',
+      displayName: data['displayName'] ?? '',
+      bio: data['bio'] ?? '',
+      followers: List<String>.from(data['followers'] ?? []),
+      following: List<String>.from(data['following'] ?? []),
+      likedPosts: List<String>.from(data['likedPosts'] ?? []),
+      createdAt: (data['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
+      updatedAt: (data['updatedAt'] as Timestamp?)?.toDate(),
+    );
+  }
+
   User({
     required this.id,
     this.username = '',
-    this.password = '',
     this.displayName = '',
+    this.bio = '',
+    this.followers = const [],
+    this.following = const [],
+    this.likedPosts = const [],
     DateTime? createdAt,
     this.updatedAt,
   }) : createdAt = createdAt ?? DateTime.now();

@@ -14,11 +14,21 @@ class _LoginFormState extends State<LoginForm> {
   final _passwordController = TextEditingController();
   String? _error;
 
-  void _login() {
-    final username = _usernameController.text;
+  void _login() async {
+    final username = _usernameController.text.trim();
     final password = _passwordController.text;
-    final success = AuthService.login(username, password);
+    if (username.isEmpty || password.isEmpty) {
+      setState(() {
+        _error = 'Please enter both username and password.';
+      });
+      return;
+    }
+    setState(() {
+      _error = null;
+    });
+    final success = await AuthService.login(username, password);
     if (success) {
+      // ignore: use_build_context_synchronously
       Navigator.pushReplacementNamed(context, '/');
     } else {
       setState(() {
