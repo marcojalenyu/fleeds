@@ -8,34 +8,41 @@ class ProfileController extends ChangeNotifier {
   bool isFollowing = false;
   bool isOwnProfile = false;
 
-  ProfileController(String profileUserId) {
+  ProfileController._();
+
+  static Future<ProfileController> create(String profileUserId) async {
+    final controller = ProfileController._();
     if (profileUserId.isEmpty) {
-      user = AuthService.currentUser!;
+      controller.user = AuthService.currentUser!;
     } else {
-      user = UserService.getUserById(profileUserId)!;
+      controller.user = (await UserService.getUserById(profileUserId))!;
     }
-    isOwnProfile = AuthService.currentUser?.id == user.id;
-    isFollowing = AuthService.currentUser?.following.contains(user.id) ?? false;
+    controller.isOwnProfile = AuthService.currentUser?.id == controller.user.id;
+    controller.isFollowing = AuthService.currentUser?.following.contains(controller.user.id) ?? false;
+    return controller;
   }
 
-  void followUser() {
-    if (AuthService.currentUser == null) return;
-    UserService.followUser(AuthService.currentUser!.id, user.id, !isFollowing);
-    isFollowing = !isFollowing;
+  Future<void> followUser(String userId) async {
+    final currentUser = AuthService.currentUser;
+    if (currentUser == null || isOwnProfile) return;
+    
+    user = currentUser.follow(userId);
+    AuthService.setCurrentUser(user);
+
+    await UserService.followUser(user.id, user.following);
+    isFollowing = user.following.contains(userId);
     notifyListeners();
   }
 
-  void updateDisplayName(String newName) {
-    if (AuthService.currentUser == null || !isOwnProfile) return;
-    UserService.updateDisplayName(user.id, newName);
-    user.updateDisplayName(newName);
-    notifyListeners();
-  }
+  Future<void> updateProfile(String newDisplayName, String newBio) async {
+    final currentUser = AuthService.currentUser;
+    if (currentUser == null || !isOwnProfile) return;
 
-  void updateProfile(String newDisplayName, String newBio) {
-    if (AuthService.currentUser == null || !isOwnProfile) return;
-    UserService.updateDisplayName(user.id, newDisplayName);
-    UserService.updateBio(user.id, newBio);
+    user = user.updateDisplayName(newDisplayName).updateBio(newBio);
+    AuthService.setCurrentUser(user);
+
+    await UserService.updateDisplayName(user.id, newDisplayName);
+    await UserService.updateBio(user.id, newBio);
     notifyListeners();
   }
 }

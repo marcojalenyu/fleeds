@@ -50,8 +50,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
     if (result != null && currentUser != null) {
       final success = await _postController.addPost(
-        currentUser.id,
         result['content'] ?? '',
+        currentUser.id,
       );
       if (success) {
         await _fetchPosts();

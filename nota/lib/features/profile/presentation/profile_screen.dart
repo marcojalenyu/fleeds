@@ -21,29 +21,36 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  late ProfileController _profileController;
+  ProfileController? _profileController;
   final _postController = PostController();
   List<Post> _posts = [];
+  List<Post> _replies = [];
   List<Post> _likedPosts = [];
+  bool _loading = true;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
+    _initProfileController();
   }
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    String userId = widget.userId ?? '';
-    _profileController = ProfileController(userId);
-    _fetchUserPosts(_profileController.user.id);
-    _fetchPostsLikedByUser(_profileController.user.id);
+  Future<void> _initProfileController() async {
+    final userId = widget.userId ?? '';
+    _profileController = await ProfileController.create(userId);
+    _fetchUserPosts(_profileController!.user.id);
+    _fetchPostsLikedByUser(_profileController!.user.id);
+    setState(() => _loading = false);
   }
 
   void _fetchUserPosts(String userId) async {
-    final posts = await _postController.fetchPostsByUser(userId);
-    setState(() => _posts = posts);
+    final allPosts = await _postController.fetchPostsByUser(userId);
+    final posts = allPosts.where((post) => !post.isAReply()).toList();
+    final replies = allPosts.where((post) => post.isAReply()).toList();
+    setState(() {
+      _posts = posts;
+      _replies = replies;
+    });
   }
 
   void _fetchPostsLikedByUser(String userId) async {
@@ -59,25 +66,35 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
 
   @override
   Widget build(BuildContext context) {
+    if (_loading || _profileController == null) {
+      return MainScaffold(
+        currentIndex: 1,
+        body: Scaffold(
+          appBar: AppBar(),
+          body: Center(child: CircularProgressIndicator()),
+        ),
+      );
+    }
+
     return MainScaffold(
       currentIndex: 1,
       body: Scaffold(
         appBar: AppBar(
           title: AnimatedBuilder(
-            animation: _profileController,
-            builder: (context, _) => Text('@${_profileController.user.username}'),
+            animation: _profileController!,
+            builder: (context, _) => Text('@${_profileController!.user.username}'),
           ),
         ),
         body: AnimatedBuilder(
-          animation: _profileController,
+          animation: _profileController!,
           builder: (context, _) {
-            final user = _profileController.user;
+            final user = _profileController!.user;
             return SingleChildScrollView(
               child: Column(
                 children: [
                   _ProfileHeader(user: user),
                   SizedBox(height: 16),
-                  _ProfileButtonRow(controller: _profileController),
+                  _ProfileButtonRow(controller: _profileController!),
                   _ProfileStats(user: user),
                   TabBar(
                     controller: _tabController,
@@ -95,16 +112,22 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                         PostList(
                           initialPosts: _posts,
                           onPostChanged: (_) { 
-                            _fetchUserPosts(_profileController.user.id);
-                            _fetchPostsLikedByUser(_profileController.user.id);
+                            _fetchUserPosts(_profileController!.user.id);
+                            _fetchPostsLikedByUser(_profileController!.user.id);
                           },
                         ),
-                        Center(child: Text('User Replies')),
+                        PostList(
+                          initialPosts: _replies,
+                          onPostChanged: (_) {
+                            _fetchUserPosts(_profileController!.user.id);
+                            _fetchPostsLikedByUser(_profileController!.user.id);
+                          },
+                        ),
                         PostList(
                           initialPosts: _likedPosts,
                           onPostChanged: (_) {
-                            _fetchPostsLikedByUser(_profileController.user.id);
-                            _fetchUserPosts(_profileController.user.id);
+                            _fetchPostsLikedByUser(_profileController!.user.id);
+                            _fetchUserPosts(_profileController!.user.id);
                           },
                         ),
                       ],
@@ -167,7 +190,7 @@ class _ProfileButtonRow extends StatelessWidget {
                 label: controller.isFollowing ? 'Unfollow' : 'Follow',
                 isFollowing: controller.isFollowing,
                 showHoverUnfollow: true,
-                onPressed: controller.followUser,
+                onPressed: () => controller.followUser(controller.user.id),
               ),
         SizedBox(width: 16),
       ],

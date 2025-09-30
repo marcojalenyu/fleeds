@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:nota/data/models/post.dart';
 import 'package:nota/widgets/post_card.dart';
 import 'package:nota/data/services/user_service.dart';
+import 'package:nota/data/models/user.dart';
 
 class PostList extends StatefulWidget {
   final List<Post> initialPosts;
@@ -76,11 +77,27 @@ class _PostListState extends State<PostList> {
       itemBuilder: (context, index) {
         if (index < posts.length) {
           final post = posts[index];
-          final user = UserService.getUserById(post.authorId);
-          return PostCard(
-            post: post, 
-            user: user!,
-            onPostChanged: widget.onPostChanged,
+          return FutureBuilder<User?>(
+            future: UserService.getUserById(post.authorId),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Padding(
+                  padding: EdgeInsets.all(16.0),
+                  child: Center(child: CircularProgressIndicator()),
+                );
+              }
+              if (snapshot.data == null) {
+                return const Padding(
+                  padding: EdgeInsets.all(16.0),
+                  child: Center(child: Text('User not found')),
+                );
+              }
+              return PostCard(
+                post: post,
+                user: snapshot.data!,
+                onPostChanged: widget.onPostChanged,
+              );
+            },
           );
         } else {
           return const Padding(

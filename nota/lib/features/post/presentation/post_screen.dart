@@ -53,23 +53,29 @@ class _PostScreenState extends State<PostScreen> {
   }
 
   void _replyToPost() async {
-    if (_replyController.text.isNotEmpty) {
-      await _postController.replyToPost(post.id, currentUser!.id, _replyController.text);
+    if (_replyController.text.isNotEmpty && currentUser != null) {
+      final newReplyId = await _postController.replyToPost(post.id, currentUser!.id, _replyController.text);
+      if (newReplyId != '') {
+        setState(() {
+          post = post.addReply(newReplyId);
+        });
+        widget.onPostChanged?.call(post);
+        await _loadReplies();
+      }
       _replyController.clear();
       _toggleReplyFocus();
-      await _loadReplies();
     }
   }
 
   void _toggleLikeBy(User? user) async {
-    if (_postController.isLoading) return;
-    if (user == null) return;
+    if (_postController.isLoading || user == null) return;
     setState(() {
       isLiking = true;
     });
     final success = await _postController.likePost(post.id, user.id);
     if (success) {
       setState(() {
+        post = post.toggleLike(user.id);
         isLiking = false;
       });
       widget.onPostChanged?.call(post);
@@ -92,8 +98,15 @@ class _PostScreenState extends State<PostScreen> {
 
   Future<void> _loadPost() async {
     await _postController.fetchPost(widget.postId);
-    post = _postController.post;
-    user = UserService.getUserById(post.authorId)!;
+    post = _postController.post!;
+    final fetchedUser = await UserService.getUserById(post.authorId);
+    if (fetchedUser == null) {
+      setState(() {
+        _loading = false;
+      });
+      return;
+    }
+    user = fetchedUser;
     await _loadReplies();
     setState(() {
       _loading = false;

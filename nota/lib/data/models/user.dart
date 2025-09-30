@@ -1,18 +1,27 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class User {
-
   final String id;
-  String username;
-  String displayName;
-  String bio = '';
- 
-  List<String> followers = []; // List of user IDs who follow this user
-  List<String> following = []; // List of user IDs this user follows
-  List<String> likedPosts = []; // List of post IDs the user has liked
-
+  final String username;
+  final String displayName;
+  final String bio;
+  final List<String> followers;
+  final List<String> following;
+  final List<String> likedPosts;
   final DateTime createdAt;
-  DateTime? updatedAt;
+  final DateTime? updatedAt;
+
+  const User({
+    required this.id,
+    this.username = '',
+    this.displayName = '',
+    this.bio = '',
+    this.followers = const [],
+    this.following = const [],
+    this.likedPosts = const [],
+    required this.createdAt,
+    this.updatedAt,
+  });
 
   factory User.fromFirestore(String id, Map<String, dynamic> data, {String? email}) {
     return User(
@@ -28,58 +37,78 @@ class User {
     );
   }
 
-  User({
-    required this.id,
-    this.username = '',
-    this.displayName = '',
-    this.bio = '',
-    this.followers = const [],
-    this.following = const [],
-    this.likedPosts = const [],
-    DateTime? createdAt,
-    this.updatedAt,
-  }) : createdAt = createdAt ?? DateTime.now();
-
-  void updateDisplayName(String newName) {
-    displayName = newName;
-    updatedAt = DateTime.now();
+  User copyWith({
+    String? username,
+    String? displayName,
+    String? bio,
+    List<String>? followers,
+    List<String>? following,
+    List<String>? likedPosts,
+    DateTime? updatedAt,
+  }) {
+    return User(
+      id: id,
+      username: username ?? this.username,
+      displayName: displayName ?? this.displayName,
+      bio: bio ?? this.bio,
+      followers: followers ?? this.followers,
+      following: following ?? this.following,
+      likedPosts: likedPosts ?? this.likedPosts,
+      createdAt: createdAt,
+      updatedAt: updatedAt ?? DateTime.now(),
+    );
   }
 
-  void updateBio(String newBio) {
-    bio = newBio;
-    updatedAt = DateTime.now();
+  User follow(String userId) {
+    if (following.contains(userId)) return this;
+    return copyWith(
+      following: [...following, userId],
+      updatedAt: DateTime.now(),
+    );
   }
 
-  void likePost(String postId) {
-    if (!likedPosts.contains(postId)) {
-      likedPosts.add(postId);
-      updatedAt = DateTime.now();
-    }
+  User unfollow(String userId) {
+    return copyWith(
+      following: following.where((id) => id != userId).toList(),
+      updatedAt: DateTime.now(),
+    );
   }
 
-  void unlikePost(String postId) {
-    likedPosts.remove(postId);
-    updatedAt = DateTime.now();
+  User updateDisplayName(String newName) {
+    return copyWith(
+      displayName: newName,
+      updatedAt: DateTime.now(),
+    );
   }
 
-  void followUser(String userId) {
-    if (!following.contains(userId)) {
-      following.add(userId);
-      updatedAt = DateTime.now();
-    }
+  User updateBio(String newBio) {
+    return copyWith(
+      bio: newBio,
+      updatedAt: DateTime.now(),
+    );
   }
 
-  void unfollowUser(String userId) {
-    following.remove(userId);
-    updatedAt = DateTime.now();
+  User likePost(String postId) {
+    if (likedPosts.contains(postId)) return this;
+    return copyWith(
+      likedPosts: [...likedPosts, postId],
+      updatedAt: DateTime.now(),
+    );
   }
 
-  bool isFollowingUser(String userId) {
-    return following.contains(userId);
+  User unlikePost(String postId) {
+    return copyWith(
+      likedPosts: likedPosts.where((id) => id != postId).toList(),
+      updatedAt: DateTime.now(),
+    );
   }
 
-  void removeFollower(String userId) {
-    followers.remove(userId);
-    updatedAt = DateTime.now();
+  bool isFollowingUser(String userId) => following.contains(userId);
+
+  User removeFollower(String userId) {
+    return copyWith(
+      followers: followers.where((id) => id != userId).toList(),
+      updatedAt: DateTime.now(),
+    );
   }
 }

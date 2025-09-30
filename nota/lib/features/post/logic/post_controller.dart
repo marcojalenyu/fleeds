@@ -5,7 +5,7 @@ import 'package:nota/data/services/post_service.dart';
 class PostController extends ChangeNotifier {
   bool isLoading = false;
   String? error;
-  late Post post;
+  Post? post;
 
   Future<void> fetchPost(String postId) async {
     isLoading = true;
@@ -13,13 +13,11 @@ class PostController extends ChangeNotifier {
 
     try {
       post = await PostService.fetchPost(postId);
-      isLoading = false;
-      notifyListeners();
     } catch (e) {
       error = 'Failed to fetch post: $e';
-      isLoading = false;
-      notifyListeners();
     }
+    isLoading = false;
+    notifyListeners();
   }
 
   Future<List<Post>> fetchPosts({List<String> keywords = const []}) async {
@@ -73,7 +71,7 @@ class PostController extends ChangeNotifier {
     }
   }
 
-  Future<bool> addPost(String userId, String content) async {
+  Future<bool> addPost(String content, String authorId) async {
     if (content.isEmpty) {
       error = 'Content cannot be empty.';
       notifyListeners();
@@ -83,10 +81,11 @@ class PostController extends ChangeNotifier {
     notifyListeners();
 
     try {
-      await PostService.addPost(userId, content);
+      final result = await PostService.addPost(content, authorId);
+      if (result) post = post;
       isLoading = false;
       notifyListeners();
-      return true;
+      return result;
     } catch (e) {
       error = 'Failed to add post: $e';
       isLoading = false;
@@ -100,10 +99,13 @@ class PostController extends ChangeNotifier {
     notifyListeners();
 
     try {
-      await PostService.likePost(postId, userId);
+      final result = await PostService.toggleLike(postId, userId);
+      if (result && post != null) {
+        post = post!.toggleLike(userId);
+      }
       isLoading = false;
       notifyListeners();
-      return true;
+      return result;
     } catch (e) {
       error = 'Failed to like post: $e';
       isLoading = false;
@@ -129,25 +131,28 @@ class PostController extends ChangeNotifier {
     }
   }
 
-  Future<bool> replyToPost(String postId, String userId, String content) async {
+  Future<String> replyToPost(String parentPostId, String authorId, String content) async {
     if (content.isEmpty) {
       error = 'Content cannot be empty.';
       notifyListeners();
-      return false;
+      return '';
     }
     isLoading = true;
     notifyListeners();
 
     try {
-      await PostService.addReply(userId, content, postId);
+      final result = await PostService.addReply(parentPostId, authorId, content);
+      if (result != null && post != null) {
+        post = post!.addReply(result);
+      }
       isLoading = false;
       notifyListeners();
-      return true;
+      return result ?? '';
     } catch (e) {
       error = 'Failed to reply to post: $e';
       isLoading = false;
       notifyListeners();
-      return false;
+      return '';
     }
   }
 }

@@ -1,89 +1,208 @@
-import 'package:nota/data/mock/mock_posts.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:nota/data/models/post.dart';
-import 'package:nota/data/services/user_service.dart';
 
 class PostService {
-
-  static Future<Post> fetchPost(String postId) async {
-    // Simulate network delay
-    await Future.delayed(const Duration(milliseconds: 300));
-    return mockPosts.firstWhere((post) => post.id == postId && !post.deleted && !post.isAReply());
-  }
-
-  static Future<List<Post>> fetchPostsLikedByUser(String userId) async {
-    // Simulate network delay
-    await Future.delayed(const Duration(milliseconds: 300));
-    final user = UserService.getUserById(userId);
-    if (user == null) {
-      return [];
+  static Future<Post?> fetchPost(String postId) async {
+    try {
+      final doc = await FirebaseFirestore.instance.collection('posts').doc(postId).get();
+      if (!doc.exists) return null;
+      final data = doc.data()!;
+      return Post(
+        id: doc.id,
+        authorId: data['authorId'] ?? '',
+        repliedToPostId: data['repliedToPostId'] ?? '',
+        content: data['content'] ?? '',
+        createdAt: (data['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
+        updatedAt: (data['updatedAt'] as Timestamp?)?.toDate(),
+        likes: List<String>.from(data['likes'] ?? []),
+        comments: List<String>.from(data['comments'] ?? []),
+      );
+    } catch (e) {
+      return null;
     }
-
-    return mockPosts.where((post) => user.likedPosts.contains(post.id) && !post.deleted && !post.isAReply()).toList();
   }
 
   static Future<List<Post>> fetchPosts({List<String> keywords = const []}) async {
-    // Simulate network delay
-    await Future.delayed(const Duration(milliseconds: 300));
-    List<Post> posts = List.from(
-      mockPosts.where((post) => !post.deleted && !post.isAReply())
-    )..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+    try {
+      final query = await FirebaseFirestore.instance
+        .collection('posts')
+        .where('deleted', isEqualTo: false)
+        .where('repliedToPostId', isEqualTo: '') // Only top-level posts
+        .get();
+      List<Post> posts = query.docs.map((doc) {
+        final data = doc.data();
+        return Post(
+          id: doc.id,
+          authorId: data['authorId'] ?? '',
+          repliedToPostId: data['repliedToPostId'] ?? '',
+          content: data['content'] ?? '',
+          createdAt: (data['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
+          updatedAt: (data['updatedAt'] as Timestamp?)?.toDate(),
+          likes: List<String>.from(data['likes'] ?? []),
+          comments: List<String>.from(data['comments'] ?? []),
+        );
+      }).where((post) => !post.deleted && !post.isAReply()).toList();
 
-    if (keywords.isNotEmpty) {
-      posts = posts.where((post) {
-        return keywords.any((keyword) => post.content.contains(keyword));
-      }).toList();
+      posts.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+
+      if (keywords.isNotEmpty) {
+        posts = posts.where((post) {
+          return keywords.any((keyword) => post.content.contains(keyword));
+        }).toList();
+      }
+
+      return posts;
+    } catch (e) {
+      return [];
     }
+  }
 
-    return posts;
+  static Future<List<Post>> fetchPostsLikedByUser(String userId) async {
+    try {
+      final query = await FirebaseFirestore.instance
+          .collection('posts')
+          .where('likes', arrayContains: userId)
+          .where('deleted', isEqualTo: false)
+          .get();
+
+      return query.docs.map((doc) {
+        final data = doc.data();
+        return Post(
+          id: doc.id,
+          authorId: data['authorId'] ?? '',
+          repliedToPostId: data['repliedToPostId'] ?? '',
+          content: data['content'] ?? '',
+          createdAt: (data['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
+          updatedAt: (data['updatedAt'] as Timestamp?)?.toDate(),
+          likes: List<String>.from(data['likes'] ?? []),
+          comments: List<String>.from(data['comments'] ?? []),
+        );
+      }).where((post) => !post.deleted && !post.isAReply()).toList();
+    } catch (e) {
+      return [];
+    }
   }
 
   static Future<List<Post>> fetchReplies(String postId) async {
-    // Simulate network delay
-    await Future.delayed(const Duration(milliseconds: 300));
-    return mockPosts.where((post) => post.isAReply(originalPostId: postId) && !post.deleted).toList();
+    try {
+      final query = await FirebaseFirestore.instance
+          .collection('posts')
+          .where('repliedToPostId', isEqualTo: postId)
+          .where('deleted', isEqualTo: false)
+          .get();
+
+      return query.docs.map((doc) {
+        final data = doc.data();
+        return Post(
+          id: doc.id,
+          authorId: data['authorId'] ?? '',
+          repliedToPostId: data['repliedToPostId'] ?? '',
+          content: data['content'] ?? '',
+          createdAt: (data['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
+          updatedAt: (data['updatedAt'] as Timestamp?)?.toDate(),
+          likes: List<String>.from(data['likes'] ?? []),
+          comments: List<String>.from(data['comments'] ?? []),
+        );
+      }).where((post) => !post.deleted).toList();
+    } catch (e) {
+      return [];
+    }
   }
 
   static Future<List<Post>> fetchPostsByUser(String userId) async {
-    // Simulate network delay
-    await Future.delayed(const Duration(milliseconds: 300));
-    return mockPosts.where((post) => post.authorId == userId).toList();
+    try {
+      final query = await FirebaseFirestore.instance
+          .collection('posts')
+          .where('authorId', isEqualTo: userId)
+          .where('deleted', isEqualTo: false)
+          .get();
+
+      return query.docs.map((doc) {
+        final data = doc.data();
+        return Post(
+          id: doc.id,
+          authorId: data['authorId'] ?? '',
+          repliedToPostId: data['repliedToPostId'] ?? '',
+          content: data['content'] ?? '',
+          createdAt: (data['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
+          updatedAt: (data['updatedAt'] as Timestamp?)?.toDate(),
+          likes: List<String>.from(data['likes'] ?? []),
+          comments: List<String>.from(data['comments'] ?? []),
+        );
+      }).toList();
+    } catch (e) {
+      return [];
+    }
   }
 
-  static Future<void> addPost(String userId, String content) async {
-    // Simulate network delay
-    await Future.delayed(const Duration(seconds: 1));
-
-    final newPost = Post(
-      id: 'post${mockPosts.length + 1}',
-      authorId: userId,
-      content: content,
-      createdAt: DateTime.now(),
-    );
-
-    mockPosts.add(newPost);
+  static Future<bool> addPost(String content, String authorId) async {
+    final docRef = FirebaseFirestore.instance.collection('posts').doc();
+    try {
+      await docRef.set({
+        'authorId': authorId,
+        'content': content,
+        'createdAt': FieldValue.serverTimestamp(),
+        'updatedAt': FieldValue.serverTimestamp(),
+        'likes': [],
+        'comments': [],
+        'deleted': false,
+        'repliedToPostId': null,
+      });
+      return true;
+    } catch (e) {
+      return false;
+    }
   }
 
-  static Future<void> likePost(String postId, String userId) async {
-    // Simulate network delay
-    await Future.delayed(const Duration(milliseconds: 300));
-    final post = mockPosts.firstWhere((post) => post.id == postId);
-    UserService.likePost(userId, postId, post.toggleLike(userId));
+  static Future<String?> addReply(String parentPostId, String authorId, String content) async {
+    final docRef = FirebaseFirestore.instance.collection('posts').doc();
+    final parentRef = FirebaseFirestore.instance.collection('posts').doc(parentPostId);
+
+    try {
+      await docRef.set({
+        'authorId': authorId,
+        'content': content,
+        'createdAt': FieldValue.serverTimestamp(),
+        'updatedAt': FieldValue.serverTimestamp(),
+        'likes': [],
+        'comments': [],
+        'deleted': false,
+        'repliedToPostId': parentPostId,
+      });
+
+      await parentRef.update({
+        'comments': FieldValue.arrayUnion([docRef.id]),
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
+      return docRef.id;
+    } catch (e) {
+      return null;
+    }
   }
 
-  static Future<void> addReply(String userId, String content, String repliedToPostId) async {
-    // Simulate network delay
-    await Future.delayed(const Duration(seconds: 1));
-    final post = mockPosts.firstWhere((post) => post.id == repliedToPostId);
+  static Future<bool> toggleLike(String postId, String userId) async {
+    final docRef = FirebaseFirestore.instance.collection('posts').doc(postId);
+    try {
+      final doc = await docRef.get();
+      final data = doc.data();
+      final List<dynamic> likes = data?['likes'] ?? [];
+      final bool alreadyLiked = likes.contains(userId);
 
-    final newPost = Post(
-      id: 'post${mockPosts.length + 1}',
-      authorId: userId,
-      content: content,
-      repliedToPostId: repliedToPostId,
-      createdAt: DateTime.now(),
-    );
-
-    mockPosts.add(newPost);
-    post.addReply(newPost.id);
+      if (alreadyLiked) {
+        await docRef.update({
+          'likes': FieldValue.arrayRemove([userId]),
+          'updatedAt': FieldValue.serverTimestamp(),
+        });
+        return false;
+      } else {
+        await docRef.update({
+          'likes': FieldValue.arrayUnion([userId]),
+          'updatedAt': FieldValue.serverTimestamp(),
+        });
+        return true;
+      }
+    } catch (e) {
+      return false;
+    }
   }
 }

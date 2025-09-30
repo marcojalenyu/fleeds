@@ -6,6 +6,12 @@ class AuthService {
   static User? _currentUser;
   static User? get currentUser => _currentUser;
 
+  // Allows for updating the current user after login, signup, or profile changes
+  static void setCurrentUser(User user) {
+    _currentUser = user;
+  }
+
+  /// Allows for authentication checks across the app
   static Future<void> initializeCurrentUser() async {
     final fbUser = fb.FirebaseAuth.instance.currentUser;
     if (fbUser != null) {
@@ -99,7 +105,6 @@ class AuthService {
       return true;
 
     } catch (e) {
-      print(e);
       return false;
     }
   }
