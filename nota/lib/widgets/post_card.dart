@@ -27,14 +27,13 @@ class PostCard extends StatefulWidget {
 
 class _PostCardState extends State<PostCard> {
   late PostController _postController;
-  late Post post;
   bool isLiking = false;
 
   @override
   void initState() {
     super.initState();
     _postController = PostController();
-    post = widget.post;
+    _postController.post = widget.post;
   }
 
   void _toggleLikeBy(User? user) async {
@@ -42,24 +41,20 @@ class _PostCardState extends State<PostCard> {
     setState(() {
       isLiking = true;
     });
-    final success = await _postController.likePost(post.id, user.id);
-    if (success) {
-      setState(() {
-        post = post.toggleLike(user.id);
-        isLiking = false;
-      });
-      widget.onPostChanged?.call(post);
-    } else {
-      setState(() {
-        isLiking = false;
-      });
-    }
+    final success = await _postController.likePost(_postController.post!.id, user.id);
+    setState(() {
+      isLiking = false;
+      if (success && _postController.post != null) {
+        widget.onPostChanged?.call(_postController.post!);
+      }
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     final user = widget.user;
     final currentUser = AuthService.currentUser;
+    final post = _postController.post!;
     const textStyle = TextStyle(fontSize: 16);
 
     return Clickable( 

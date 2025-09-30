@@ -99,13 +99,16 @@ class PostController extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final result = await PostService.toggleLike(postId, userId);
-      if (result && post != null) {
-        post = post!.toggleLike(userId);
+      final updatedLikes = await PostService.toggleLike(postId, userId);
+      if (updatedLikes != null && post != null) {
+        post = post!.copyWith(likes: updatedLikes, updatedAt: DateTime.now());
+        isLoading = false;
+        notifyListeners();
+        return true;
       }
       isLoading = false;
       notifyListeners();
-      return result;
+      return false;
     } catch (e) {
       error = 'Failed to like post: $e';
       isLoading = false;

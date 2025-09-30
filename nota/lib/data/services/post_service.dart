@@ -24,11 +24,7 @@ class PostService {
 
   static Future<List<Post>> fetchPosts({List<String> keywords = const []}) async {
     try {
-      final query = await FirebaseFirestore.instance
-        .collection('posts')
-        .where('deleted', isEqualTo: false)
-        .where('repliedToPostId', isEqualTo: '') // Only top-level posts
-        .get();
+      final query = await FirebaseFirestore.instance.collection('posts').get();
       List<Post> posts = query.docs.map((doc) {
         final data = doc.data();
         return Post(
@@ -62,7 +58,6 @@ class PostService {
       final query = await FirebaseFirestore.instance
           .collection('posts')
           .where('likes', arrayContains: userId)
-          .where('deleted', isEqualTo: false)
           .get();
 
       return query.docs.map((doc) {
@@ -180,7 +175,7 @@ class PostService {
     }
   }
 
-  static Future<bool> toggleLike(String postId, String userId) async {
+  static Future<List<String>?> toggleLike(String postId, String userId) async {
     final docRef = FirebaseFirestore.instance.collection('posts').doc(postId);
     try {
       final doc = await docRef.get();
@@ -193,16 +188,19 @@ class PostService {
           'likes': FieldValue.arrayRemove([userId]),
           'updatedAt': FieldValue.serverTimestamp(),
         });
-        return false;
       } else {
         await docRef.update({
           'likes': FieldValue.arrayUnion([userId]),
           'updatedAt': FieldValue.serverTimestamp(),
         });
-        return true;
       }
+
+      // Refetch likes after update for consistency
+      final updatedDoc = await docRef.get();
+      final updatedLikes = List<String>.from(updatedDoc.data()?['likes'] ?? []);
+      return updatedLikes;
     } catch (e) {
-      return false;
+      return null;
     }
   }
 }

@@ -32,6 +32,12 @@ class _SignupFormState extends State<SignupForm> {
       });
       return;
     }
+    if (password.length < 6) {
+      setState(() {
+        _error = 'Password must be at least 6 characters long.';
+      });
+      return;
+    }
     setState(() {
       _error = null;
     });

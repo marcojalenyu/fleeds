@@ -95,7 +95,13 @@ class _PostListState extends State<PostList> {
               return PostCard(
                 post: post,
                 user: snapshot.data!,
-                onPostChanged: widget.onPostChanged,
+                onPostChanged: (updatedPost) {
+                  setState(() {
+                    final idx = posts.indexWhere((p) => p.id == updatedPost.id);
+                    if (idx != -1) posts[idx] = updatedPost;
+                  });
+                  if (widget.onPostChanged != null) widget.onPostChanged!(updatedPost);
+                },
               );
             },
           );

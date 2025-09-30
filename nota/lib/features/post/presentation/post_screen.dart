@@ -32,7 +32,6 @@ class _PostScreenState extends State<PostScreen> {
   final currentUser = AuthService.currentUser;
   late PostController _postController;
   bool _loading = true;
-  late Post post;
   late User user;
   List<Post> replies = [];
 
@@ -52,14 +51,15 @@ class _PostScreenState extends State<PostScreen> {
     }
   }
 
-  void _replyToPost() async {
+  Future<void> _replyToPost() async {
     if (_replyController.text.isNotEmpty && currentUser != null) {
-      final newReplyId = await _postController.replyToPost(post.id, currentUser!.id, _replyController.text);
-      if (newReplyId != '') {
-        setState(() {
-          post = post.addReply(newReplyId);
-        });
-        widget.onPostChanged?.call(post);
+      final newReplyId = await _postController.replyToPost(
+        _postController.post!.id,
+        currentUser!.id,
+        _replyController.text,
+      );
+      if (newReplyId.isNotEmpty) {
+        widget.onPostChanged?.call(_postController.post!);
         await _loadReplies();
       }
       _replyController.clear();
@@ -67,19 +67,21 @@ class _PostScreenState extends State<PostScreen> {
     }
   }
 
-  void _toggleLikeBy(User? user) async {
-    if (_postController.isLoading || user == null) return;
+  Future<void> _toggleLikeBy(User? user) async {
+    if (user == null || isLiking) return;
+
     setState(() {
       isLiking = true;
     });
-    final success = await _postController.likePost(post.id, user.id);
-    if (success) {
-      setState(() {
-        post = post.toggleLike(user.id);
-        isLiking = false;
-      });
-      widget.onPostChanged?.call(post);
-    }
+
+    final success = await _postController.likePost(_postController.post!.id, user.id);
+
+    setState(() {
+      isLiking = false;
+      if (success && _postController.post != null) {
+        widget.onPostChanged?.call(_postController.post!);
+      }
+    });
   }
 
   @override
@@ -87,7 +89,7 @@ class _PostScreenState extends State<PostScreen> {
     super.initState();
     _postController = PostController();
     if (widget.post != null && widget.user != null) {
-      post = widget.post!;
+      _postController.post = widget.post!;
       user = widget.user!;
       _loading = false;
       _loadReplies();
@@ -98,7 +100,13 @@ class _PostScreenState extends State<PostScreen> {
 
   Future<void> _loadPost() async {
     await _postController.fetchPost(widget.postId);
-    post = _postController.post!;
+    final post = _postController.post;
+    if (post == null) {
+      setState(() {
+        _loading = false;
+      });
+      return;
+    }
     final fetchedUser = await UserService.getUserById(post.authorId);
     if (fetchedUser == null) {
       setState(() {
@@ -117,153 +125,153 @@ class _PostScreenState extends State<PostScreen> {
     setState(() {
       _loadingReplies = true;
     });
-    replies = await _postController.fetchReplies(post.id);
+    replies = await _postController.fetchReplies(_postController.post!.id);
     setState(() {
       _loadingReplies = false;
     });
   }
 
   @override
-Widget build(BuildContext context) {
-  if (_loading) {
+  Widget build(BuildContext context) {
+    final post = _postController.post;
+    if (_loading || post == null) {
+      return MainScaffold(
+        currentIndex: 0,
+        body: Scaffold(
+          appBar: AppBar(),
+          body: Center(child: CircularProgressIndicator()),
+        ),
+      );
+    }
     return MainScaffold(
-      currentIndex: 0,
+      currentIndex: 1,
       body: Scaffold(
         appBar: AppBar(),
-        body: Center(child: CircularProgressIndicator()),
-      ),
-    );
-  }
-  return MainScaffold(
-    currentIndex: 1,
-    body: Scaffold(
-      appBar: AppBar(),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                ClickableProfilePic(user: user, imageUrl: ''),
-                const SizedBox(width: 8),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Clickable(
-                      onTap: () => goToProfile(context, user),
-                      child: Text(
-                        user.displayName,
-                        style: textStyle.copyWith(fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                    Text('@${user.username}', style: textStyle.copyWith(color: Colors.grey[600])),
-                  ],
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            Text(post.content, style: contentTextStyle),
-            const SizedBox(height: 12),
-            Text(DisplayDateUtils.displayDate(post.createdAt), style: textStyle.copyWith(color: Colors.grey[600])),
-            const SizedBox(height: 12),
-            Divider(thickness: 1, color: Colors.grey[300], height: 12),
-            const SizedBox(height: 6),
-            Row(
-              children: [
-                Text('${post.commentCount}', style: textStyle.copyWith(fontWeight: FontWeight.bold)),
-                const SizedBox(width: 4),
-                Text('Replies', style: textStyle.copyWith(color: Colors.grey[600])),
-                const SizedBox(width: 16),
-                Text('${post.likeCount}', style: textStyle.copyWith(fontWeight: FontWeight.bold)),
-                const SizedBox(width: 4),
-                Text('Likes', style: textStyle.copyWith(color: Colors.grey[600])),
-                const SizedBox(width: 4),
-              ],
-            ),
-            const SizedBox(height: 6),
-            Divider(thickness: 1, color: Colors.grey[300], height: 12),
-            const SizedBox(height: 6),
-            Center(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+        body: SingleChildScrollView(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Expanded(
-                    child: Clickable(
-                      onTap: () {
-                        _toggleReplyFocus();
-                      },
-                      child: Icon(Icons.chat_bubble_outline, size: 20, color: Colors.grey[600]),
-                    ),
-                  ),
-                  Expanded(
-                    child: Clickable(
-                      onTap: () {
-                        if (!isLiking) {
-                          _toggleLikeBy(currentUser);
-                        }
-                      },
-                      child: Icon(
-                        post.likedBy(currentUser!.id) ? Icons.favorite : Icons.favorite_border,
-                        size: 20,
-                        color: post.likedBy(currentUser!.id) ? Colors.red : Colors.grey[600],
+                  ClickableProfilePic(user: user, imageUrl: ''),
+                  const SizedBox(width: 8),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Clickable(
+                        onTap: () => goToProfile(context, user),
+                        child: Text(
+                          user.displayName,
+                          style: textStyle.copyWith(fontWeight: FontWeight.bold),
+                        ),
                       ),
-                    ),
+                      Text('@${user.username}', style: textStyle.copyWith(color: Colors.grey[600])),
+                    ],
                   ),
                 ],
               ),
-            ),
-            const SizedBox(height: 6),
-            Divider(thickness: 1, color: Colors.grey[300], height: 12),
-            const SizedBox(height: 8),
-            TextField(
-              controller: _replyController,
-              focusNode: _replyFocusNode,
-              maxLength: 128,
-              minLines: 3,
-              maxLines: 3,
-              decoration: InputDecoration(
-                hintText: 'Write your reply...',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+              const SizedBox(height: 12),
+              Text(post.content, style: contentTextStyle),
+              const SizedBox(height: 12),
+              Text(DisplayDateUtils.displayDate(post.createdAt), style: textStyle.copyWith(color: Colors.grey[600])),
+              const SizedBox(height: 12),
+              Divider(thickness: 1, color: Colors.grey[300], height: 12),
+              const SizedBox(height: 6),
+              Row(
+                children: [
+                  Text('${post.commentCount}', style: textStyle.copyWith(fontWeight: FontWeight.bold)),
+                  const SizedBox(width: 4),
+                  Text('Replies', style: textStyle.copyWith(color: Colors.grey[600])),
+                  const SizedBox(width: 16),
+                  Text('${post.likeCount}', style: textStyle.copyWith(fontWeight: FontWeight.bold)),
+                  const SizedBox(width: 4),
+                  Text('Likes', style: textStyle.copyWith(color: Colors.grey[600])),
+                  const SizedBox(width: 4),
+                ],
               ),
-              style: textStyle,
-            ),
-            const SizedBox(height: 8),
-            Align(
-              alignment: Alignment.centerRight,
-              child: ElevatedButton(
-                onPressed: () => _replyToPost(),
-                child: Text('Reply'),
-              ),
-            ),
-            const SizedBox(height: 8),
-            Divider(thickness: 1, color: Colors.grey[300], height: 12),
-            const SizedBox(height: 16),
-            _loadingReplies
-                ? Center(child: CircularProgressIndicator())
-                : replies.isEmpty
-                    ? Center(child: Text('No replies yet.', style: textStyle))
-                    : PostList(
-                        initialPosts: replies,
-                        shrinkWrap: true,
-                        physics: NeverScrollableScrollPhysics(),
-                        onPostChanged: (updatedPost) {
-                          setState(() {
-                            final index = replies.indexWhere((p) => p.id == updatedPost.id);
-                            if (index != -1) {
-                              replies[index] = updatedPost;
-                            }
-                            if (post.id == updatedPost.id) {
-                              post = updatedPost;
-                            }
-                          });
-                          widget.onPostChanged?.call(updatedPost);
+              const SizedBox(height: 6),
+              Divider(thickness: 1, color: Colors.grey[300], height: 12),
+              const SizedBox(height: 6),
+              Center(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Expanded(
+                      child: Clickable(
+                        onTap: _toggleReplyFocus,
+                        child: Icon(Icons.chat_bubble_outline, size: 20, color: Colors.grey[600]),
+                      ),
+                    ),
+                    Expanded(
+                      child: Clickable(
+                        onTap: () {
+                          if (!isLiking) {
+                            _toggleLikeBy(currentUser);
+                          }
                         },
-                    )
+                        child: Icon(
+                          post.likedBy(currentUser!.id) ? Icons.favorite : Icons.favorite_border,
+                          size: 20,
+                          color: post.likedBy(currentUser!.id) ? Colors.red : Colors.grey[600],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 6),
+              Divider(thickness: 1, color: Colors.grey[300], height: 12),
+              const SizedBox(height: 8),
+              TextField(
+                controller: _replyController,
+                focusNode: _replyFocusNode,
+                maxLength: 128,
+                minLines: 3,
+                maxLines: 3,
+                decoration: InputDecoration(
+                  hintText: 'Write your reply...',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+                ),
+                style: textStyle,
+              ),
+              const SizedBox(height: 8),
+              Align(
+                alignment: Alignment.centerRight,
+                child: ElevatedButton(
+                  onPressed: _replyToPost,
+                  child: Text('Reply'),
+                ),
+              ),
+              const SizedBox(height: 8),
+              Divider(thickness: 1, color: Colors.grey[300], height: 12),
+              const SizedBox(height: 16),
+              _loadingReplies
+                  ? Center(child: CircularProgressIndicator())
+                  : replies.isEmpty
+                      ? Center(child: Text('No replies yet.', style: textStyle))
+                      : PostList(
+                          initialPosts: replies,
+                          shrinkWrap: true,
+                          physics: NeverScrollableScrollPhysics(),
+                          onPostChanged: (updatedPost) {
+                            setState(() {
+                              final index = replies.indexWhere((p) => p.id == updatedPost.id);
+                              if (index != -1) {
+                                replies[index] = updatedPost;
+                              }
+                              if (post.id == updatedPost.id) {
+                                // This is rare for replies, but keep for consistency
+                                _postController.post = updatedPost;
+                              }
+                            });
+                            widget.onPostChanged?.call(updatedPost);
+                          },
+                      )
             ],
           ),
         ),
