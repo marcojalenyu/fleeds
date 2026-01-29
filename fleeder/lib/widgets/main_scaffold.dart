@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:fleeder/core/constants/constants.dart';
-import 'package:fleeder/data/services/auth_service.dart';
-import 'package:fleeder/features/search/presentation/search_panel.dart';
-import 'package:fleeder/features/search/presentation/search_screen.dart';
-import 'package:fleeder/widgets/bottom_bar.dart';
-import 'package:fleeder/widgets/logo.dart';
+import 'package:fleeds/core/constants/constants.dart';
+import 'package:fleeds/data/services/auth_service.dart';
+import 'package:fleeds/features/search/presentation/search_panel.dart';
+import 'package:fleeds/features/search/presentation/search_screen.dart';
+import 'package:fleeds/widgets/bottom_bar.dart';
+import 'package:fleeds/widgets/logo.dart';
 
 class MainScaffold extends StatelessWidget {
   final int currentIndex;
@@ -156,3 +156,4 @@ class MainScaffold extends StatelessWidget {
     );
   }
 }
+

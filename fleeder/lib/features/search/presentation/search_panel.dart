@@ -67,3 +67,4 @@ class _SearchPanelState extends State<SearchPanel> {
     );
   }
 }
+

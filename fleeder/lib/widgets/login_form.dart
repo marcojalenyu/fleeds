@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:fleeder/data/services/auth_service.dart';
+import 'package:fleeds/data/services/auth_service.dart';
 
 class LoginForm extends StatefulWidget {
   final VoidCallback onSignup;
@@ -77,3 +77,4 @@ class _LoginFormState extends State<LoginForm> {
     );
   }
 }
+

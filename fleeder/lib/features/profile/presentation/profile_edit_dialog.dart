@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:fleeder/data/models/user.dart';
-import 'package:fleeder/widgets/profile_pic.dart';
+import 'package:fleeds/data/models/user.dart';
+import 'package:fleeds/widgets/profile_pic.dart';
 
 class ProfileEditDialog extends StatefulWidget {
   final User user;
@@ -145,3 +145,4 @@ class _ProfileEditDialogState extends State<ProfileEditDialog> {
     );
   }
 }
+

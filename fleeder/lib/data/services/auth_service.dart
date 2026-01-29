@@ -1,6 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart' as fb;
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:fleeder/data/models/user.dart';
+import 'package:fleeds/data/models/user.dart';
 
 class AuthService {
   static User? _currentUser;
@@ -114,3 +114,4 @@ class AuthService {
     _currentUser = null;
   }
 }
+

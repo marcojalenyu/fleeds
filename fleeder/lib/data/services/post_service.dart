@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:fleeder/data/models/post.dart';
+import 'package:fleeds/data/models/post.dart';
 
 class PostService {
   static Future<Post?> fetchPost(String postId) async {
@@ -204,3 +204,4 @@ class PostService {
     }
   }
 }
+

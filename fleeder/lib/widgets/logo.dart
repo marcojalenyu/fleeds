@@ -47,3 +47,4 @@ class Logo extends StatelessWidget {
     }
   }
 }
+

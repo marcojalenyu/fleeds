@@ -1,11 +1,11 @@
 {
-    "name": "nota",
-    "short_name": "nota",
+    "name": "Fleeds",
+    "short_name": "Fleeds",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "description": "Feeds in Flutter",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

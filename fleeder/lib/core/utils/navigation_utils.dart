@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:fleeder/data/models/post.dart';
-import 'package:fleeder/data/models/user.dart';
-import 'package:fleeder/data/services/auth_service.dart';
-import 'package:fleeder/features/userlist/presentation/userslist_screen.dart';
+import 'package:fleeds/data/models/post.dart';
+import 'package:fleeds/data/models/user.dart';
+import 'package:fleeds/data/services/auth_service.dart';
+import 'package:fleeds/features/userlist/presentation/userslist_screen.dart';
 
 void goToPost(BuildContext context, {required Post post, required User user}) {
   Navigator.of(context).pushNamed(
@@ -31,3 +31,4 @@ void goToUsersList(BuildContext context, String userId, String type) {
     ),
   );
 }
+

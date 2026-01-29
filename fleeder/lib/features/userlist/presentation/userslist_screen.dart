@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:fleeder/features/userlist/logic/userslist_controller.dart';
-import 'package:fleeder/widgets/main_scaffold.dart';
-import 'package:fleeder/widgets/user_card.dart';
+import 'package:fleeds/features/userlist/logic/userslist_controller.dart';
+import 'package:fleeds/widgets/main_scaffold.dart';
+import 'package:fleeds/widgets/user_card.dart';
 
 class UsersListScreen extends StatefulWidget {
   final String userId;
@@ -66,3 +66,4 @@ class _UsersListScreenState extends State<UsersListScreen> {
     );
   }
 }
+

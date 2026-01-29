@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:fleeder/data/models/user.dart';
+import 'package:fleeds/data/models/user.dart';
 
 class AddPostDialog extends StatefulWidget {
   final User user;
@@ -113,3 +113,4 @@ class _AddPostDialogState extends State<AddPostDialog> {
     );
   }
 }
+

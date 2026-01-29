@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:fleeder/core/constants/constants.dart';
+import 'package:fleeds/core/constants/constants.dart';
 
 class AppTheme {
 
@@ -36,3 +36,4 @@ class AppTheme {
         ),
       );
 }
+

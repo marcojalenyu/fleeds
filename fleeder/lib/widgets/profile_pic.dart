@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:fleeder/core/utils/navigation_utils.dart';
-import 'package:fleeder/widgets/clickable.dart'; // Import the new widget
+import 'package:fleeds/core/utils/navigation_utils.dart';
+import 'package:fleeds/widgets/clickable.dart'; // Import the new widget
 
 class ClickableProfilePic extends ProfilePic {
   const ClickableProfilePic({
@@ -67,3 +67,4 @@ class ProfilePic extends StatelessWidget {
         : _buildProfilePicture();
   }
 }
+

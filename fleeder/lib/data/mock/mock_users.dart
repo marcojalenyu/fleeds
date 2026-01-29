@@ -1,4 +1,4 @@
-import 'package:fleeder/data/models/user.dart';
+import 'package:fleeds/data/models/user.dart';
 
 final List<User> mockUsers = [
   User(
@@ -16,3 +16,4 @@ final List<User> mockUsers = [
     updatedAt: DateTime.now().subtract(const Duration(days: 2)),
   ),
 ];
+

@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 
-import 'package:fleeder/core/constants/theme.dart';
-import 'package:fleeder/data/services/auth_service.dart';
-import 'package:fleeder/features/login/presentation/login_screen.dart';
-import 'package:fleeder/features/post/presentation/post_screen.dart';
-import 'package:fleeder/features/profile/presentation/profile_screen.dart';
-import 'package:fleeder/firebase_options.dart';
+import 'package:fleeds/core/constants/theme.dart';
+import 'package:fleeds/data/services/auth_service.dart';
+import 'package:fleeds/features/login/presentation/login_screen.dart';
+import 'package:fleeds/features/post/presentation/post_screen.dart';
+import 'package:fleeds/features/profile/presentation/profile_screen.dart';
+import 'package:fleeds/firebase_options.dart';
 import 'features/home/presentation/home_screen.dart';
 
 void main() async {
@@ -25,7 +25,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Nota',
+      title: 'Fleeds',
       theme: AppTheme.theme,
       initialRoute: '/',
       routes: {
@@ -72,3 +72,4 @@ class MyApp extends StatelessWidget {
     );
   }
 }
+

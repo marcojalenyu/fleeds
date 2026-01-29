@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:fleeder/core/utils/navigation_utils.dart';
-import 'package:fleeder/data/models/user.dart';
-import 'package:fleeder/widgets/card.dart';
-import 'package:fleeder/widgets/clickable.dart';
-import 'package:fleeder/widgets/profile_pic.dart';
+import 'package:fleeds/core/utils/navigation_utils.dart';
+import 'package:fleeds/data/models/user.dart';
+import 'package:fleeds/widgets/card.dart';
+import 'package:fleeds/widgets/clickable.dart';
+import 'package:fleeds/widgets/profile_pic.dart';
 
 class UserCard extends StatefulWidget {
   final User user;
@@ -58,3 +58,4 @@ class _UserCardState extends State<UserCard> {
     );
   }
 }
+

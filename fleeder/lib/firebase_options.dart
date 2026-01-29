@@ -44,44 +44,44 @@ class DefaultFirebaseOptions {
     apiKey: 'AIzaSyBp9vjqRXxsy_E6jsPqXaTD55VpBZuL2iY',
     appId: '1:919733218239:web:1aaa6bfa0f0222feda8f0a',
     messagingSenderId: '919733218239',
-    projectId: 'fleeder',
-    authDomain: 'fleeder.firebaseapp.com',
-    storageBucket: 'fleeder.firebasestorage.app',
+    projectId: 'fleeds',
+    authDomain: 'fleeds.firebaseapp.com',
+    storageBucket: 'fleeds.firebasestorage.app',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyCJlKSPSmATfuyAvLNO6cBfDMd_SDENvBs',
     appId: '1:919733218239:android:a83812585fa2b311da8f0a',
     messagingSenderId: '919733218239',
-    projectId: 'fleeder',
-    storageBucket: 'fleeder.firebasestorage.app',
+    projectId: 'fleeds',
+    storageBucket: 'fleeds.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyAWMUotSmAY6aW_UlrNRDxZLo5tB51Y0bA',
     appId: '1:919733218239:ios:9afd0098582beb53da8f0a',
     messagingSenderId: '919733218239',
-    projectId: 'fleeder',
-    storageBucket: 'fleeder.firebasestorage.app',
-    iosBundleId: 'com.example.fleeder',
+    projectId: 'fleeds',
+    storageBucket: 'fleeds.firebasestorage.app',
+    iosBundleId: 'com.example.fleeds',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
     apiKey: 'AIzaSyAWMUotSmAY6aW_UlrNRDxZLo5tB51Y0bA',
     appId: '1:919733218239:ios:9afd0098582beb53da8f0a',
     messagingSenderId: '919733218239',
-    projectId: 'fleeder',
-    storageBucket: 'fleeder.firebasestorage.app',
-    iosBundleId: 'com.example.fleeder',
+    projectId: 'fleeds',
+    storageBucket: 'fleeds.firebasestorage.app',
+    iosBundleId: 'com.example.fleeds',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(
     apiKey: 'AIzaSyBp9vjqRXxsy_E6jsPqXaTD55VpBZuL2iY',
     appId: '1:919733218239:web:1aaa6bfa0f0222feda8f0a',
     messagingSenderId: '919733218239',
-    projectId: 'fleeder',
-    authDomain: 'fleeder.firebaseapp.com',
-    storageBucket: 'fleeder.firebasestorage.app',
+    projectId: 'fleeds',
+    authDomain: 'fleeds.firebaseapp.com',
+    storageBucket: 'fleeds.firebasestorage.app',
   );
 
 }

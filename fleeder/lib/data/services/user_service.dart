@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:fleeder/data/models/user.dart';
+import 'package:fleeds/data/models/user.dart';
 
 class UserService {
   static Future<User?> getUserById(String id) async {
@@ -128,3 +128,4 @@ class UserService {
     }
   }
 }
+

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:fleeder/core/constants/constants.dart';
-import 'package:fleeder/data/services/auth_service.dart';
-import 'package:fleeder/widgets/logo.dart';
-import 'package:fleeder/widgets/login_form.dart';
-import 'package:fleeder/widgets/signup_form.dart';
+import 'package:fleeds/core/constants/constants.dart';
+import 'package:fleeds/data/services/auth_service.dart';
+import 'package:fleeds/widgets/logo.dart';
+import 'package:fleeds/widgets/login_form.dart';
+import 'package:fleeds/widgets/signup_form.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -100,7 +100,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(
-                          'Welcome to Nota',
+                          'Welcome to Fleeds',
                           style: Theme.of(context)
                               .textTheme
                               .headlineSmall
@@ -125,3 +125,4 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 }
+

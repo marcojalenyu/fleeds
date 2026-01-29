@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:fleeder/data/models/post.dart';
-import 'package:fleeder/data/services/auth_service.dart';
-import 'package:fleeder/features/post/logic/post_controller.dart';
-import 'package:fleeder/features/post/presentation/post_dialog.dart';
-import 'package:fleeder/widgets/main_scaffold.dart';
-import 'package:fleeder/widgets/post_list.dart';
+import 'package:fleeds/data/models/post.dart';
+import 'package:fleeds/data/services/auth_service.dart';
+import 'package:fleeds/features/post/logic/post_controller.dart';
+import 'package:fleeds/features/post/presentation/post_dialog.dart';
+import 'package:fleeds/widgets/main_scaffold.dart';
+import 'package:fleeds/widgets/post_list.dart';
 
 class HomeScreen extends StatefulWidget {
   final List<String>? keywords;
@@ -90,3 +90,4 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 }
+

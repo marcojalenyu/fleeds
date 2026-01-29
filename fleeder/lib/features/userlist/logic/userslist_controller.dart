@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:fleeder/data/models/user.dart';
-import 'package:fleeder/data/services/user_service.dart';
+import 'package:fleeds/data/models/user.dart';
+import 'package:fleeds/data/services/user_service.dart';
 
 class UsersListController extends ChangeNotifier {
   List<User> _users = [];
@@ -24,3 +24,4 @@ class UsersListController extends ChangeNotifier {
     }
   }
 }
+
