@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:nota/core/utils/date_utils.dart';
-import 'package:nota/core/utils/navigation_utils.dart';
-import 'package:nota/data/models/post.dart';
-import 'package:nota/data/models/user.dart';
-import 'package:nota/data/services/auth_service.dart';
-import 'package:nota/features/post/logic/post_controller.dart';
-import 'package:nota/widgets/card.dart';
-import 'package:nota/widgets/clickable.dart';
-import 'package:nota/widgets/profile_pic.dart';
+import 'package:fleeder/core/utils/date_utils.dart';
+import 'package:fleeder/core/utils/navigation_utils.dart';
+import 'package:fleeder/data/models/post.dart';
+import 'package:fleeder/data/models/user.dart';
+import 'package:fleeder/data/services/auth_service.dart';
+import 'package:fleeder/features/post/logic/post_controller.dart';
+import 'package:fleeder/widgets/card.dart';
+import 'package:fleeder/widgets/clickable.dart';
+import 'package:fleeder/widgets/profile_pic.dart';
 
 class PostCard extends StatefulWidget {
   final Post post;

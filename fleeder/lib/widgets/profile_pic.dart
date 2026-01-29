@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:nota/core/utils/navigation_utils.dart';
-import 'package:nota/widgets/clickable.dart'; // Import the new widget
+import 'package:fleeder/core/utils/navigation_utils.dart';
+import 'package:fleeder/widgets/clickable.dart'; // Import the new widget
 
 class ClickableProfilePic extends ProfilePic {
   const ClickableProfilePic({

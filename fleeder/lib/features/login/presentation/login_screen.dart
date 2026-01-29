@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:nota/core/constants/constants.dart';
-import 'package:nota/data/services/auth_service.dart';
-import 'package:nota/widgets/logo.dart';
-import 'package:nota/widgets/login_form.dart';
-import 'package:nota/widgets/signup_form.dart';
+import 'package:fleeder/core/constants/constants.dart';
+import 'package:fleeder/data/services/auth_service.dart';
+import 'package:fleeder/widgets/logo.dart';
+import 'package:fleeder/widgets/login_form.dart';
+import 'package:fleeder/widgets/signup_form.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});

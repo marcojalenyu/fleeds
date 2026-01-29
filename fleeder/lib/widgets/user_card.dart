@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:nota/core/utils/navigation_utils.dart';
-import 'package:nota/data/models/user.dart';
-import 'package:nota/widgets/card.dart';
-import 'package:nota/widgets/clickable.dart';
-import 'package:nota/widgets/profile_pic.dart';
+import 'package:fleeder/core/utils/navigation_utils.dart';
+import 'package:fleeder/data/models/user.dart';
+import 'package:fleeder/widgets/card.dart';
+import 'package:fleeder/widgets/clickable.dart';
+import 'package:fleeder/widgets/profile_pic.dart';
 
 class UserCard extends StatefulWidget {
   final User user;

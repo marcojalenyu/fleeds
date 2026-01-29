@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:nota/core/utils/navigation_utils.dart';
-import 'package:nota/data/models/post.dart';
-import 'package:nota/data/models/user.dart';
-import 'package:nota/features/profile/logic/profile_controller.dart';
-import 'package:nota/features/post/logic/post_controller.dart';
-import 'package:nota/widgets/clickable.dart';
-import 'package:nota/widgets/main_scaffold.dart';
-import 'package:nota/widgets/post_list.dart';
-import 'package:nota/widgets/profile_btn.dart';
-import 'package:nota/widgets/profile_pic.dart';
-import 'package:nota/features/profile/presentation/profile_edit_dialog.dart'; // Import where showProfileEditDialog is defined
+import 'package:fleeder/core/utils/navigation_utils.dart';
+import 'package:fleeder/data/models/post.dart';
+import 'package:fleeder/data/models/user.dart';
+import 'package:fleeder/features/profile/logic/profile_controller.dart';
+import 'package:fleeder/features/post/logic/post_controller.dart';
+import 'package:fleeder/widgets/clickable.dart';
+import 'package:fleeder/widgets/main_scaffold.dart';
+import 'package:fleeder/widgets/post_list.dart';
+import 'package:fleeder/widgets/profile_btn.dart';
+import 'package:fleeder/widgets/profile_pic.dart';
+import 'package:fleeder/features/profile/presentation/profile_edit_dialog.dart'; // Import where showProfileEditDialog is defined
 
 class ProfileScreen extends StatefulWidget {
   final String? userId;

@@ -1,4 +1,4 @@
-import 'package:nota/data/models/post.dart';
+import 'package:fleeder/data/models/post.dart';
 
 final List<Post> mockPosts = [
   for (int i = 1; i <= 20; i++)

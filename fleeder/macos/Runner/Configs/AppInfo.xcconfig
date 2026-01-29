@@ -5,10 +5,10 @@
 // 'flutter create' template.
 
 // The application's name. By default this is also the title of the Flutter window.
-PRODUCT_NAME = nota
+PRODUCT_NAME = Fleeder
 
 // The application's bundle identifier
-PRODUCT_BUNDLE_IDENTIFIER = com.example.nota
+PRODUCT_BUNDLE_IDENTIFIER = com.example.fleeder
 
 // The copyright displayed in application information
 PRODUCT_COPYRIGHT = Copyright © 2025 com.example. All rights reserved.

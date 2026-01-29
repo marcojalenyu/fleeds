@@ -41,46 +41,47 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyB6JSOoB-hZ-3xhyIfjcvKugXbTK4RA6vY',
-    appId: '1:930010419385:web:e579eeb887a2085c2e0b68',
-    messagingSenderId: '930010419385',
-    projectId: 'nota-application',
-    authDomain: 'nota-application.firebaseapp.com',
-    storageBucket: 'nota-application.firebasestorage.app',
+    apiKey: 'AIzaSyBp9vjqRXxsy_E6jsPqXaTD55VpBZuL2iY',
+    appId: '1:919733218239:web:1aaa6bfa0f0222feda8f0a',
+    messagingSenderId: '919733218239',
+    projectId: 'fleeder',
+    authDomain: 'fleeder.firebaseapp.com',
+    storageBucket: 'fleeder.firebasestorage.app',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyDhjGPNp78LAqZWuKeWPr-Rgd2eWmyFtVg',
-    appId: '1:930010419385:android:39c9cc8aee4916632e0b68',
-    messagingSenderId: '930010419385',
-    projectId: 'nota-application',
-    storageBucket: 'nota-application.firebasestorage.app',
+    apiKey: 'AIzaSyCJlKSPSmATfuyAvLNO6cBfDMd_SDENvBs',
+    appId: '1:919733218239:android:a83812585fa2b311da8f0a',
+    messagingSenderId: '919733218239',
+    projectId: 'fleeder',
+    storageBucket: 'fleeder.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyBx7_0lrw6otV2K_ObXMhD1Kr7HBdr34UE',
-    appId: '1:930010419385:ios:cb481d90972cf7a72e0b68',
-    messagingSenderId: '930010419385',
-    projectId: 'nota-application',
-    storageBucket: 'nota-application.firebasestorage.app',
-    iosBundleId: 'com.example.nota',
+    apiKey: 'AIzaSyAWMUotSmAY6aW_UlrNRDxZLo5tB51Y0bA',
+    appId: '1:919733218239:ios:9afd0098582beb53da8f0a',
+    messagingSenderId: '919733218239',
+    projectId: 'fleeder',
+    storageBucket: 'fleeder.firebasestorage.app',
+    iosBundleId: 'com.example.fleeder',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'AIzaSyBx7_0lrw6otV2K_ObXMhD1Kr7HBdr34UE',
-    appId: '1:930010419385:ios:cb481d90972cf7a72e0b68',
-    messagingSenderId: '930010419385',
-    projectId: 'nota-application',
-    storageBucket: 'nota-application.firebasestorage.app',
-    iosBundleId: 'com.example.nota',
+    apiKey: 'AIzaSyAWMUotSmAY6aW_UlrNRDxZLo5tB51Y0bA',
+    appId: '1:919733218239:ios:9afd0098582beb53da8f0a',
+    messagingSenderId: '919733218239',
+    projectId: 'fleeder',
+    storageBucket: 'fleeder.firebasestorage.app',
+    iosBundleId: 'com.example.fleeder',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(
-    apiKey: 'AIzaSyB6JSOoB-hZ-3xhyIfjcvKugXbTK4RA6vY',
-    appId: '1:930010419385:web:9ccb7b7036de0b412e0b68',
-    messagingSenderId: '930010419385',
-    projectId: 'nota-application',
-    authDomain: 'nota-application.firebaseapp.com',
-    storageBucket: 'nota-application.firebasestorage.app',
+    apiKey: 'AIzaSyBp9vjqRXxsy_E6jsPqXaTD55VpBZuL2iY',
+    appId: '1:919733218239:web:1aaa6bfa0f0222feda8f0a',
+    messagingSenderId: '919733218239',
+    projectId: 'fleeder',
+    authDomain: 'fleeder.firebaseapp.com',
+    storageBucket: 'fleeder.firebasestorage.app',
   );
+
 }

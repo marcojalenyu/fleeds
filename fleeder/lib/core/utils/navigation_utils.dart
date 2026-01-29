@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:nota/data/models/post.dart';
-import 'package:nota/data/models/user.dart';
-import 'package:nota/data/services/auth_service.dart';
-import 'package:nota/features/userlist/presentation/userslist_screen.dart';
+import 'package:fleeder/data/models/post.dart';
+import 'package:fleeder/data/models/user.dart';
+import 'package:fleeder/data/services/auth_service.dart';
+import 'package:fleeder/features/userlist/presentation/userslist_screen.dart';
 
 void goToPost(BuildContext context, {required Post post, required User user}) {
   Navigator.of(context).pushNamed(

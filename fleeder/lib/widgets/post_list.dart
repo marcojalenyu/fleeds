@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:nota/data/models/post.dart';
-import 'package:nota/widgets/post_card.dart';
-import 'package:nota/data/services/user_service.dart';
-import 'package:nota/data/models/user.dart';
+import 'package:fleeder/data/models/post.dart';
+import 'package:fleeder/widgets/post_card.dart';
+import 'package:fleeder/data/services/user_service.dart';
+import 'package:fleeder/data/models/user.dart';
 
 class PostList extends StatefulWidget {
   final List<Post> initialPosts;

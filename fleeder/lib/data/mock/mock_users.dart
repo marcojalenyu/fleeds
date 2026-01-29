@@ -1,4 +1,4 @@
-import 'package:nota/data/models/user.dart';
+import 'package:fleeder/data/models/user.dart';
 
 final List<User> mockUsers = [
   User(

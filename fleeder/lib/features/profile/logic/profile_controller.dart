@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:nota/data/models/user.dart';
-import 'package:nota/data/services/auth_service.dart';
-import 'package:nota/data/services/user_service.dart';
+import 'package:fleeder/data/models/user.dart';
+import 'package:fleeder/data/services/auth_service.dart';
+import 'package:fleeder/data/services/user_service.dart';
 
 class ProfileController extends ChangeNotifier {
   late User user;

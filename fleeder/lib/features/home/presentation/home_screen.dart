@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:nota/data/models/post.dart';
-import 'package:nota/data/services/auth_service.dart';
-import 'package:nota/features/post/logic/post_controller.dart';
-import 'package:nota/features/post/presentation/post_dialog.dart';
-import 'package:nota/widgets/main_scaffold.dart';
-import 'package:nota/widgets/post_list.dart';
+import 'package:fleeder/data/models/post.dart';
+import 'package:fleeder/data/services/auth_service.dart';
+import 'package:fleeder/features/post/logic/post_controller.dart';
+import 'package:fleeder/features/post/presentation/post_dialog.dart';
+import 'package:fleeder/widgets/main_scaffold.dart';
+import 'package:fleeder/widgets/post_list.dart';
 
 class HomeScreen extends StatefulWidget {
   final List<String>? keywords;

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:nota/data/models/user.dart';
+import 'package:fleeder/data/models/user.dart';
 
 class AddPostDialog extends StatefulWidget {
   final User user;

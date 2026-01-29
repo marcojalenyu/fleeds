@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:nota/data/models/post.dart';
-import 'package:nota/data/services/post_service.dart';
+import 'package:fleeder/data/models/post.dart';
+import 'package:fleeder/data/services/post_service.dart';
 
 class PostController extends ChangeNotifier {
   bool isLoading = false;
