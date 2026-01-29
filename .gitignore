@@ -1,3 +1,6 @@
+.github
+.vscode
+
 # Miscellaneous
 *.class
 *.lock
@@ -6,8 +9,6 @@
 *.swp
 .buildlog/
 .history
-
-
 
 # Flutter repo-specific
 /bin/cache/
