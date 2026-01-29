@@ -41,9 +41,9 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyBp9vjqRXxsy_E6jsPqXaTD55VpBZuL2iY',
-    appId: '1:919733218239:web:1aaa6bfa0f0222feda8f0a',
-    messagingSenderId: '919733218239',
+    apiKey: 'AIzaSyCBEaI-E5CGiU0KHvMANN8fSVUiU_LQmGs',
+    appId: '1:248733349649:web:b6d5f9816d95d72091beb0',
+    messagingSenderId: '248733349649',
     projectId: 'fleeds',
     authDomain: 'fleeds.firebaseapp.com',
     storageBucket: 'fleeds.firebasestorage.app',
@@ -85,4 +85,3 @@ class DefaultFirebaseOptions {
   );
 
 }
-
