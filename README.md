@@ -8,19 +8,24 @@ Fleeds is a simple social media application modeled after Twitter/X. Build an id
 
 ## Features
 
-- Timelines: Home feed and user profiles  
-- Create posts, reply, like/unlike  
+- Home feed and User profiles  
+- Posts to create, like, and reply to   
 - Follow / unfollow users, follower lists  
-- Search posts by keywords  
-- Responsive layout for web and desktop
+- Search posts by keywords
+- Responsive layout for both PC and mobile devices
 
-## Quick start (developer)
+## Tech Stack
 
-Prerequisites:
-- Flutter SDK (stable)
-- A Firebase project (configure as needed)
+- Flutter SDK
+- Firebase (Authentication, Firestore, Hosting)
 
-Steps:
-1. Install deps:
+##
+To run locally, run the following commands:
+
 ```sh
 flutter pub get
+flutter build
+flutter run
+```
+
+*Disclaimer: This requires a configured Firebase project to properly run, which can be seen via the `firebase.json`.*
