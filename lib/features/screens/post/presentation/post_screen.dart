@@ -42,13 +42,19 @@ class _PostScreenState extends State<PostScreen> {
   final TextEditingController _replyController = TextEditingController();
   final FocusNode _replyFocusNode = FocusNode();
 
+  late bool isLiking = false;
+  late bool isLiked = false;
+  late int likeCount = 0;
+
   @override
   void initState() {
     super.initState();
-    _postController = PostController();    
+    _postController = PostController();
     if (widget.post != null && widget.user != null) {
       _postController.post = widget.post!;
       user = widget.user!;
+      isLiked = widget.post!.isLikedBy(currentUser?.id ?? '');
+      likeCount = widget.post!.likeCount;
       _loading = false;
       _loadReplies();
     } else {
@@ -77,6 +83,8 @@ class _PostScreenState extends State<PostScreen> {
       return;
     }
     user = fetchedUser;
+    isLiked = post.isLikedBy(currentUser?.id ?? '');
+    likeCount = post.likeCount;
     await _loadReplies();
     setState(() => _loading = false);
   }
@@ -96,9 +104,23 @@ class _PostScreenState extends State<PostScreen> {
   }
 
   Future<void> _toggleLike() async {
-    if (currentUser == null) return;
-    await _postController.toggleLike(currentUser!.id);
-    // Controller handles optimistic update and notifies listeners
+    if (currentUser == null || isLiking) return;
+
+    setState(() {
+      isLiking = true;
+      isLiked = !isLiked; // optimistic update
+      likeCount += isLiked ? 1 : -1;
+    });
+
+    final success = await _postController.toggleLike(currentUser!.id);
+
+    setState(() {
+      isLiking = false;
+    });
+
+    if (success && _postController.post != null) {
+      widget.onPostChanged?.call(_postController.post!); // backend sync
+    }
   }
 
   Future<void> _replyToPost() async {
@@ -195,14 +217,13 @@ class _PostScreenState extends State<PostScreen> {
   }
 
   Widget _buildStats() {
-    final post = _postController.post!;
     return Row(
       children: [
-        Text('${post.replyCount}', style: textStyle.copyWith(fontWeight: FontWeight.bold)),
+        Text('${_postController.post!.replyCount}', style: textStyle.copyWith(fontWeight: FontWeight.bold)),
         const SizedBox(width: 4),
         Text('Replies', style: textStyle.copyWith(color: Colors.grey[600])),
         const SizedBox(width: 16),
-        Text('${post.likeCount}', style: textStyle.copyWith(fontWeight: FontWeight.bold)),
+        Text('$likeCount', style: textStyle.copyWith(fontWeight: FontWeight.bold)),
         const SizedBox(width: 4),
         Text('Likes', style: textStyle.copyWith(color: Colors.grey[600])),
       ],
@@ -210,27 +231,28 @@ class _PostScreenState extends State<PostScreen> {
   }
 
   Widget _buildActions() {
-    final post = _postController.post!;
-    final isLiked = currentUser != null && post.isLikedBy(currentUser!.id);
-    
     return Center(
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Expanded(
-            child: Clickable(
-              onTap: _toggleReplyFocus,
-              child: Icon(Icons.chat_bubble_outline, size: 20, color: Colors.grey[600]),
+            child: Center(
+              child: Clickable(
+                onTap: _toggleReplyFocus,
+                child: Icon(Icons.chat_bubble_outline, size: 20, color: Colors.grey[600]),
+              ),
             ),
           ),
           Expanded(
-            child: Clickable(
-              onTap: _toggleLike,
-              child: Icon(
-                isLiked ? Icons.favorite : Icons.favorite_border,
-                size: 20,
-                color: isLiked ? Colors.red : Colors.grey[600],
-              ),
+            child: Center(
+              child: Clickable(
+                onTap: () => _toggleLike(),
+                child: Icon(
+                  isLiked ? Icons.favorite : Icons.favorite_border,
+                  size: 20,
+                  color: isLiked ? Colors.red : Colors.grey[600],
+                ),
+              )
             ),
           ),
         ],

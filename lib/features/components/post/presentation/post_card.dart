@@ -26,28 +26,39 @@ class PostCard extends StatefulWidget {
 }
 
 class _PostCardState extends State<PostCard> {
+  
   late PostController _postController;
-  bool isLiking = false;
+  late bool isLiking = false;
+  late bool isLiked = false;
+  late int likeCount = 0;
 
   @override
   void initState() {
     super.initState();
     _postController = PostController();
     _postController.post = widget.post;
+    isLiked = widget.post.isLikedBy(AuthService.currentUser?.id ?? '');
+    likeCount = widget.post.likeCount;
   }
 
   void _toggleLikeBy(User? user) async {
     if (user == null || isLiking) return;
+
     setState(() {
       isLiking = true;
+      isLiked = !isLiked; // optimistic update
+      likeCount += isLiked ? 1 : -1;
     });
+
     final success = await _postController.toggleLike(user.id);
+
     setState(() {
       isLiking = false;
-      if (success && _postController.post != null) {
-        widget.onPostChanged?.call(_postController.post!);
-      }
     });
+
+    if (success && _postController.post != null) {
+      widget.onPostChanged?.call(_postController.post!); // backend sync
+    }
   }
 
   @override
@@ -59,7 +70,7 @@ class _PostCardState extends State<PostCard> {
 
     return Clickable( 
       onTap: () => goToPost(context, post: post, user: user),
-      hoverOpacity: false,
+      opaqueWhenHovered: false,
       child: CustomCard(
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -103,13 +114,13 @@ class _PostCardState extends State<PostCard> {
                                 }
                             },
                             child: Icon(
-                                post.isLikedBy(currentUser?.id ?? '') ? Icons.favorite : Icons.favorite_border,
+                                isLiked ? Icons.favorite : Icons.favorite_border,
                                 size: 20,
-                                color: post.isLikedBy(currentUser?.id ?? '') ? Colors.red : Colors.grey[600],
+                                color: isLiked ? Colors.red : Colors.grey[600],
                             ),
                         ),
                         const SizedBox(width: 4),
-                        Text('${post.likeCount}', style: textStyle.copyWith(color: Colors.grey[600])),
+                        Text('$likeCount', style: textStyle.copyWith(color: Colors.grey[600])),
                     ],
                   ),
                 ],
