@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:fleeds/core/utils/navigation_utils.dart';
-import 'package:fleeds/widgets/clickable.dart'; // Import the new widget
+import 'package:fleeds/widgets/clickable.dart';
 
+/// A clickable version that navigates to the user's profile on tap.
 class ClickableProfilePic extends ProfilePic {
   const ClickableProfilePic({
     super.key,
@@ -20,42 +21,23 @@ class ClickableProfilePic extends ProfilePic {
   }
 }
 
+/// A widget that displays a user's profile picture.
 class ProfilePic extends StatelessWidget {
-  final String imageUrl;
-  final double size;
+
+  static const double defaultSize = 24.0;
+  
+  final String _imageUrl;
+  final double _size;
   final VoidCallback? onTap;
   final dynamic user;
 
   const ProfilePic({
     super.key,
-    this.imageUrl = '',
-    this.size = 24.0,
+    String imageUrl = '',
+    double size = defaultSize,
     this.onTap,
     this.user,
-  });
-
-  Widget _buildProfilePicture() {
-    return Padding(
-      padding: const EdgeInsets.only(top: 4, right: 12),
-      child: CircleAvatar(
-        radius: size,
-        backgroundColor: Colors.grey,
-        child: imageUrl.isNotEmpty
-            ? ClipOval(
-                child: Image.network(
-                  imageUrl,
-                  width: size,
-                  height: size,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) {
-                    return Icon(Icons.person, color: Colors.white, size: 25);
-                  },
-                ),
-              )
-            : Icon(Icons.person, color: Colors.white, size: size),
-      ),
-    );
-  } 
+  }) : _size = size, _imageUrl = imageUrl;
 
   @override
   Widget build(BuildContext context) {
@@ -66,6 +48,29 @@ class ProfilePic extends StatelessWidget {
           )
         : _buildProfilePicture();
   }
+
+  Widget _buildProfilePicture() {
+    return Padding(
+      padding: const EdgeInsets.only(top: 4, right: 12),
+      child: CircleAvatar(
+        radius: _size,
+        backgroundColor: Colors.grey,
+        child: _imageUrl.isNotEmpty
+          ? ClipOval(
+              child: Image.network(
+                _imageUrl,
+                width: _size,
+                height: _size,
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) {
+                  return Icon(Icons.person, color: Colors.white, size: _size);
+                },
+              ),
+            )
+          : Icon(Icons.person, color: Colors.white, size: _size),
+      ),
+    );
+  } 
 }
 
 

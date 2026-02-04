@@ -6,7 +6,9 @@ import 'package:fleeds/features/screens/search/presentation/search_screen.dart';
 import 'package:fleeds/widgets/bottom_bar.dart';
 import 'package:fleeds/widgets/logo.dart';
 
+/// A main scaffold widget that adapts its layout based on screen size.
 class MainScaffold extends StatelessWidget {
+  
   final int currentIndex;
   final Widget body;
   final Widget? searchPanel;
@@ -20,6 +22,19 @@ class MainScaffold extends StatelessWidget {
     this.onAddPost,
   });
 
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(builder: (context, constraints) {
+      if (constraints.maxWidth < kDesktopBreakpoint) {
+        return _buildMobileLayout(context);
+      } else {
+        return _buildDesktopLayout(context);
+      }
+    });
+  }
+
+  /// Handles navigation based on the tapped index.
+  /// Home: 0, Profile: 1, Search/Notification: 2, Logout: 3
   void _onTap(BuildContext context, int index) {
     switch (index) {
       case 0:
@@ -30,7 +45,6 @@ class MainScaffold extends StatelessWidget {
         break;
       case 2:
         if (MediaQuery.of(context).size.width < kDesktopBreakpoint) {
-          // Mobile: navigate to SearchScreen
           Navigator.of(context).push(
             MaterialPageRoute(builder: (_) => SearchScreen()),
           );
@@ -47,17 +61,20 @@ class MainScaffold extends StatelessWidget {
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return LayoutBuilder(builder: (context, constraints) {
-      if (constraints.maxWidth < kDesktopBreakpoint) {
-        return _buildMobileLayout(context);
-      } else {
-        return _buildDesktopLayout(context);
-      }
-    });
+  /// Builds a menu item with an icon, label, and tap index.
+  Widget _buildMenuItem(BuildContext context, IconData icon, String label, int index) {
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: TextButton.icon(
+        icon: Icon(icon, size: 24),
+        label: Text(label, style: TextStyle(fontSize: 18)),
+        style: TextButton.styleFrom(alignment: Alignment.centerLeft),
+        onPressed: () => _onTap(context, index),
+      ),
+    );
   }
-
+  
+  /// Builds the mobile layout with a bottom navigation bar.
   Widget _buildMobileLayout(BuildContext context) {
     return Scaffold(
       body: body,
@@ -72,13 +89,14 @@ class MainScaffold extends StatelessWidget {
     );
   }
 
+  /// Builds the desktop layout with a side menu and optional search panel.
   Widget _buildDesktopLayout(BuildContext context) {
     return Scaffold(
       body: Row(
         children: [
-          // Menu Panel: 20%
+          // Menu Panel
           Flexible(
-            flex: 2, // 20%
+            flex: 2, /// 20%
             child: Column(
               mainAxisSize: MainAxisSize.max,
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -88,48 +106,16 @@ class MainScaffold extends StatelessWidget {
                   child: ClickableLogo(),
                 ),
                 const SizedBox(height: 32.0),
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: TextButton.icon(
-                    icon: Icon(Icons.home, size: 24),
-                    label: Text('Home', style: TextStyle(fontSize: 18)),
-                    style: TextButton.styleFrom(alignment: Alignment.centerLeft),
-                    onPressed: () => _onTap(context, 0),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: TextButton.icon(
-                    icon: Icon(Icons.person, size: 24),
-                    label: Text('Profile', style: TextStyle(fontSize: 18)),
-                    style: TextButton.styleFrom(alignment: Alignment.centerLeft),
-                    onPressed: () => _onTap(context, 1),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: TextButton.icon(
-                    icon: Icon(Icons.notifications, size: 24),
-                    label: Text('Notifications', style: TextStyle(fontSize: 18)),
-                    style: TextButton.styleFrom(alignment: Alignment.centerLeft),
-                    onPressed: () => _onTap(context, 2),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: TextButton.icon(
-                    icon: Icon(Icons.logout, size: 24),
-                    label: Text('Logout', style: TextStyle(fontSize: 18)),
-                    style: TextButton.styleFrom(alignment: Alignment.centerLeft),
-                    onPressed: () => _onTap(context, 3),
-                  ),
-                ),
+                _buildMenuItem(context, Icons.home, 'Home', 0),
+                _buildMenuItem(context, Icons.person, 'Profile', 1),
+                _buildMenuItem(context, Icons.notifications, 'Notifications', 2),
+                _buildMenuItem(context, Icons.logout, 'Logout', 3),
               ],
             ),
           ),
-          // Main Content: 50%
+          // Main Content
           Flexible(
-            flex: 6, // 50%
+            flex: 6, /// 60%
             child: Container(
               decoration: const BoxDecoration(
                 border: Border(
@@ -140,9 +126,9 @@ class MainScaffold extends StatelessWidget {
               child: body,
             ),
           ),
-          // Search Panel: 30%
+          // Search Panel:
           Flexible(
-            flex: 2, // 30%
+            flex: 2, /// 30%
             child: searchPanel ?? SearchPanel(onSearch: (query) {}, results: []),
           ),
         ],

@@ -1,34 +1,42 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+/// A clickable widget that changes opacity on hover and handles tap events.
 class Clickable extends StatefulWidget {
+  
   final VoidCallback? onTap;
   final Widget child;
-  final bool hoverOpacity;
+  final bool _opaqueWhenHovered;
 
   const Clickable({
     super.key,
     required this.child,
     this.onTap,
-    this.hoverOpacity = true,
-  });
+    bool opaqueWhenHovered = true,
+  }) : _opaqueWhenHovered = opaqueWhenHovered;
 
   @override
   State<Clickable> createState() => _ClickableState();
 }
 
+/// State class for Clickable widget.
 class _ClickableState extends State<Clickable> {
-  double _opacity = 1.0;
+  
+  static const double hoveredOpacity = 0.5;
+  static const double normalOpacity = 1.0;
+  
+  double _opacity = normalOpacity;
 
   void _onEnter(PointerEnterEvent event) {
     setState(() {
-      _opacity = widget.hoverOpacity ? 0.5 : 1.0;
+      _opacity = widget._opaqueWhenHovered ? 
+        hoveredOpacity : normalOpacity;
     });
   }
 
   void _onExit(PointerExitEvent event) {
     setState(() {
-      _opacity = 1.0;
+      _opacity = normalOpacity;
     });
   }
 

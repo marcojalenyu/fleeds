@@ -1,20 +1,23 @@
 import 'package:flutter/material.dart';
 
+/// A bottom navigation bar with fixed items: 
+/// Home, Profile, Search, Logout.
 class BottomBar extends StatelessWidget {
-  final int currentIndex;
+
+  final int _currentIndex;
   final ValueChanged<int> onTap;
 
   const BottomBar({
     super.key,
-    required this.currentIndex,
+    required int currentIndex,
     required this.onTap,
-  });
+  }) : _currentIndex = currentIndex;
 
   @override
   Widget build(BuildContext context) {
     return BottomNavigationBar(
       type: BottomNavigationBarType.fixed,
-      currentIndex: currentIndex,
+      currentIndex: _currentIndex,
       onTap: onTap,
       items: const [
         BottomNavigationBarItem(

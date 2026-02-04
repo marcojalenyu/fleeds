@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+/// Clickable version of the Logo widget that navigates to home on tap.
 class ClickableLogo extends Logo {
   const ClickableLogo({
     super.key, 
@@ -8,30 +9,34 @@ class ClickableLogo extends Logo {
   }) : super(isButton: true);
 }
 
+/// A widget that displays the app logo.
 class Logo extends StatelessWidget {
-  final double size;
-  final Color? color;
-  final bool isButton;
+  
+  static const double defaultSize = 64.0;
+
+  final double _size;
+  final Color? _color;
+  final bool _isButton;
 
   const Logo(
     {
       super.key, 
-      this.size = 64.0, 
-      this.color,
-      this.isButton = false
+      double size = defaultSize, 
+      Color? color,
+      bool isButton = false
     }
-  );
+  ) : _isButton = isButton, _color = color, _size = size;
 
   @override
   Widget build(BuildContext context) {
-    if (isButton) {
+    if (_isButton) {
       return IconButton(
-        iconSize: size, // Ensure IconButton uses your size
+        iconSize: _size,
         icon: Image.asset(
           'assets/icon.png',
-          width: size,
-          height: size,
-          color: color,
+          width: _size,
+          height: _size,
+          color: _color,
         ),
         onPressed: () {
           Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
@@ -40,9 +45,9 @@ class Logo extends StatelessWidget {
     } else {
       return Image.asset(
         'assets/icon.png',
-        width: size,
-        height: size,
-        color: color,
+        width: _size,
+        height: _size,
+        color: _color,
       );
     }
   }
