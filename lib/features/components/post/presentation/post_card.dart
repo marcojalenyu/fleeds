@@ -41,7 +41,7 @@ class _PostCardState extends State<PostCard> {
     setState(() {
       isLiking = true;
     });
-    final success = await _postController.toggleLike(_postController.post!.id);
+    final success = await _postController.toggleLike(user.id);
     setState(() {
       isLiking = false;
       if (success && _postController.post != null) {
