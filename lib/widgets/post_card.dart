@@ -1,8 +1,8 @@
+import 'package:fleeds/domain/models/post.dart';
+import 'package:fleeds/domain/models/user.dart';
 import 'package:flutter/material.dart';
 import 'package:fleeds/core/utils/date_utils.dart';
 import 'package:fleeds/core/utils/navigation_utils.dart';
-import 'package:fleeds/data/models/post.dart';
-import 'package:fleeds/data/models/user.dart';
 import 'package:fleeds/data/services/auth_service.dart';
 import 'package:fleeds/features/post/logic/post_controller.dart';
 import 'package:fleeds/widgets/card.dart';
@@ -41,7 +41,7 @@ class _PostCardState extends State<PostCard> {
     setState(() {
       isLiking = true;
     });
-    final success = await _postController.likePost(_postController.post!.id, user.id);
+    final success = await _postController.toggleLike(_postController.post!.id);
     setState(() {
       isLiking = false;
       if (success && _postController.post != null) {
@@ -94,7 +94,7 @@ class _PostCardState extends State<PostCard> {
                             child: Icon(Icons.chat_bubble_outline, size: 20, color: Colors.grey[600]),
                         ),
                         const SizedBox(width: 4),
-                        Text('${post.commentCount}', style: textStyle.copyWith(color: Colors.grey[600])),
+                        Text('${post.replyCount}', style: textStyle.copyWith(color: Colors.grey[600])),
                         const SizedBox(width: 32),
                         Clickable(
                             onTap: () {
@@ -103,9 +103,9 @@ class _PostCardState extends State<PostCard> {
                                 }
                             },
                             child: Icon(
-                                post.likedBy(currentUser?.id ?? '') ? Icons.favorite : Icons.favorite_border,
+                                post.isLikedBy(currentUser?.id ?? '') ? Icons.favorite : Icons.favorite_border,
                                 size: 20,
-                                color: post.likedBy(currentUser?.id ?? '') ? Colors.red : Colors.grey[600],
+                                color: post.isLikedBy(currentUser?.id ?? '') ? Colors.red : Colors.grey[600],
                             ),
                         ),
                         const SizedBox(width: 4),

@@ -1,6 +1,6 @@
+import 'package:fleeds/domain/models/user.dart';
 import 'package:flutter/material.dart';
 import 'package:fleeds/core/utils/navigation_utils.dart';
-import 'package:fleeds/data/models/user.dart';
 import 'package:fleeds/widgets/card.dart';
 import 'package:fleeds/widgets/clickable.dart';
 import 'package:fleeds/widgets/profile_pic.dart';

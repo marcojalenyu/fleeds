@@ -1,8 +1,8 @@
-import 'package:fleeds/data/models/post.dart';
+import 'package:fleeds/data/dtos/post_dto.dart';
 
-final List<Post> mockPosts = [
+final List<PostDTO> mockPosts = [
   for (int i = 1; i <= 20; i++)
-    Post(
+    PostDTO(
       id: '$i',
       authorId: 'user2',
       content: 'This is the content of post #$i from user2.',

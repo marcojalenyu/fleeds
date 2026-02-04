@@ -1,131 +1,59 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:fleeds/data/models/user.dart';
+import 'package:fleeds/data/dtos/user_dto.dart';
+import 'package:fleeds/data/repositories/user_repository_impl.dart';
+import 'package:fleeds/domain/models/user.dart';
+import 'package:fleeds/domain/repositories/user_repository.dart';
 
+/// Service layer that handles business logic, maps DTOs to domain models, and orchestrates repository calls.
 class UserService {
-  static Future<User?> getUserById(String id) async {
-    try {
-      final doc = await FirebaseFirestore.instance.collection('users').doc(id).get();
-      if (doc.exists) {
-        return User.fromFirestore(doc.id, doc.data()!);
-      }
-      return null;
-    } catch (e) {
-      return null;
-    }
+  final UserRepository _repository;
+
+  const UserService({UserRepository? repository})
+      : _repository = repository ?? const UserRepositoryImpl();
+
+  User _mapDtoToDomain(UserDTO dto) {
+    return User(
+      id: dto.id,
+      username: dto.username,
+      displayName: dto.displayName,
+      bio: dto.bio,
+      avatarUrl: dto.avatarUrl,
+      followers: List<String>.from(dto.followers),
+      following: List<String>.from(dto.following),
+      createdAt: dto.createdAt,
+      updatedAt: dto.updatedAt,
+    );
+  }
+  
+  Future<User?> fetchUser(String userId) async {
+    final dto = await _repository.fetchUser(userId);
+    if (dto == null) return null;
+    return _mapDtoToDomain(dto);
   }
 
-  static Future<List<User>> getFollowers(String userId) async {
-    try {
-      final doc = await FirebaseFirestore.instance.collection('users').doc(userId).get();
-      if (!doc.exists) return [];
-      final data = doc.data()!;
-      final List<String> followerIds = List<String>.from(data['followers'] ?? []);
-      if (followerIds.isEmpty) return [];
-
-      final query = await FirebaseFirestore.instance
-          .collection('users')
-          .where(FieldPath.documentId, whereIn: followerIds)
-          .get();
-
-      return query.docs.map((doc) => User.fromFirestore(doc.id, doc.data())).toList();
-    } catch (e) {
-      return [];
-    }
+  Future<List<User>> fetchFollowers(String userId) async {
+    final dtos = await _repository.fetchFollowers(userId);
+    if (dtos == null) return [];
+    return dtos.map(_mapDtoToDomain).toList();
   }
 
-  static Future<List<User>> getFollowing(String userId) async {
-    try {
-      final doc = await FirebaseFirestore.instance.collection('users').doc(userId).get();
-      if (!doc.exists) return [];
-      final data = doc.data()!;
-      final List<String> followingIds = List<String>.from(data['following'] ?? []);
-      if (followingIds.isEmpty) return [];
-
-      final query = await FirebaseFirestore.instance
-          .collection('users')
-          .where(FieldPath.documentId, whereIn: followingIds)
-          .get();
-
-      return query.docs.map((doc) => User.fromFirestore(doc.id, doc.data())).toList();
-    } catch (e) {
-      return [];
-    }
+  Future<List<User>> fetchFollowing(String userId) async {
+    final dtos = await _repository.fetchFollowing(userId);
+    if (dtos == null) return [];
+    return dtos.map(_mapDtoToDomain).toList();
   }
 
-  static Future<bool> updateDisplayName(String userId, String newName) async {
-    final docRef = FirebaseFirestore.instance.collection('users').doc(userId);
-    try {
-      await docRef.update({'displayName': newName, 'updatedAt': FieldValue.serverTimestamp()});
-      return true;
-    } catch (e) {
-      return false;
-    }
+  Future<User?> updateUserProfile(String userId, {String? username, String? bio, String? avatarUrl}) async {
+    final dto = await _repository.updateUserProfile(userId, username: username, bio: bio, avatarUrl: avatarUrl);
+    if (dto == null) return null;
+    return _mapDtoToDomain(dto);
   }
 
-  static Future<bool> updateBio(String userId, String newBio) async {
-    final docRef = FirebaseFirestore.instance.collection('users').doc(userId);
-    try {
-      await docRef.update({'bio': newBio, 'updatedAt': FieldValue.serverTimestamp()});
-      return true;
-    } catch (e) {
-      return false;
-    }
+  Future<List<String>?> toggleFollow(String currentUserId, String targetUserId) async {
+    return await _repository.toggleFollow(currentUserId, targetUserId);
   }
 
-  static Future<bool> likePost(String userId, List<String> likedPosts) async {
-    final docRef = FirebaseFirestore.instance.collection('users').doc(userId);
-    try {
-      await docRef.update({'likedPosts': likedPosts, 'updatedAt': FieldValue.serverTimestamp()});
-      return true;
-    } catch (e) {
-      return false;
-    }
-  }
-
-  static Future<bool> follow(String currentUserId, String targetUserId) async {
-    final currentUserRef = FirebaseFirestore.instance.collection('users').doc(currentUserId);
-    final targetUserRef = FirebaseFirestore.instance.collection('users').doc(targetUserId);
-
-    try {
-      // Update current user's following
-      await currentUserRef.update({
-        'following': FieldValue.arrayUnion([targetUserId]),
-        'updatedAt': FieldValue.serverTimestamp(),
-      });
-
-      // Update target user's followers
-      await targetUserRef.update({
-        'followers': FieldValue.arrayUnion([currentUserId]),
-        'updatedAt': FieldValue.serverTimestamp(),
-      });
-
-      return true;
-    } catch (e) {
-      return false;
-    }
-  }
-
-  static Future<bool> unfollow(String currentUserId, String targetUserId) async {
-    final currentUserRef = FirebaseFirestore.instance.collection('users').doc(currentUserId);
-    final targetUserRef = FirebaseFirestore.instance.collection('users').doc(targetUserId);
-
-    try {
-      // Remove from current user's following
-      await currentUserRef.update({
-        'following': FieldValue.arrayRemove([targetUserId]),
-        'updatedAt': FieldValue.serverTimestamp(),
-      });
-
-      // Remove from target user's followers
-      await targetUserRef.update({
-        'followers': FieldValue.arrayRemove([currentUserId]),
-        'updatedAt': FieldValue.serverTimestamp(),
-      });
-
-      return true;
-    } catch (e) {
-      return false;
-    }
+  Future<List<String>?> removeFollower(String userId, String followerId) async {
+    return await _repository.removeFollower(userId, followerId);
   }
 }
 

@@ -1,5 +1,5 @@
+import 'package:fleeds/domain/models/user.dart';
 import 'package:flutter/material.dart';
-import 'package:fleeds/data/models/user.dart';
 import 'package:fleeds/data/services/user_service.dart';
 
 class UsersListController extends ChangeNotifier {
@@ -12,12 +12,12 @@ class UsersListController extends ChangeNotifier {
   UsersListController(String userid, String label) {
     _label = label;
     if (label == 'Followers') {
-      UserService.getFollowers(userid).then((fetchedUsers) {
+      UserService().fetchFollowers(userid).then((fetchedUsers) {
         _users = fetchedUsers;
         notifyListeners();
       });
     } else if (label == 'Following') {
-      UserService.getFollowing(userid).then((fetchedUsers) {
+      UserService().fetchFollowing(userid).then((fetchedUsers) {
         _users = fetchedUsers;
         notifyListeners();
       });

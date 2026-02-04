@@ -1,8 +1,8 @@
+import 'package:fleeds/domain/models/user.dart';
 import 'package:flutter/material.dart';
 import 'package:fleeds/core/utils/date_utils.dart';
 import 'package:fleeds/core/utils/navigation_utils.dart';
-import 'package:fleeds/data/models/post.dart';
-import 'package:fleeds/data/models/user.dart';
+import 'package:fleeds/domain/models/post.dart';
 import 'package:fleeds/data/services/auth_service.dart';
 import 'package:fleeds/data/services/user_service.dart';
 import 'package:fleeds/features/post/logic/post_controller.dart';
@@ -37,57 +37,15 @@ class _PostScreenState extends State<PostScreen> {
 
   final contentTextStyle = const TextStyle(fontSize: 20);
   final textStyle = const TextStyle(fontSize: 16);
-  bool isLiking = false;
   bool _loadingReplies = false;
 
   final TextEditingController _replyController = TextEditingController();
   final FocusNode _replyFocusNode = FocusNode();
 
-  void _toggleReplyFocus() {
-    if (_replyFocusNode.hasFocus) {
-      _replyFocusNode.unfocus();
-    } else {
-      FocusScope.of(context).requestFocus(_replyFocusNode);
-    }
-  }
-
-  Future<void> _replyToPost() async {
-    if (_replyController.text.isNotEmpty && currentUser != null) {
-      final newReplyId = await _postController.replyToPost(
-        _postController.post!.id,
-        currentUser!.id,
-        _replyController.text,
-      );
-      if (newReplyId.isNotEmpty) {
-        widget.onPostChanged?.call(_postController.post!);
-        await _loadReplies();
-      }
-      _replyController.clear();
-      _toggleReplyFocus();
-    }
-  }
-
-  Future<void> _toggleLikeBy(User? user) async {
-    if (user == null || isLiking) return;
-
-    setState(() {
-      isLiking = true;
-    });
-
-    final success = await _postController.likePost(_postController.post!.id, user.id);
-
-    setState(() {
-      isLiking = false;
-      if (success && _postController.post != null) {
-        widget.onPostChanged?.call(_postController.post!);
-      }
-    });
-  }
-
   @override
   void initState() {
     super.initState();
-    _postController = PostController();
+    _postController = PostController();    
     if (widget.post != null && widget.user != null) {
       _postController.post = widget.post!;
       user = widget.user!;
@@ -98,37 +56,63 @@ class _PostScreenState extends State<PostScreen> {
     }
   }
 
+  @override
+  void dispose() {
+    _postController.dispose();
+    _replyController.dispose();
+    _replyFocusNode.dispose();
+    super.dispose();
+  }
+
   Future<void> _loadPost() async {
     await _postController.fetchPost(widget.postId);
     final post = _postController.post;
     if (post == null) {
-      setState(() {
-        _loading = false;
-      });
+      setState(() => _loading = false);
       return;
-    }
-    final fetchedUser = await UserService.getUserById(post.authorId);
+    }  
+    final fetchedUser = await UserService().fetchUser(post.authorId);
     if (fetchedUser == null) {
-      setState(() {
-        _loading = false;
-      });
+      setState(() => _loading = false);
       return;
     }
     user = fetchedUser;
     await _loadReplies();
-    setState(() {
-      _loading = false;
-    });
+    setState(() => _loading = false);
   }
 
   Future<void> _loadReplies() async {
-    setState(() {
-      _loadingReplies = true;
-    });
+    setState(() => _loadingReplies = true);
     replies = await _postController.fetchReplies(_postController.post!.id);
-    setState(() {
-      _loadingReplies = false;
-    });
+    setState(() => _loadingReplies = false);
+  }
+
+  void _toggleReplyFocus() {
+    if (_replyFocusNode.hasFocus) {
+      _replyFocusNode.unfocus();
+    } else {
+      FocusScope.of(context).requestFocus(_replyFocusNode);
+    }
+  }
+
+  Future<void> _toggleLike() async {
+    if (currentUser == null) return;
+    await _postController.toggleLike(currentUser!.id);
+    // Controller handles optimistic update and notifies listeners
+  }
+
+  Future<void> _replyToPost() async {
+    if (_replyController.text.isEmpty || currentUser == null) return;
+    final newReplyId = await _postController.replyToPost(
+      _replyController.text,
+      currentUser!.id,
+      _postController.post!.id,
+    );
+    if (newReplyId != null) {
+      _replyController.clear();
+      _toggleReplyFocus();
+      await _loadReplies();
+    }
   }
 
   @override
@@ -139,10 +123,11 @@ class _PostScreenState extends State<PostScreen> {
         currentIndex: 0,
         body: Scaffold(
           appBar: AppBar(),
-          body: Center(child: CircularProgressIndicator()),
+          body: const Center(child: CircularProgressIndicator()),
         ),
       );
     }
+
     return MainScaffold(
       currentIndex: 1,
       body: Scaffold(
@@ -152,132 +137,155 @@ class _PostScreenState extends State<PostScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  ClickableProfilePic(user: user, imageUrl: ''),
-                  const SizedBox(width: 8),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Clickable(
-                        onTap: () => goToProfile(context, user),
-                        child: Text(
-                          user.displayName,
-                          style: textStyle.copyWith(fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                      Text('@${user.username}', style: textStyle.copyWith(color: Colors.grey[600])),
-                    ],
-                  ),
-                ],
-              ),
+              _buildPostHeader(),
               const SizedBox(height: 12),
               Text(post.content, style: contentTextStyle),
               const SizedBox(height: 12),
-              Text(DisplayDateUtils.displayDate(post.createdAt), style: textStyle.copyWith(color: Colors.grey[600])),
+              Text(
+                DisplayDateUtils.displayDate(post.createdAt),
+                style: textStyle.copyWith(color: Colors.grey[600]),
+              ),
               const SizedBox(height: 12),
               Divider(thickness: 1, color: Colors.grey[300], height: 12),
               const SizedBox(height: 6),
-              Row(
-                children: [
-                  Text('${post.commentCount}', style: textStyle.copyWith(fontWeight: FontWeight.bold)),
-                  const SizedBox(width: 4),
-                  Text('Replies', style: textStyle.copyWith(color: Colors.grey[600])),
-                  const SizedBox(width: 16),
-                  Text('${post.likeCount}', style: textStyle.copyWith(fontWeight: FontWeight.bold)),
-                  const SizedBox(width: 4),
-                  Text('Likes', style: textStyle.copyWith(color: Colors.grey[600])),
-                  const SizedBox(width: 4),
-                ],
-              ),
+              _buildStats(),
               const SizedBox(height: 6),
               Divider(thickness: 1, color: Colors.grey[300], height: 12),
               const SizedBox(height: 6),
-              Center(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Expanded(
-                      child: Clickable(
-                        onTap: _toggleReplyFocus,
-                        child: Icon(Icons.chat_bubble_outline, size: 20, color: Colors.grey[600]),
-                      ),
-                    ),
-                    Expanded(
-                      child: Clickable(
-                        onTap: () {
-                          if (!isLiking) {
-                            _toggleLikeBy(currentUser);
-                          }
-                        },
-                        child: Icon(
-                          post.likedBy(currentUser!.id) ? Icons.favorite : Icons.favorite_border,
-                          size: 20,
-                          color: post.likedBy(currentUser!.id) ? Colors.red : Colors.grey[600],
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+              _buildActions(),
               const SizedBox(height: 6),
               Divider(thickness: 1, color: Colors.grey[300], height: 12),
               const SizedBox(height: 8),
-              TextField(
-                controller: _replyController,
-                focusNode: _replyFocusNode,
-                maxLength: 128,
-                minLines: 3,
-                maxLines: 3,
-                decoration: InputDecoration(
-                  hintText: 'Write your reply...',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
-                ),
-                style: textStyle,
-              ),
-              const SizedBox(height: 8),
-              Align(
-                alignment: Alignment.centerRight,
-                child: ElevatedButton(
-                  onPressed: _replyToPost,
-                  child: Text('Reply'),
-                ),
-              ),
+              _buildReplyField(),
               const SizedBox(height: 8),
               Divider(thickness: 1, color: Colors.grey[300], height: 12),
               const SizedBox(height: 16),
-              _loadingReplies
-                  ? Center(child: CircularProgressIndicator())
-                  : replies.isEmpty
-                      ? Center(child: Text('No replies yet.', style: textStyle))
-                      : PostList(
-                          initialPosts: replies,
-                          shrinkWrap: true,
-                          physics: NeverScrollableScrollPhysics(),
-                          onPostChanged: (updatedPost) {
-                            setState(() {
-                              final index = replies.indexWhere((p) => p.id == updatedPost.id);
-                              if (index != -1) {
-                                replies[index] = updatedPost;
-                              }
-                              if (post.id == updatedPost.id) {
-                                // This is rare for replies, but keep for consistency
-                                _postController.post = updatedPost;
-                              }
-                            });
-                            widget.onPostChanged?.call(updatedPost);
-                          },
-                      )
+              _buildReplies(),
             ],
           ),
         ),
       ),
     );
   }
+
+  Widget _buildPostHeader() {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        ClickableProfilePic(user: user, imageUrl: ''),
+        const SizedBox(width: 8),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Clickable(
+              onTap: () => goToProfile(context, user),
+              child: Text(
+                user.displayName,
+                style: textStyle.copyWith(fontWeight: FontWeight.bold),
+              ),
+            ),
+            Text(
+              '@${user.username}',
+              style: textStyle.copyWith(color: Colors.grey[600]),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildStats() {
+    final post = _postController.post!;
+    return Row(
+      children: [
+        Text('${post.replyCount}', style: textStyle.copyWith(fontWeight: FontWeight.bold)),
+        const SizedBox(width: 4),
+        Text('Replies', style: textStyle.copyWith(color: Colors.grey[600])),
+        const SizedBox(width: 16),
+        Text('${post.likeCount}', style: textStyle.copyWith(fontWeight: FontWeight.bold)),
+        const SizedBox(width: 4),
+        Text('Likes', style: textStyle.copyWith(color: Colors.grey[600])),
+      ],
+    );
+  }
+
+  Widget _buildActions() {
+    final post = _postController.post!;
+    final isLiked = currentUser != null && post.isLikedBy(currentUser!.id);
+    
+    return Center(
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Expanded(
+            child: Clickable(
+              onTap: _toggleReplyFocus,
+              child: Icon(Icons.chat_bubble_outline, size: 20, color: Colors.grey[600]),
+            ),
+          ),
+          Expanded(
+            child: Clickable(
+              onTap: _toggleLike,
+              child: Icon(
+                isLiked ? Icons.favorite : Icons.favorite_border,
+                size: 20,
+                color: isLiked ? Colors.red : Colors.grey[600],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildReplyField() {
+    return Column(
+      children: [
+        TextField(
+          controller: _replyController,
+          focusNode: _replyFocusNode,
+          maxLength: 128,
+          minLines: 3,
+          maxLines: 3,
+          decoration: InputDecoration(
+            hintText: 'Write your reply...',
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+            contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+          ),
+          style: textStyle,
+        ),
+        const SizedBox(height: 8),
+        Align(
+          alignment: Alignment.centerRight,
+          child: ElevatedButton(
+            onPressed: _replyToPost,
+            child: const Text('Reply'),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildReplies() {
+    if (_loadingReplies) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    if (replies.isEmpty) {
+      return Center(child: Text('No replies yet.', style: textStyle));
+    }
+    return PostList(
+      initialPosts: replies,
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      onPostChanged: (updatedPost) {
+        setState(() {
+          final index = replies.indexWhere((p) => p.id == updatedPost.id);
+          if (index != -1) {
+            replies[index] = updatedPost;
+          }
+        });
+        widget.onPostChanged?.call(updatedPost);
+      },
+    );
+  }
 }
-
-

@@ -1,72 +1,56 @@
-import 'package:flutter/material.dart';
-import 'package:fleeds/data/models/user.dart';
 import 'package:fleeds/data/services/auth_service.dart';
 import 'package:fleeds/data/services/user_service.dart';
+import 'package:fleeds/domain/models/user.dart';
+import 'package:flutter/material.dart';
 
+/// Controller for managing profile-related logic, including fetching user data, handling follow/unfollow actions, and updating profile information.
 class ProfileController extends ChangeNotifier {
-  late User user;
+  final UserService _service;
+  late User? userOnProfile;
   bool isFollowing = false;
   bool isOwnProfile = false;
 
-  ProfileController._();
+  ProfileController({UserService? service})
+      : _service = service ?? const UserService();
 
-  static Future<ProfileController> create(String profileUserId) async {
-    final controller = ProfileController._();
-    if (profileUserId.isEmpty) {
-      controller.user = AuthService.currentUser!;
-    } else {
-      controller.user = (await UserService.getUserById(profileUserId))!;
-    }
-    controller.isOwnProfile = AuthService.currentUser?.id == controller.user.id;
-    controller.isFollowing = AuthService.currentUser?.following.contains(controller.user.id) ?? false;
+  static Future<ProfileController> initialize(String profileUserId, {UserService? service}) async {
+    final controller = ProfileController(service: service);
+    final userService = service ?? const UserService();
+    controller.userOnProfile = (profileUserId.isEmpty) ? 
+        AuthService.currentUser! : await userService.fetchUser(profileUserId);
+    controller.isOwnProfile = AuthService.currentUser?.id == controller.userOnProfile?.id;
+    controller.isFollowing = AuthService.currentUser != null &&
+        controller.userOnProfile != null &&
+        AuthService.currentUser!.following.contains(controller.userOnProfile!.id);
     return controller;
   }
 
   Future<void> toggleFollowUser(String userId) async {
     final currentUser = AuthService.currentUser;
     if (currentUser == null || isOwnProfile) return;
-
-    bool alreadyFollowing = currentUser.following.contains(userId);
-
-    User updatedUser;
-    if (alreadyFollowing) {
-      // Unfollow logic
-      updatedUser = currentUser.unfollow(userId);
+    try {
+      User updatedUser = currentUser.toggleFollow(userId);
+      userOnProfile = userOnProfile!.addFollower(userId);
       AuthService.setCurrentUser(updatedUser);
-      await UserService.unfollow(updatedUser.id, userId);
-
-      // Update viewed user's followers list locally
-      user = user.copyWith(
-        followers: user.followers.where((id) => id != currentUser.id).toList(),
-        updatedAt: DateTime.now(),
-      );
-    } else {
-      // Follow logic
-      updatedUser = currentUser.follow(userId);
-      AuthService.setCurrentUser(updatedUser);
-      await UserService.follow(updatedUser.id, userId);
-
-      // Update viewed user's followers list locally
-      user = user.copyWith(
-        followers: [...user.followers, currentUser.id],
-        updatedAt: DateTime.now(),
-      );
+      await _service.toggleFollow(updatedUser.id, userId);
+      isFollowing = !isFollowing;
+      notifyListeners();
+    } catch (e) {
+      return;
     }
-
-    isFollowing = updatedUser.following.contains(userId);
-    notifyListeners();
   }
 
   Future<void> updateProfile(String newDisplayName, String newBio) async {
     final currentUser = AuthService.currentUser;
     if (currentUser == null || !isOwnProfile) return;
-
-    user = user.updateDisplayName(newDisplayName).updateBio(newBio);
-    AuthService.setCurrentUser(user);
-
-    await UserService.updateDisplayName(user.id, newDisplayName);
-    await UserService.updateBio(user.id, newBio);
-    notifyListeners();
+    try {
+      userOnProfile = userOnProfile!.updateDisplayName(newDisplayName).updateBio(newBio);
+      AuthService.setCurrentUser(userOnProfile!);
+      await _service.updateUserProfile(userOnProfile!.id, username: newDisplayName, bio: newBio);
+      notifyListeners();
+    } catch (e) {
+      return;
+    }    
   }
 }
 

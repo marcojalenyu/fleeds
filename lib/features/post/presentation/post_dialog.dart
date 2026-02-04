@@ -1,5 +1,5 @@
+import 'package:fleeds/domain/models/user.dart';
 import 'package:flutter/material.dart';
-import 'package:fleeds/data/models/user.dart';
 
 class AddPostDialog extends StatefulWidget {
   final User user;

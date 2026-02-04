@@ -1,13 +1,18 @@
 import 'package:firebase_auth/firebase_auth.dart' as fb;
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:fleeds/data/models/user.dart';
+import 'package:fleeds/data/services/user_service.dart';
+import 'package:fleeds/domain/models/user.dart';
 
+/// Service layer that handles authentication logic, user session management, and interaction with Firebase Auth.
 class AuthService {
   static User? _currentUser;
   static User? get currentUser => _currentUser;
+  static const UserService _userService = UserService();
 
-  // Allows for updating the current user after login, signup, or profile changes
-  static void setCurrentUser(User user) {
+  const AuthService();
+
+  /// Updates the current user in the AuthService
+  static void setCurrentUser(User? user) {
     _currentUser = user;
   }
 
@@ -15,14 +20,11 @@ class AuthService {
   static Future<void> initializeCurrentUser() async {
     final fbUser = fb.FirebaseAuth.instance.currentUser;
     if (fbUser != null) {
-      // Fetch user data from Firestore if needed
-      final doc = await FirebaseFirestore.instance.collection('users').doc(fbUser.uid).get();
-      if (doc.exists) {
-        _currentUser = User.fromFirestore(fbUser.uid, doc.data()!, email: fbUser.email ?? '');
-      }
+      _currentUser = await _userService.fetchUser(fbUser.uid);
     }
   }
 
+  /// Logs in a user with the provided username and password.
   static Future<bool> login(String username, String password) async {
     try {
       final query = await FirebaseFirestore.instance
@@ -42,20 +44,14 @@ class AuthService {
         email: email,
         password: password,
       );
-
-      _currentUser = User.fromFirestore(
-        credential.user!.uid, 
-        userData, 
-        email: email
-      );
-
+      _currentUser = await _userService.fetchUser(credential.user!.uid);
+      return _currentUser != null;
     } catch (e) {
       return false;
     }
-
-    return true;
   }
 
+  /// Signs up a new user with the provided details.
   static Future<bool> signup(
     String displayName,
     String username,
@@ -88,31 +84,24 @@ class AuthService {
         'displayName': displayName,
         'email': email,
         'bio': '',
+        'avatarUrl': '',
         'followers': [],
         'following': [],
-        'likedPosts': [],
         'createdAt': FieldValue.serverTimestamp(),
         'updatedAt': FieldValue.serverTimestamp(),
       });
 
-      _currentUser = User(
-        id: credential.user!.uid,
-        username: username,
-        displayName: displayName,
-        createdAt: DateTime.now(),
-      );
+      _currentUser = await _userService.fetchUser(credential.user!.uid);
 
-      return true;
-
+      return _currentUser != null;
     } catch (e) {
       return false;
     }
   }
 
+  /// Logs out the current user.
   static Future<void> logout() async {
     await fb.FirebaseAuth.instance.signOut();
     _currentUser = null;
   }
 }
-
-

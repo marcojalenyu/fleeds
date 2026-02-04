@@ -62,7 +62,7 @@ class _LoginScreenState extends State<LoginScreen> {
               Logo(size: kLoginLogoSizeMobile),
               const SizedBox(height: 16),
               Text(
-                'Welcome to Nota',
+                'Welcome to Fleeds',
                 style: Theme.of(context)
                     .textTheme
                     .headlineSmall

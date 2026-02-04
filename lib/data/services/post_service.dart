@@ -1,208 +1,66 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:fleeds/data/models/post.dart';
+import 'package:fleeds/data/dtos/post_dto.dart';
+import 'package:fleeds/data/repositories/post_repository_impl.dart';
+import 'package:fleeds/domain/models/post.dart';
+import 'package:fleeds/domain/repositories/post_repository.dart';
 
+/// Service class that interacts with PostRepository to perform operations related to posts.
+/// Maps PostDTOs to Post domain models.
 class PostService {
-  static Future<Post?> fetchPost(String postId) async {
-    try {
-      final doc = await FirebaseFirestore.instance.collection('posts').doc(postId).get();
-      if (!doc.exists) return null;
-      final data = doc.data()!;
-      return Post(
-        id: doc.id,
-        authorId: data['authorId'] ?? '',
-        repliedToPostId: data['repliedToPostId'] ?? '',
-        content: data['content'] ?? '',
-        createdAt: (data['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
-        updatedAt: (data['updatedAt'] as Timestamp?)?.toDate(),
-        likes: List<String>.from(data['likes'] ?? []),
-        comments: List<String>.from(data['comments'] ?? []),
-      );
-    } catch (e) {
-      return null;
-    }
+  final PostRepository _repository;
+
+  const PostService({PostRepository? repository})
+      : _repository = repository ?? const PostRepositoryImpl();
+
+  Post _mapDtoToDomain(PostDTO dto) {
+    return Post(
+      id: dto.id,
+      authorId: dto.authorId,
+      repliedToPostId: dto.repliedToPostId,
+      content: dto.content,
+      imageUrl: dto.imageUrl,
+      createdAt: dto.createdAt,
+      updatedAt: dto.updatedAt,
+      deleted: dto.deleted,
+      likes: List<String>.from(dto.likes),
+      replies: List<String>.from(dto.comments),
+    );
   }
 
-  static Future<List<Post>> fetchPosts({List<String> keywords = const []}) async {
-    try {
-      final query = await FirebaseFirestore.instance.collection('posts').get();
-      List<Post> posts = query.docs.map((doc) {
-        final data = doc.data();
-        return Post(
-          id: doc.id,
-          authorId: data['authorId'] ?? '',
-          repliedToPostId: data['repliedToPostId'] ?? '',
-          content: data['content'] ?? '',
-          createdAt: (data['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
-          updatedAt: (data['updatedAt'] as Timestamp?)?.toDate(),
-          likes: List<String>.from(data['likes'] ?? []),
-          comments: List<String>.from(data['comments'] ?? []),
-        );
-      }).where((post) => !post.deleted && !post.isAReply()).toList();
-
-      posts.sort((a, b) => b.createdAt.compareTo(a.createdAt));
-
-      if (keywords.isNotEmpty) {
-        posts = posts.where((post) {
-          return keywords.any((keyword) => post.content.contains(keyword));
-        }).toList();
-      }
-
-      return posts;
-    } catch (e) {
-      return [];
-    }
+  Future<Post?> fetchPost(String postId) async {
+    final dto = await _repository.fetchPost(postId);
+    if (dto == null) return null;
+    return _mapDtoToDomain(dto);
   }
 
-  static Future<List<Post>> fetchPostsLikedByUser(String userId) async {
-    try {
-      final query = await FirebaseFirestore.instance
-          .collection('posts')
-          .where('likes', arrayContains: userId)
-          .get();
-
-      return query.docs.map((doc) {
-        final data = doc.data();
-        return Post(
-          id: doc.id,
-          authorId: data['authorId'] ?? '',
-          repliedToPostId: data['repliedToPostId'] ?? '',
-          content: data['content'] ?? '',
-          createdAt: (data['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
-          updatedAt: (data['updatedAt'] as Timestamp?)?.toDate(),
-          likes: List<String>.from(data['likes'] ?? []),
-          comments: List<String>.from(data['comments'] ?? []),
-        );
-      }).where((post) => !post.deleted && !post.isAReply()).toList();
-    } catch (e) {
-      return [];
-    }
+  Future<List<Post>> fetchPostsByKeyword({List<String> keywords = const []}) async {
+    final dtos = await _repository.fetchPostsByKeyword(keywords: keywords);
+    return dtos.map(_mapDtoToDomain).toList();
   }
 
-  static Future<List<Post>> fetchReplies(String postId) async {
-    try {
-      final query = await FirebaseFirestore.instance
-          .collection('posts')
-          .where('repliedToPostId', isEqualTo: postId)
-          .where('deleted', isEqualTo: false)
-          .get();
-
-      return query.docs.map((doc) {
-        final data = doc.data();
-        return Post(
-          id: doc.id,
-          authorId: data['authorId'] ?? '',
-          repliedToPostId: data['repliedToPostId'] ?? '',
-          content: data['content'] ?? '',
-          createdAt: (data['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
-          updatedAt: (data['updatedAt'] as Timestamp?)?.toDate(),
-          likes: List<String>.from(data['likes'] ?? []),
-          comments: List<String>.from(data['comments'] ?? []),
-        );
-      }).where((post) => !post.deleted).toList();
-    } catch (e) {
-      return [];
-    }
+  Future<List<Post>> fetchPostsByUser(String userId) async {
+    final dtos = await _repository.fetchPostsByUser(userId);
+    return dtos.map(_mapDtoToDomain).toList();
   }
 
-  static Future<List<Post>> fetchPostsByUser(String userId) async {
-    try {
-      final query = await FirebaseFirestore.instance
-          .collection('posts')
-          .where('authorId', isEqualTo: userId)
-          .where('deleted', isEqualTo: false)
-          .get();
-
-      return query.docs.map((doc) {
-        final data = doc.data();
-        return Post(
-          id: doc.id,
-          authorId: data['authorId'] ?? '',
-          repliedToPostId: data['repliedToPostId'] ?? '',
-          content: data['content'] ?? '',
-          createdAt: (data['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
-          updatedAt: (data['updatedAt'] as Timestamp?)?.toDate(),
-          likes: List<String>.from(data['likes'] ?? []),
-          comments: List<String>.from(data['comments'] ?? []),
-        );
-      }).toList();
-    } catch (e) {
-      return [];
-    }
+  Future<List<Post>> fetchPostsLikedByUser(String userId) async {
+    final dtos = await _repository.fetchPostsLikedByUser(userId);
+    return dtos.map(_mapDtoToDomain).toList();
   }
 
-  static Future<bool> addPost(String content, String authorId) async {
-    final docRef = FirebaseFirestore.instance.collection('posts').doc();
-    try {
-      await docRef.set({
-        'authorId': authorId,
-        'content': content,
-        'createdAt': FieldValue.serverTimestamp(),
-        'updatedAt': FieldValue.serverTimestamp(),
-        'likes': [],
-        'comments': [],
-        'deleted': false,
-        'repliedToPostId': null,
-      });
-      return true;
-    } catch (e) {
-      return false;
-    }
+  Future<List<Post>> fetchReplies(String postId) async {
+    final dtos = await _repository.fetchReplies(postId);
+    return dtos.map(_mapDtoToDomain).toList();
   }
 
-  static Future<String?> addReply(String parentPostId, String authorId, String content) async {
-    final docRef = FirebaseFirestore.instance.collection('posts').doc();
-    final parentRef = FirebaseFirestore.instance.collection('posts').doc(parentPostId);
-
-    try {
-      await docRef.set({
-        'authorId': authorId,
-        'content': content,
-        'createdAt': FieldValue.serverTimestamp(),
-        'updatedAt': FieldValue.serverTimestamp(),
-        'likes': [],
-        'comments': [],
-        'deleted': false,
-        'repliedToPostId': parentPostId,
-      });
-
-      await parentRef.update({
-        'comments': FieldValue.arrayUnion([docRef.id]),
-        'updatedAt': FieldValue.serverTimestamp(),
-      });
-      return docRef.id;
-    } catch (e) {
-      return null;
-    }
+  Future<String?> addPost(String content, String authorId) async {
+    return await _repository.addPost(content, authorId);
   }
 
-  static Future<List<String>?> toggleLike(String postId, String userId) async {
-    final docRef = FirebaseFirestore.instance.collection('posts').doc(postId);
-    try {
-      final doc = await docRef.get();
-      final data = doc.data();
-      final List<dynamic> likes = data?['likes'] ?? [];
-      final bool alreadyLiked = likes.contains(userId);
+  Future<String?> addReply(String content, String authorId, String repliedToPostId) async {
+    return await _repository.addReply(content, authorId, repliedToPostId);
+  }
 
-      if (alreadyLiked) {
-        await docRef.update({
-          'likes': FieldValue.arrayRemove([userId]),
-          'updatedAt': FieldValue.serverTimestamp(),
-        });
-      } else {
-        await docRef.update({
-          'likes': FieldValue.arrayUnion([userId]),
-          'updatedAt': FieldValue.serverTimestamp(),
-        });
-      }
-
-      // Refetch likes after update for consistency
-      final updatedDoc = await docRef.get();
-      final updatedLikes = List<String>.from(updatedDoc.data()?['likes'] ?? []);
-      return updatedLikes;
-    } catch (e) {
-      return null;
-    }
+  Future<List<String>?> toggleLike(String postId, String userId) async {
+    return await _repository.toggleLike(postId, userId);
   }
 }
-
-

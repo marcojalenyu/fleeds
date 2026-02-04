@@ -1,6 +1,6 @@
+import 'package:fleeds/domain/models/post.dart';
+import 'package:fleeds/domain/models/user.dart';
 import 'package:flutter/material.dart';
-import 'package:fleeds/data/models/post.dart';
-import 'package:fleeds/data/models/user.dart';
 import 'package:fleeds/data/services/auth_service.dart';
 import 'package:fleeds/features/userlist/presentation/userslist_screen.dart';
 

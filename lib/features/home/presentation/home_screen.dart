@@ -1,5 +1,5 @@
+import 'package:fleeds/domain/models/post.dart';
 import 'package:flutter/material.dart';
-import 'package:fleeds/data/models/post.dart';
 import 'package:fleeds/data/services/auth_service.dart';
 import 'package:fleeds/features/post/logic/post_controller.dart';
 import 'package:fleeds/features/post/presentation/post_dialog.dart';
@@ -53,7 +53,8 @@ class _HomeScreenState extends State<HomeScreen> {
         result['content'] ?? '',
         currentUser.id,
       );
-      if (success) {
+      if (success != null) {
+        // Refresh posts after adding a new one
         await _fetchPosts();
       } else {
         // ignore: use_build_context_synchronously

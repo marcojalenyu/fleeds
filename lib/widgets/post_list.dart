@@ -1,8 +1,8 @@
+import 'package:fleeds/domain/models/post.dart';
+import 'package:fleeds/domain/models/user.dart';
 import 'package:flutter/material.dart';
-import 'package:fleeds/data/models/post.dart';
 import 'package:fleeds/widgets/post_card.dart';
 import 'package:fleeds/data/services/user_service.dart';
-import 'package:fleeds/data/models/user.dart';
 
 class PostList extends StatefulWidget {
   final List<Post> initialPosts;
@@ -78,7 +78,7 @@ class _PostListState extends State<PostList> {
         if (index < posts.length) {
           final post = posts[index];
           return FutureBuilder<User?>(
-            future: UserService.getUserById(post.authorId),
+            future: UserService().fetchUser(post.authorId),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return const Padding(
