@@ -2,14 +2,14 @@ import 'package:fleeds/domain/models/post.dart';
 import 'package:fleeds/domain/models/user.dart';
 import 'package:flutter/material.dart';
 import 'package:fleeds/core/utils/navigation_utils.dart';
-import 'package:fleeds/features/profile/logic/profile_controller.dart';
-import 'package:fleeds/features/post/logic/post_controller.dart';
+import 'package:fleeds/features/screens/profile/logic/profile_controller.dart';
+import 'package:fleeds/features/components/post/logic/post_controller.dart';
 import 'package:fleeds/widgets/clickable.dart';
 import 'package:fleeds/widgets/main_scaffold.dart';
-import 'package:fleeds/widgets/post_list.dart';
+import 'package:fleeds/features/components/post/presentation/post_list.dart';
 import 'package:fleeds/widgets/profile_btn.dart';
 import 'package:fleeds/widgets/profile_pic.dart';
-import 'package:fleeds/features/profile/presentation/profile_edit_dialog.dart'; // Import where showProfileEditDialog is defined
+import 'package:fleeds/features/components/edit_profile/presentation/profile_edit_dialog.dart'; // Import where showProfileEditDialog is defined
 
 class ProfileScreen extends StatefulWidget {
   final String? userId;

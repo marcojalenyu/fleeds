@@ -1,7 +1,7 @@
 import 'package:fleeds/domain/models/post.dart';
 import 'package:fleeds/domain/models/user.dart';
 import 'package:flutter/material.dart';
-import 'package:fleeds/widgets/post_card.dart';
+import 'package:fleeds/features/components/post/presentation/post_card.dart';
 import 'package:fleeds/data/services/user_service.dart';
 
 class PostList extends StatefulWidget {

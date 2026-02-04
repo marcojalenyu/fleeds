@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:fleeds/core/constants/constants.dart';
 import 'package:fleeds/data/services/auth_service.dart';
 import 'package:fleeds/widgets/logo.dart';
-import 'package:fleeds/widgets/login_form.dart';
-import 'package:fleeds/widgets/signup_form.dart';
+import 'package:fleeds/features/components/login/presentation/login_form.dart';
+import 'package:fleeds/features/components/signup/presentation/signup_form.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});

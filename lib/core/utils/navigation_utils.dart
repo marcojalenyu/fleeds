@@ -2,7 +2,7 @@ import 'package:fleeds/domain/models/post.dart';
 import 'package:fleeds/domain/models/user.dart';
 import 'package:flutter/material.dart';
 import 'package:fleeds/data/services/auth_service.dart';
-import 'package:fleeds/features/userlist/presentation/userslist_screen.dart';
+import 'package:fleeds/features/screens/userlist/presentation/userslist_screen.dart';
 
 void goToPost(BuildContext context, {required Post post, required User user}) {
   Navigator.of(context).pushNamed(

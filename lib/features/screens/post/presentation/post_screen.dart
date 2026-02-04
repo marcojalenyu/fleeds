@@ -5,10 +5,10 @@ import 'package:fleeds/core/utils/navigation_utils.dart';
 import 'package:fleeds/domain/models/post.dart';
 import 'package:fleeds/data/services/auth_service.dart';
 import 'package:fleeds/data/services/user_service.dart';
-import 'package:fleeds/features/post/logic/post_controller.dart';
+import 'package:fleeds/features/components/post/logic/post_controller.dart';
 import 'package:fleeds/widgets/clickable.dart';
 import 'package:fleeds/widgets/main_scaffold.dart';
-import 'package:fleeds/widgets/post_list.dart';
+import 'package:fleeds/features/components/post/presentation/post_list.dart';
 import 'package:fleeds/widgets/profile_pic.dart';
 
 class PostScreen extends StatefulWidget {

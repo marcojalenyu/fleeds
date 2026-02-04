@@ -3,11 +3,11 @@ import 'package:firebase_core/firebase_core.dart';
 
 import 'package:fleeds/core/constants/theme.dart';
 import 'package:fleeds/data/services/auth_service.dart';
-import 'package:fleeds/features/login/presentation/login_screen.dart';
-import 'package:fleeds/features/post/presentation/post_screen.dart';
-import 'package:fleeds/features/profile/presentation/profile_screen.dart';
+import 'package:fleeds/features/screens/login/presentation/login_screen.dart';
+import 'package:fleeds/features/screens/post/presentation/post_screen.dart';
+import 'package:fleeds/features/screens/profile/presentation/profile_screen.dart';
 import 'package:fleeds/firebase_options.dart';
-import 'features/home/presentation/home_screen.dart';
+import 'features/screens/home/presentation/home_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

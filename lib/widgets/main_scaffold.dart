@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:fleeds/core/constants/constants.dart';
 import 'package:fleeds/data/services/auth_service.dart';
-import 'package:fleeds/features/search/presentation/search_panel.dart';
-import 'package:fleeds/features/search/presentation/search_screen.dart';
+import 'package:fleeds/features/components/search/presentation/search_panel.dart';
+import 'package:fleeds/features/screens/search/presentation/search_screen.dart';
 import 'package:fleeds/widgets/bottom_bar.dart';
 import 'package:fleeds/widgets/logo.dart';
 

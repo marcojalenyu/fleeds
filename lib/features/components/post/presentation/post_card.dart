@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:fleeds/core/utils/date_utils.dart';
 import 'package:fleeds/core/utils/navigation_utils.dart';
 import 'package:fleeds/data/services/auth_service.dart';
-import 'package:fleeds/features/post/logic/post_controller.dart';
+import 'package:fleeds/features/components/post/logic/post_controller.dart';
 import 'package:fleeds/widgets/card.dart';
 import 'package:fleeds/widgets/clickable.dart';
 import 'package:fleeds/widgets/profile_pic.dart';
