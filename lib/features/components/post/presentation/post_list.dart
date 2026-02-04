@@ -29,6 +29,9 @@ class _PostListState extends State<PostList> {
   ScrollController? _controller;
   bool _isLoading = false;
 
+  final Map<String, User?> _users = {};
+  bool _usersLoading = true;
+
   @override
   void initState() {
     super.initState();
@@ -36,6 +39,7 @@ class _PostListState extends State<PostList> {
     if (widget.onLoadMore != null && !widget.shrinkWrap) {
       _controller = ScrollController()..addListener(_onScroll);
     }
+    _loadUsersForPosts(posts);
   }
 
   @override
@@ -45,6 +49,7 @@ class _PostListState extends State<PostList> {
       setState(() {
         posts = List.from(widget.initialPosts);
       });
+      _loadUsersForPosts(posts);
     }
   }
 
@@ -63,50 +68,61 @@ class _PostListState extends State<PostList> {
         posts.addAll(newPosts);
         _isLoading = false;
       });
+      if (newPosts.isNotEmpty) {
+        _loadUsersForPosts(newPosts);
+      }
     }
+  }
+
+  // Fetch users for given posts (only those not already cached). Shows one loader for the whole list.
+  Future<void> _loadUsersForPosts(List<Post> list) async {
+    final idsToFetch = list.map((p) => p.authorId).toSet().where((id) => !_users.containsKey(id)).toList();
+    if (idsToFetch.isEmpty) {
+      if (mounted) setState(() => _usersLoading = false);
+      return;
+    }
+
+    if (mounted) setState(() => _usersLoading = true);
+
+    final svc = UserService();
+    final Map<String, User?> fetched = {};
+
+    for (final id in idsToFetch) {
+      try {
+        final user = await svc.fetchUser(id);
+        fetched[id] = user;
+      } catch (_) {
+        fetched[id] = null;
+      }
+    }
+
+    if (!mounted) return;
+    setState(() {
+      _users.addAll(fetched);
+      _usersLoading = false;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
+    if (_usersLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
     return ListView.builder(
       padding: const EdgeInsets.symmetric(vertical: 16.0),
       controller: _controller,
       shrinkWrap: widget.shrinkWrap,
       physics: widget.physics ?? (widget.shrinkWrap ? const NeverScrollableScrollPhysics() : null),
-      itemCount: posts.length + (_isLoading ? 1 : 0),
+      itemCount: posts.length,
       itemBuilder: (context, index) {
-        if (index < posts.length) {
-          final post = posts[index];
-          return FutureBuilder<User?>(
-            future: UserService().fetchUser(post.authorId),
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Padding(
-                  padding: EdgeInsets.all(16.0),
-                  child: Center(child: CircularProgressIndicator()),
-                );
-              }
-              if (snapshot.data == null) {
-                return const Padding(
-                  padding: EdgeInsets.all(16.0),
-                  child: Center(child: Text('User not found')),
-                );
-              }
-              return PostCard(
-                post: post,
-                user: snapshot.data!,
-              );
-            },
-          );
-        } else {
-          return const Padding(
-            padding: EdgeInsets.all(16.0),
-            child: Center(child: CircularProgressIndicator()),
-          );
+        final post = posts[index];
+        final user = _users[post.authorId];
+        if (user == null) {
+          // fallback if user failed to load
+          return const Padding(padding: EdgeInsets.all(16.0));
         }
+        return PostCard(post: post, user: user);
       },
     );
   }
 }
-
-
