@@ -77,7 +77,6 @@ class User {
   }
 
   /// TODO: Implement avatar URL update method if needed.
-  
 
   User addFollower(String userId) {
     List<String> followers = List.from(this.followers);

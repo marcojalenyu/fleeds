@@ -9,7 +9,9 @@ import 'package:fleeds/widgets/card.dart';
 import 'package:fleeds/widgets/clickable.dart';
 import 'package:fleeds/widgets/profile_pic.dart';
 
+/// Widget to display a single post in a card format, used in lists and post details
 class PostCard extends StatefulWidget {
+
   final Post post;
   final User user;
   final void Function(Post)? onPostChanged;
@@ -27,107 +29,107 @@ class PostCard extends StatefulWidget {
 
 class _PostCardState extends State<PostCard> {
   
-  late PostController _postController;
-  late bool isLiking = false;
-  late bool isLiked = false;
-  late int likeCount = 0;
+  late final PostController _postController;
+  late bool _isLiking = false;
+  late bool _isLiked = false;
+  late int _likeCount = 0;
 
   @override
   void initState() {
     super.initState();
     _postController = PostController();
     _postController.post = widget.post;
-    isLiked = widget.post.isLikedBy(AuthService.currentUser?.id ?? '');
-    likeCount = widget.post.likeCount;
+    _isLiked = widget.post.isLikedBy(AuthService.currentUser?.id ?? '');
+    _likeCount = widget.post.likeCount;
   }
 
-  void _toggleLikeBy(User? user) async {
-    if (user == null || isLiking) return;
-
+  /// Toggles the like status of the post for the current user, with optimistic UI update
+  void _toggleLike(User? user) async {
+    if (user == null || _isLiking) return;
+    // Optimistically update UI
     setState(() {
-      isLiking = true;
-      isLiked = !isLiked; // optimistic update
-      likeCount += isLiked ? 1 : -1;
+      _isLiking = true;
+      _isLiked = !_isLiked; 
+      _likeCount += _isLiked ? 1 : -1;
     });
-
     final success = await _postController.toggleLike(user.id);
-
-    setState(() {
-      isLiking = false;
-    });
-
+    if (!mounted) return;
+    setState(() { _isLiking = false; });
+    // If the like action in backend failed, revert the optimistic update
     if (success && _postController.post != null) {
-      widget.onPostChanged?.call(_postController.post!); // backend sync
+      widget.onPostChanged?.call(_postController.post!);
+    } else {
+      setState(() {
+        _isLiked = !_isLiked; 
+        _likeCount += _isLiked ? 1 : -1;
+      });
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final user = widget.user;
-    final currentUser = AuthService.currentUser;
+    
     final post = _postController.post!;
+    final poster = widget.user;
+    final currentUser = AuthService.currentUser;
     const textStyle = TextStyle(fontSize: 16);
 
     return CustomCard(
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            ClickableProfilePic(user: user, imageUrl: ''),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                      children: [
-                        Clickable(
-                          onTap: () => goToProfile(context, user),
-                          child: Text(
-                            user.displayName,
-                            style: textStyle.copyWith(fontWeight: FontWeight.bold),
-                          ),
-                        ),
-                        const SizedBox(width: 6),
-                        Text('@${user.username}', style: textStyle.copyWith(color: Colors.grey[600])),
-                        const SizedBox(width: 6),
-                        Text('· ${DisplayDateUtils.displayTimeAgo(post.createdAt)}', style: textStyle.copyWith(color: Colors.grey[600])),
-                      ],
-                  ),
-                  const SizedBox(height: 2),
-                  SelectableText(post.content, style: textStyle),
-                  const SizedBox(height: 4),
-                  Row(
-                    children: [
-                        Clickable(
-                            onTap: () {
-                                goToPost(context, post: post, user: user);
-                            },
-                            child: Icon(Icons.chat_bubble_outline, size: 20, color: Colors.grey[600]),
-                        ),
-                        const SizedBox(width: 4),
-                        Text('${post.replyCount}', style: textStyle.copyWith(color: Colors.grey[600])),
-                        const SizedBox(width: 32),
-                        Clickable(
-                            onTap: () {
-                                if (!isLiking) {
-                                    _toggleLikeBy(currentUser);
-                                }
-                            },
-                            child: Icon(
-                                isLiked ? Icons.favorite : Icons.favorite_border,
-                                size: 20,
-                                color: isLiked ? Colors.red : Colors.grey[600],
-                            ),
-                        ),
-                        const SizedBox(width: 4),
-                        Text('$likeCount', style: textStyle.copyWith(color: Colors.grey[600])),
-                    ],
-                  ),
-                ],
-              ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          ClickableProfilePic(user: poster, imageUrl: ''),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                /// Post header: Display name, username, timestamp
+                Row(
+                  children: [
+                    Clickable(
+                      onTap: () => goToProfile(context, poster),
+                      child: Text(
+                        poster.displayName,
+                        style: textStyle.copyWith(fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                    const SizedBox(width: 6),
+                    Text('@${poster.username}', style: textStyle.copyWith(color: Colors.grey[600])),
+                    const SizedBox(width: 6),
+                    Text('· ${DisplayDateUtils.displayTimeAgo(post.createdAt)}', style: textStyle.copyWith(color: Colors.grey[600])),
+                  ],
+                ),
+                const SizedBox(height: 2),
+                SelectableText(post.content, style: textStyle),
+                const SizedBox(height: 4),
+                /// Action buttons: Reply and Like
+                Row(
+                  children: [
+                    Clickable(
+                      onTap: () => goToPost(context, post: post, user: poster),
+                      child: Icon(Icons.chat_bubble_outline, size: 20, color: Colors.grey[600]),
+                    ),
+                    const SizedBox(width: 4),
+                    Text('${post.replyCount}', style: textStyle.copyWith(color: Colors.grey[600])),
+                    const SizedBox(width: 32),
+                    Clickable(
+                      onTap: _isLiking ? null : () => _toggleLike(currentUser),
+                      child: Icon(
+                        _isLiked ? Icons.favorite : Icons.favorite_border,
+                        size: 20,
+                        color: _isLiked ? Colors.red : Colors.grey[600],
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                    Text('$_likeCount', style: textStyle.copyWith(color: Colors.grey[600])),
+                  ],
+                ),
+              ],
             ),
-          ],
-        ),
-      );
+          ),
+        ],
+      ),
+    );
   }
 }
 

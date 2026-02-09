@@ -1,16 +1,12 @@
 import 'package:fleeds/domain/models/post.dart';
-import 'package:fleeds/domain/models/user.dart';
+import 'package:fleeds/features/components/profile/presentation/profile.dart';
 import 'package:flutter/material.dart';
-import 'package:fleeds/core/utils/navigation_utils.dart';
 import 'package:fleeds/features/screens/profile/logic/profile_controller.dart';
 import 'package:fleeds/features/components/post/logic/post_controller.dart';
-import 'package:fleeds/widgets/clickable.dart';
 import 'package:fleeds/widgets/main_scaffold.dart';
 import 'package:fleeds/features/components/post/presentation/post_list.dart';
-import 'package:fleeds/widgets/profile_btn.dart';
-import 'package:fleeds/widgets/profile_pic.dart';
-import 'package:fleeds/features/components/edit_profile/presentation/profile_edit_dialog.dart'; // Import where showProfileEditDialog is defined
 
+/// ProfileScreen displays a user's profile with their posts, replies, and liked posts.
 class ProfileScreen extends StatefulWidget {
   final String? userId;
   const ProfileScreen({super.key, this.userId});
@@ -71,7 +67,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
         currentIndex: 1,
         body: Scaffold(
           appBar: AppBar(),
-          body: Center(child: CircularProgressIndicator()),
+          body: const Center(child: CircularProgressIndicator()),
         ),
       );
     }
@@ -92,10 +88,10 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
             return SingleChildScrollView(
               child: Column(
                 children: [
-                  _ProfileHeader(user: user!),
-                  SizedBox(height: 16),
-                  _ProfileButtonRow(controller: _profileController!),
-                  _ProfileStats(user: user),
+                  ProfileHeader(user: user!),
+                  const SizedBox(height: 16),
+                  ProfileButtonRow(controller: _profileController!),
+                  ProfileStats(user: user),
                   TabBar(
                     controller: _tabController,
                     tabs: const [
@@ -142,100 +138,3 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
     );
   }
 }
-
-class _ProfileHeader extends StatelessWidget {
-  final User user;
-  const _ProfileHeader({required this.user});
-  @override
-  Widget build(BuildContext context) {
-    return Stack(
-      clipBehavior: Clip.none,
-      children: [
-        Container(height: 120, color: Colors.grey[300]),
-        Positioned(
-          left: 16,
-          bottom: -40,
-          child: ProfilePic(user: user, size: 40.0),
-        ),
-      ],
-    );
-  }
-}
-
-class _ProfileButtonRow extends StatelessWidget {
-  final ProfileController controller;
-  const _ProfileButtonRow({required this.controller});
-
-  Future<void> showProfileEditDialog(BuildContext context, User user) async {
-    final result = await showDialog(
-      context: context,
-      builder: (context) => ProfileEditDialog(user: user),
-    );
-    if (result != null && result['bio'] != null) {
-      controller.updateProfile(result['displayName'], result['bio']);
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.end,
-      children: [
-        controller.isOwnProfile
-            ? ProfileBtn(
-                label: 'Edit Profile',
-                onPressed: () => showProfileEditDialog(context, controller.userOnProfile!),
-              )
-            : ProfileBtn(
-                label: controller.isFollowing ? 'Unfollow' : 'Follow',
-                isFollowing: controller.isFollowing,
-                showHoverUnfollow: true,
-                onPressed: () => controller.toggleFollowUser(controller.userOnProfile!.id),
-              ),
-        SizedBox(width: 16),
-      ],
-    );
-  }
-}
-
-class _ProfileStats extends StatelessWidget {
-
-  final User user;
-  const _ProfileStats({required this.user});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SelectableText(user.displayName, style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-          SelectableText('@${user.username}', style: TextStyle(color: Colors.grey[600])),
-          user.bio.isNotEmpty
-              ? Padding(
-                  padding: const EdgeInsets.only(top: 8.0),
-                  child: SelectableText(user.bio),
-                )
-              : SizedBox.shrink(),
-          SizedBox(height: 8),
-          Row(
-            children: [
-              Clickable(
-                child: Text('${user.followers.length} Followers'),
-                onTap: () => goToUsersList(context, user.id, 'Followers'),
-              ),
-              SizedBox(width: 16),
-              Clickable(
-                child: Text('${user.following.length} Following'),
-                onTap: () => goToUsersList(context, user.id, 'Following'),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-
