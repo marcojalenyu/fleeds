@@ -82,7 +82,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
         appBar: AppBar(
           title: AnimatedBuilder(
             animation: _profileController!,
-            builder: (context, _) => Text('@${_profileController!.userOnProfile!.username}'),
+            builder: (context, _) => SelectableText('@${_profileController!.userOnProfile!.username}'),
           ),
         ),
         body: AnimatedBuilder(
@@ -210,12 +210,12 @@ class _ProfileStats extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(user.displayName, style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-          Text('@${user.username}', style: TextStyle(color: Colors.grey[600])),
+          SelectableText(user.displayName, style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+          SelectableText('@${user.username}', style: TextStyle(color: Colors.grey[600])),
           user.bio.isNotEmpty
               ? Padding(
                   padding: const EdgeInsets.only(top: 8.0),
-                  child: Text(user.bio),
+                  child: SelectableText(user.bio),
                 )
               : SizedBox.shrink(),
           SizedBox(height: 8),

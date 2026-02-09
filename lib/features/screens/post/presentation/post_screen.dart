@@ -11,6 +11,7 @@ import 'package:fleeds/widgets/main_scaffold.dart';
 import 'package:fleeds/features/components/post/presentation/post_list.dart';
 import 'package:fleeds/widgets/profile_pic.dart';
 
+/// Screen to display a single post with its details and replies
 class PostScreen extends StatefulWidget {
   final String postId;
   final Post? post;
@@ -161,7 +162,7 @@ class _PostScreenState extends State<PostScreen> {
             children: [
               _buildPostHeader(),
               const SizedBox(height: 12),
-              Text(post.content, style: contentTextStyle),
+              SelectableText(post.content, style: contentTextStyle),
               const SizedBox(height: 12),
               Text(
                 DisplayDateUtils.displayDate(post.createdAt),

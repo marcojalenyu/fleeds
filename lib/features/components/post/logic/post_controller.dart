@@ -2,6 +2,7 @@ import 'package:fleeds/data/services/post_service.dart';
 import 'package:fleeds/domain/models/post.dart';
 import 'package:flutter/material.dart';
 
+/// Controller to manage post data and interactions
 class PostController extends ChangeNotifier {
   final PostService _service;
   

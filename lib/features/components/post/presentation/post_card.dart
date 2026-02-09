@@ -68,10 +68,7 @@ class _PostCardState extends State<PostCard> {
     final post = _postController.post!;
     const textStyle = TextStyle(fontSize: 16);
 
-    return Clickable( 
-      onTap: () => goToPost(context, post: post, user: user),
-      opaqueWhenHovered: false,
-      child: CustomCard(
+    return CustomCard(
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -96,12 +93,14 @@ class _PostCardState extends State<PostCard> {
                       ],
                   ),
                   const SizedBox(height: 2),
-                  Text(post.content, style: textStyle),
+                  SelectableText(post.content, style: textStyle),
                   const SizedBox(height: 4),
                   Row(
                     children: [
                         Clickable(
-                            onTap: () {},
+                            onTap: () {
+                                goToPost(context, post: post, user: user);
+                            },
                             child: Icon(Icons.chat_bubble_outline, size: 20, color: Colors.grey[600]),
                         ),
                         const SizedBox(width: 4),
@@ -128,8 +127,7 @@ class _PostCardState extends State<PostCard> {
             ),
           ],
         ),
-      ),
-    );
+      );
   }
 }
 
