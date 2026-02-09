@@ -54,6 +54,15 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
     setState(() => _likedPosts = likedPosts);
   }
 
+  void _refreshProfile() {
+    if (_profileController != null) {
+      _fetchUserPosts(_profileController!.userOnProfile!.id);
+      _fetchPostsLikedByUser(_profileController!.userOnProfile!.id);
+    } else {
+      _initProfileController();
+    }
+  }
+
   @override
   void dispose() {
     _tabController.dispose();
@@ -85,52 +94,55 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
           animation: _profileController!,
           builder: (context, _) {
             final user = _profileController!.userOnProfile;
-            return SingleChildScrollView(
-              child: Column(
-                children: [
-                  ProfileHeader(user: user!),
-                  const SizedBox(height: 16),
-                  ProfileButtonRow(controller: _profileController!),
-                  ProfileStats(user: user),
-                  TabBar(
-                    controller: _tabController,
-                    tabs: const [
-                      Tab(text: 'Posts'),
-                      Tab(text: 'Replies'),
-                      Tab(text: 'Likes'),
-                    ],
-                  ),
-                  SizedBox(
-                    height: 600,
-                    child: TabBarView(
+            return RefreshIndicator(
+              onRefresh: () async => _refreshProfile(),
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    ProfileHeader(user: user!),
+                    const SizedBox(height: 16),
+                    ProfileButtonRow(controller: _profileController!),
+                    ProfileStats(user: user),
+                    TabBar(
                       controller: _tabController,
-                      children: [
-                        PostList(
-                          initialPosts: _posts,
-                          onPostChanged: (_) { 
-                            _fetchUserPosts(_profileController!.userOnProfile!.id);
-                            _fetchPostsLikedByUser(_profileController!.userOnProfile!.id);
-                          },
-                        ),
-                        PostList(
-                          initialPosts: _replies,
-                          onPostChanged: (_) {
-                            _fetchUserPosts(_profileController!.userOnProfile!.id);
-                            _fetchPostsLikedByUser(_profileController!.userOnProfile!.id);
-                          },
-                        ),
-                        PostList(
-                          initialPosts: _likedPosts,
-                          onPostChanged: (_) {
-                            _fetchPostsLikedByUser(_profileController!.userOnProfile!.id);
-                            _fetchUserPosts(_profileController!.userOnProfile!.id);
-                          },
-                        ),
+                      tabs: const [
+                        Tab(text: 'Posts'),
+                        Tab(text: 'Replies'),
+                        Tab(text: 'Likes'),
                       ],
                     ),
-                  ),
-                ],
-              ),
+                    SizedBox(
+                      height: 600,
+                      child: TabBarView(
+                        controller: _tabController,
+                        children: [
+                          PostList(
+                            initialPosts: _posts,
+                            onPostChanged: (_) { 
+                              _fetchUserPosts(_profileController!.userOnProfile!.id);
+                              _fetchPostsLikedByUser(_profileController!.userOnProfile!.id);
+                            },
+                          ),
+                          PostList(
+                            initialPosts: _replies,
+                            onPostChanged: (_) {
+                              _fetchUserPosts(_profileController!.userOnProfile!.id);
+                              _fetchPostsLikedByUser(_profileController!.userOnProfile!.id);
+                            },
+                          ),
+                          PostList(
+                            initialPosts: _likedPosts,
+                            onPostChanged: (_) {
+                              _fetchPostsLikedByUser(_profileController!.userOnProfile!.id);
+                              _fetchUserPosts(_profileController!.userOnProfile!.id);
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              )
             );
           },
         ),
