@@ -93,28 +93,6 @@ class PostController extends ChangeNotifier {
     }
   }
 
-  Future<String?> addPost(String content, String authorId) async {
-    if (content.isEmpty) {
-      error = 'Content cannot be empty.';
-      notifyListeners();
-      return null;
-    }
-    isLoading = true;
-    error = null;
-    notifyListeners();
-    try {
-      final postId = await _service.addPost(content, authorId);
-      isLoading = false;
-      notifyListeners();
-      return postId;
-    } catch (e) {
-      error = 'Failed to add post: $e';
-      isLoading = false;
-      notifyListeners();
-      return null;
-    }
-  }
-
   Future<bool> toggleLike(String userId) async {
     if (post == null) {
       error = 'Post not loaded';
@@ -159,7 +137,7 @@ class PostController extends ChangeNotifier {
     error = null;
     notifyListeners();
     try {
-      final replyId = await _service.addReply(content, authorId, parentPostId);
+      final replyId = await _service.addReply(content: content, authorId: authorId, repliedToPostId: parentPostId);
       if (replyId != null && post != null && post!.id == parentPostId) {
         post = post!.addReply(replyId);
       }

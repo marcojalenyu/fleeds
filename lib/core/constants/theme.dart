@@ -33,6 +33,7 @@ class AppTheme {
         ),
         textTheme: const TextTheme(
           bodyMedium: TextStyle(fontSize: 16, color: Colors.black87),
+          headlineLarge: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.black87),
         ),
       );
 }

@@ -52,11 +52,11 @@ class PostService {
     return dtos.map(_mapDtoToDomain).toList();
   }
 
-  Future<String?> addPost(String content, String authorId) async {
+  Future<String?> addPost({required String content, required String authorId}) async {
     return await _repository.addPost(content, authorId);
   }
 
-  Future<String?> addReply(String content, String authorId, String repliedToPostId) async {
+  Future<String?> addReply({required String content, required String authorId, required String repliedToPostId}) async {
     return await _repository.addReply(content, authorId, repliedToPostId);
   }
 

@@ -74,6 +74,7 @@ class Post {
     );
   }  
 
+  // TODO: Implement in Controller
   /// Add a reply to the post.
   Post addReply(String replyId) {
     final updatedReplies = List<String>.from(replies)..add(replyId);
@@ -81,5 +82,10 @@ class Post {
       replies: updatedReplies, 
       updatedAt: DateTime.now()
     );
+  }
+
+  /// Checks if new post content is valid (non-empty and within length limits).
+  static bool isValid(String content, {int maxLength = 128}) {
+    return content.trim().isNotEmpty && content.length <= maxLength;
   }
 }
