@@ -19,6 +19,7 @@ void main() async {
 }
 
 class MyApp extends StatelessWidget {
+  
   const MyApp({super.key});
 
   // This widget is the root of your application.
@@ -33,6 +34,7 @@ class MyApp extends StatelessWidget {
         '/profile': (context) => ProfileScreen(),
       },
       onGenerateRoute: (settings) {
+        /// Handle the home screen route with optional keywords argument
         if (settings.name == '/') {
           final keywords = settings.arguments as List<String>?;
           return MaterialPageRoute(
@@ -40,6 +42,7 @@ class MyApp extends StatelessWidget {
             settings: settings,
           );
         }
+        /// Handle dynamic routes for profile and post screens
         if (settings.name != null && settings.name!.startsWith('/profile/')) {
           final userId = settings.name!.substring('/profile/'.length);
           return MaterialPageRoute(

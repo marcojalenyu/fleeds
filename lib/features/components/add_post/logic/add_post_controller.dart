@@ -14,12 +14,27 @@ class AddPostController extends ChangeNotifier {
 
   /// Sanitizes post content by trimming whitespace.
   String _sanitizeContent(String content) {
-    return content
+    String sanitized = content
       .trim()
-      .replaceAll(RegExp(r'[\x00-\x1F\x7F]'), '') // remove control chars
+      .replaceAll(RegExp(r'[\x00-\x08\x0B-\x0C\x0E-\x1F\x7F]'), '')
       .replaceAll('<', '&lt;') // escape HTML
       .replaceAll('>', '&gt;')
       .replaceAll('&', '&amp;');
+    
+    /// Limit newlines
+    int newlineCount = '\n'.allMatches(sanitized).length;
+      if (newlineCount > 16) {
+        int removed = 0;
+        sanitized = sanitized.replaceAllMapped(RegExp(r'\n'), (match) {
+          if (newlineCount - removed > 8) {
+            removed++;
+            return '';
+          }
+          return match.group(0)!;
+        });
+      }
+  
+    return sanitized;
   }
 
   /// Adds a new post with the given content and author ID.
