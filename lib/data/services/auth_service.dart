@@ -92,8 +92,8 @@ class AuthService {
       });
 
       _currentUser = await _userService.fetchUser(credential.user!.uid);
-
       return _currentUser != null;
+      
     } catch (e) {
       return false;
     }

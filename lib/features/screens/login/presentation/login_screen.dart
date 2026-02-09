@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:fleeds/core/constants/constants.dart';
 import 'package:fleeds/data/services/auth_service.dart';
 import 'package:fleeds/widgets/logo.dart';
-import 'package:fleeds/features/components/login/presentation/login_form.dart';
-import 'package:fleeds/features/components/signup/presentation/signup_form.dart';
+import 'package:fleeds/features/components/authentication/presentation/login_form.dart';
+import 'package:fleeds/features/components/authentication/presentation/signup_form.dart';
 
+/// Login/Signup screen for the Fleeds app
 class LoginScreen extends StatefulWidget {
+
   const LoginScreen({super.key});
 
   @override
@@ -13,30 +15,31 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  
   bool _showSignup = false;
 
   void _toggleForm() {
-    setState(() {
-      _showSignup = !_showSignup;
-    });
+    setState(() { _showSignup = !_showSignup; });
   }
 
-  void _onSignupSuccess() {
-    setState(() {
-      _showSignup = false;
-    });
+  void _goToHome() {
     Navigator.pushReplacementNamed(context, '/');
   }
 
   @override
   void initState() {
     super.initState();
-    final user = AuthService.currentUser;
-    if (user != null) {
+    _checkExistingAuth();
+  }
+
+  /// Checks if already authenticated and navigates to the main screen if so.
+  void _checkExistingAuth() {
+    if (AuthService.currentUser != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        Navigator.pushReplacementNamed(context, '/');
+        if (mounted) {
+          Navigator.pushReplacementNamed(context, '/');
+        }
       });
-      return;
     }
   }
 
@@ -51,6 +54,7 @@ class _LoginScreenState extends State<LoginScreen> {
     });
   }
 
+  /// Builds the mobile layout of the login screen, which is a single column with the logo and form.
   Widget _buildMobileLayout(BuildContext context) {
     return Scaffold(
       body: Center(
@@ -70,11 +74,14 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               const SizedBox(height: 8),
               _showSignup
-                  ? SignupForm(
-                      onSignupSuccess: _onSignupSuccess,
-                      onBackToLogin: _toggleForm,
-                    )
-                  : LoginForm(onSignup: _toggleForm),
+                ? SignupForm(
+                    onSignupSuccess: _goToHome,
+                    onBackToLogin: _toggleForm,
+                  )
+                : LoginForm(
+                    onLoginSuccess: _goToHome,
+                    onBackToSignup: _toggleForm
+                  ),
             ],
           ),
         ),
@@ -82,6 +89,7 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
+  /// Builds the desktop layout of the login screen, which has a two-column design with the logo on the left and the form on the right.
   Widget _buildDesktopLayout(BuildContext context) {
     return Scaffold(
       body: Center(
@@ -109,10 +117,13 @@ class _LoginScreenState extends State<LoginScreen> {
                         const SizedBox(height: 16),
                         _showSignup
                             ? SignupForm(
-                                onSignupSuccess: _onSignupSuccess,
+                                onSignupSuccess: _goToHome,
                                 onBackToLogin: _toggleForm,
                               )
-                            : LoginForm(onSignup: _toggleForm),
+                            : LoginForm(
+                                onLoginSuccess: _goToHome,
+                                onBackToSignup: _toggleForm
+                              ),
                       ],
                     ),
                   ),
