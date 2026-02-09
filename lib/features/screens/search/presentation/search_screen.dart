@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import '../../../components/search/presentation/search_panel.dart';
 
+/// A screen that hosts the SearchPanel widget.
 class SearchScreen extends StatelessWidget {
+  
   const SearchScreen({super.key});
 
   @override

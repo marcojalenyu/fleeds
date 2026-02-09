@@ -32,7 +32,10 @@ class PostRepositoryImpl implements PostRepository {
       // Further filter by keywords if provided
       if (keywords.isNotEmpty) {
         posts = posts.where((post) {
-          return keywords.any((keyword) => post.content.contains(keyword));
+          return keywords.any((keyword) => 
+            post.content
+              .toLowerCase()
+              .contains(keyword));
         }).toList();
       }
       return posts;
