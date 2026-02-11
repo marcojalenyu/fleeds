@@ -72,6 +72,7 @@ class _HomeScreenState extends State<HomeScreen> {
               onRefresh: () => _controller.refreshPosts(keywords: widget.keywords ?? []),
               child: PostList(
                 initialPosts: _controller.posts,
+                onLoadMore: () => _controller.fetchMorePosts(keywords: widget.keywords ?? []),
                 onPostChanged: (_) => _controller.fetchPosts(keywords: widget.keywords ?? []),
               ),
             ),

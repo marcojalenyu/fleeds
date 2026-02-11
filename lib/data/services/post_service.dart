@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fleeds/data/dtos/post_dto.dart';
 import 'package:fleeds/data/repositories/post_repository_impl.dart';
 import 'package:fleeds/domain/models/post.dart';
@@ -32,25 +33,61 @@ class PostService {
     return _mapDtoToDomain(dto);
   }
 
-  Future<List<Post>> fetchPostsByKeyword({List<String> keywords = const []}) async {
-    final dtos = await _repository.fetchPostsByKeyword(keywords: keywords);
-    return dtos.map(_mapDtoToDomain).toList();
-  }
+  Future<({List<Post> posts, DocumentSnapshot? lastDoc})> fetchPostsByKeyword({
+  List<String> keywords = const [],
+  int limit = 20,
+  DocumentSnapshot? startAfter,
+}) async {
+  final result = await _repository.fetchPostsByKeyword(
+    keywords: keywords,
+    limit: limit,
+    startAfter: startAfter,
+  );
+  final posts = result.posts.map(_mapDtoToDomain).toList();
+  return (posts: posts, lastDoc: result.lastDoc);
+}
 
-  Future<List<Post>> fetchPostsByUser(String userId) async {
-    final dtos = await _repository.fetchPostsByUser(userId);
-    return dtos.map(_mapDtoToDomain).toList();
-  }
+Future<({List<Post> posts, DocumentSnapshot? lastDoc})> fetchPostsByUser({
+  required String userId,
+  int limit = 20,  
+  DocumentSnapshot? startAfter,
+}) async {
+  final result = await _repository.fetchPostsByUser(
+    userId: userId,
+    limit: limit,
+    startAfter: startAfter,
+  );
+  final posts = result.posts.map(_mapDtoToDomain).toList();
+  return (posts: posts, lastDoc: result.lastDoc);
+}
 
-  Future<List<Post>> fetchPostsLikedByUser(String userId) async {
-    final dtos = await _repository.fetchPostsLikedByUser(userId);
-    return dtos.map(_mapDtoToDomain).toList();
-  }
+Future<({List<Post> posts, DocumentSnapshot? lastDoc})> fetchPostsLikedByUser({
+  required String userId,
+  int limit = 20,
+  DocumentSnapshot? startAfter,
+}) async {
+  final result = await _repository.fetchPostsLikedByUser(
+    userId: userId,
+    limit: limit,
+    startAfter: startAfter,
+  );
+  final posts = result.posts.map(_mapDtoToDomain).toList();
+  return (posts: posts, lastDoc: result.lastDoc);
+}
 
-  Future<List<Post>> fetchReplies(String postId) async {
-    final dtos = await _repository.fetchReplies(postId);
-    return dtos.map(_mapDtoToDomain).toList();
-  }
+Future<({List<Post> posts, DocumentSnapshot? lastDoc})> fetchReplies({
+  required String postId,
+  int limit = 20,
+  DocumentSnapshot? startAfter,
+}) async {
+  final result = await _repository.fetchReplies(
+    postId: postId,
+    limit: limit,
+    startAfter: startAfter,
+  );
+  final posts = result.posts.map(_mapDtoToDomain).toList();
+  return (posts: posts, lastDoc: result.lastDoc);
+}
 
   Future<String?> addPost({required String content, required String authorId}) async {
     return await _repository.addPost(content, authorId);

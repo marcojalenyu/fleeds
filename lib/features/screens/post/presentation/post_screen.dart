@@ -92,7 +92,10 @@ class _PostScreenState extends State<PostScreen> {
 
   Future<void> _loadReplies() async {
     setState(() => _loadingReplies = true);
-    replies = await _postController.fetchReplies(_postController.post!.id);
+    replies = await _postController.fetchReplies(
+      postId: _postController.post!.id,
+      refresh: true
+    );
     setState(() => _loadingReplies = false);
   }
 
@@ -293,25 +296,34 @@ class _PostScreenState extends State<PostScreen> {
   }
 
   Widget _buildReplies() {
-    if (_loadingReplies) {
-      return const Center(child: CircularProgressIndicator());
-    }
-    if (replies.isEmpty) {
+    if (replies.isEmpty && !_loadingReplies) {
       return Center(child: Text('No replies yet.', style: textStyle));
     }
-    return PostList(
-      initialPosts: replies,
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      onPostChanged: (updatedPost) {
-        setState(() {
-          final index = replies.indexWhere((p) => p.id == updatedPost.id);
-          if (index != -1) {
-            replies[index] = updatedPost;
-          }
-        });
-        widget.onPostChanged?.call(updatedPost);
-      },
+    return Column(
+      children: [
+        if (_loadingReplies && replies.isEmpty)
+          const Center(child: CircularProgressIndicator())
+        else
+          PostList(
+            initialPosts: replies,
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            onPostChanged: (updatedPost) {
+              setState(() {
+                final index = replies.indexWhere((p) => p.id == updatedPost.id);
+                if (index != -1) {
+                  replies[index] = updatedPost;
+                }
+              });
+              widget.onPostChanged?.call(updatedPost);
+            },
+          ),
+        if (_loadingReplies && replies.isNotEmpty)
+          const Padding(
+            padding: EdgeInsets.all(16.0),
+            child: CircularProgressIndicator(),
+          ),
+      ],
     );
   }
 }

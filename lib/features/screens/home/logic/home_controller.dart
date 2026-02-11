@@ -21,7 +21,10 @@ class HomeController extends ChangeNotifier {
     notifyListeners();
 
     try {
-      posts = await _postController.fetchPosts(keywords: keywords);
+      posts = await _postController.fetchPosts(
+        keywords: keywords,
+        refresh: true
+      );
     } catch (e) {
       error = 'Failed to fetch posts: $e';
       posts = [];
@@ -31,8 +34,27 @@ class HomeController extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<List<Post>> fetchMorePosts({List<String> keywords = const []}) async {
+    if (isLoading) return [];
+    isLoading = true;
+    notifyListeners();
+    var morePosts = <Post>[];
+
+    try {
+      morePosts = await _postController.fetchPosts(keywords: keywords);
+      posts.addAll(morePosts);
+    } catch (e) {
+      error = 'Failed to fetch more posts: $e';
+    }
+
+    isLoading = false;
+    notifyListeners();
+    return morePosts;
+  }
+
   /// Refreshes the posts list.
   Future<void> refreshPosts({List<String> keywords = const []}) async {
+    _postController.resetPagination();
     await fetchPosts(keywords: keywords);
   }
 

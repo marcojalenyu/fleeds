@@ -18,80 +18,141 @@ class PostRepositoryImpl implements PostRepository {
     }
   }
 
-  @override
-  Future<List<PostDTO>> fetchPostsByKeyword({List<String> keywords = const []}) async {
-    try {
-      final query = await FirebaseFirestore.instance.collection('posts').get();
-      // Initial filtering to exclude deleted posts and replies
-      List<PostDTO> posts = query.docs
-        .map((doc) => PostDTO.fromFirestore(doc.id, doc.data()))
-        .where((post) => !post.deleted && post.repliedToPostId.isEmpty)
+@override
+Future<({List<PostDTO> posts, DocumentSnapshot? lastDoc})> fetchPostsByKeyword({
+  List<String> keywords = const [],
+  int limit = 20,
+  DocumentSnapshot? startAfter,
+}) async {
+  try {
+    Query query = FirebaseFirestore.instance
+      .collection('posts')
+      .where('deleted', isEqualTo: false)
+      .orderBy('createdAt', descending: true)
+      .limit(limit);
+    
+    if (startAfter != null) {
+      query = query.startAfterDocument(startAfter);
+    }
+    
+    final snapshot = await query.get();
+    
+    List<PostDTO> posts = snapshot.docs
+        .map((doc) => PostDTO.fromFirestore(doc.id, doc.data() as Map<String, dynamic>))
+        .where((post) => post.repliedToPostId.isEmpty) // May include replies in feed in the future
         .toList();
-      // Sort posts by creation date (newest first)
-      posts.sort((a, b) => b.createdAt.compareTo(a.createdAt));
-      // Further filter by keywords if provided
-      if (keywords.isNotEmpty) {
-        posts = posts.where((post) {
-          return keywords.any((keyword) => 
-            post.content
-              .toLowerCase()
-              .contains(keyword));
-        }).toList();
-      }
-      return posts;
-    } catch (e) {
-      return [];
+    
+    if (keywords.isNotEmpty) {
+      posts = posts.where((post) {
+        return keywords.any((keyword) => 
+          post.content.toLowerCase().contains(keyword.toLowerCase()));
+      }).toList();
     }
+    
+    DocumentSnapshot? lastDoc = snapshot.docs.isNotEmpty ? snapshot.docs.last : null;
+    
+    return (posts: posts, lastDoc: lastDoc);
+  } catch (e) {
+    return (posts: <PostDTO>[], lastDoc: null);
   }
+}
 
-  @override
-  Future<List<PostDTO>> fetchPostsByUser(String userId) async {
-    try {
-      final query = await FirebaseFirestore.instance
-          .collection('posts')
-          .where('authorId', isEqualTo: userId)
-          .where('deleted', isEqualTo: false)
-          .get();
-      return query.docs
-          .map((doc) => PostDTO.fromFirestore(doc.id, doc.data()))
-          .toList();
-    } catch (e) {
-      return [];
+@override
+Future<({List<PostDTO> posts, DocumentSnapshot? lastDoc})> fetchPostsByUser({
+  required String userId,
+  int limit = 20,
+  DocumentSnapshot? startAfter,
+}) async {
+  try {
+    Query query = FirebaseFirestore.instance
+        .collection('posts')
+        .where('authorId', isEqualTo: userId)
+        .where('deleted', isEqualTo: false)
+        .orderBy('createdAt', descending: true)
+        .limit(limit);
+    
+    if (startAfter != null) {
+      query = query.startAfterDocument(startAfter);
     }
+    
+    final snapshot = await query.get();
+    
+    final posts = snapshot.docs
+        .map((doc) => PostDTO.fromFirestore(doc.id, doc.data() as Map<String, dynamic>))
+        .toList();
+    
+    DocumentSnapshot? lastDoc = snapshot.docs.isNotEmpty ? snapshot.docs.last : null;
+    
+    return (posts: posts, lastDoc: lastDoc);
+  } catch (e) {
+    return (posts: <PostDTO>[], lastDoc: null);
   }
+}
 
-  @override
-  Future<List<PostDTO>> fetchPostsLikedByUser(String userId) async {
-    try {
-      final query = await FirebaseFirestore.instance
+@override
+Future<({List<PostDTO> posts, DocumentSnapshot? lastDoc})> fetchPostsLikedByUser({
+  required String userId,
+  int limit = 20,
+  DocumentSnapshot? startAfter,
+}) async {
+  try {
+    Query query = FirebaseFirestore.instance
         .collection('posts')
         .where('likes', arrayContains: userId)
-        .get();
-      return query.docs
-          .map((doc) => PostDTO.fromFirestore(doc.id, doc.data()))
-          .where((post) => !post.deleted)
-          .toList();
-    } catch (e) {
-      return [];
+        .where('deleted', isEqualTo: false)
+        .orderBy('createdAt', descending: true)
+        .limit(limit);
+    
+    if (startAfter != null) {
+      query = query.startAfterDocument(startAfter);
     }
+    
+    final snapshot = await query.get();
+    
+    final posts = snapshot.docs
+        .map((doc) => PostDTO.fromFirestore(doc.id, doc.data() as Map<String, dynamic>))
+        .toList();
+    
+    DocumentSnapshot? lastDoc = snapshot.docs.isNotEmpty ? snapshot.docs.last : null;
+    
+    return (posts: posts, lastDoc: lastDoc);
+  } catch (e) {
+    return (posts: <PostDTO>[], lastDoc: null);
   }
+}
 
-  @override
-  Future<List<PostDTO>> fetchReplies(String postId) async {
-    try {
-      final query = await FirebaseFirestore.instance
-          .collection('posts')
-          .where('repliedToPostId', isEqualTo: postId)
-          .where('deleted', isEqualTo: false)
-          .get();
-      return query.docs
-          .map((doc) => PostDTO.fromFirestore(doc.id, doc.data()))
-          .where((post) => !post.deleted)
-          .toList();
-    } catch (e) {
-      return [];
+@override
+Future<({List<PostDTO> posts, DocumentSnapshot? lastDoc})> fetchReplies({
+  required String postId,
+  int limit = 20,
+  DocumentSnapshot? startAfter,
+}) async {
+  try {
+    Query query = FirebaseFirestore.instance
+        .collection('posts')
+        .where('repliedToPostId', isEqualTo: postId)
+        .where('deleted', isEqualTo: false)
+        .orderBy('createdAt', descending: true)
+        .limit(limit);
+
+    if (startAfter != null) {
+      query = query.startAfterDocument(startAfter);
     }
+    
+    final snapshot = await query.get();
+    
+    final posts = snapshot.docs
+        .map((doc) => PostDTO.fromFirestore(doc.id, doc.data() as Map<String, dynamic>))
+        .where((post) => !post.deleted)
+        .toList();
+    
+    DocumentSnapshot? lastDoc = snapshot.docs.isNotEmpty ? snapshot.docs.last : null;
+    
+    return (posts: posts, lastDoc: lastDoc);
+  } catch (e) {
+    return (posts: <PostDTO>[], lastDoc: null);
   }
+}
 
   @override
   Future<String?> addPost(String content, String authorId) async {

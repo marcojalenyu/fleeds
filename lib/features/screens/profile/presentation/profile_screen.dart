@@ -19,6 +19,8 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
   late TabController _tabController;
   ProfileController? _profileController;
   final _postController = PostController();
+  final _repliesController = PostController();
+  final _likedController = PostController();
   List<Post> _posts = [];
   List<Post> _replies = [];
   List<Post> _likedPosts = [];
@@ -40,22 +42,53 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
   }
 
   void _fetchUserPosts(String userId) async {
-    final allPosts = await _postController.fetchPostsByUser(userId);
+    final allPosts = await _postController.fetchPostsByUser(userId: userId, refresh: true);
     final posts = allPosts.where((post) => !post.isReply).toList();
-    final replies = allPosts.where((post) => post.isReply).toList();
-    setState(() {
-      _posts = posts;
-      _replies = replies;
-    });
+    setState(() => _posts = posts);
+    final allReplies = await _repliesController.fetchPostsByUser(userId: userId, refresh: true);
+    final replies = allReplies.where((post) => post.isReply).toList();
+    setState(() => _replies = replies);
+  }
+
+  Future<List<Post>> _loadMorePosts() async {
+    final allPosts = await _postController.fetchPostsByUser(
+      userId: _profileController!.userOnProfile!.id,
+      refresh: false,
+    );
+    final posts = allPosts.where((post) => !post.isReply).toList();
+    setState(() => _posts.addAll(posts));
+    return posts;
   }
 
   void _fetchPostsLikedByUser(String userId) async {
-    final likedPosts = await _postController.fetchPostsLikedByUser(userId);
+    final likedPosts = await _likedController.fetchPostsLikedByUser(userId: userId, refresh: true);
     setState(() => _likedPosts = likedPosts);
+  }
+
+  Future<List<Post>> _loadMoreLikedPosts() async {
+    final likedPosts = await _likedController.fetchPostsLikedByUser(
+      userId: _profileController!.userOnProfile!.id,
+      refresh: false,
+    );
+    setState(() => _likedPosts.addAll(likedPosts));
+    return likedPosts;
+  }
+
+  Future<List<Post>> _loadMoreReplies() async {
+    final replies = await _repliesController.fetchPostsByUser(
+      userId: _profileController!.userOnProfile!.id,
+      refresh: false,
+    );
+    final filteredReplies = replies.where((post) => post.isReply).toList();
+    setState(() => _replies.addAll(filteredReplies));
+    return filteredReplies;
   }
 
   void _refreshProfile() {
     if (_profileController != null) {
+      _postController.resetPagination();
+      _repliesController.resetPagination();
+      _likedController.resetPagination();
       _fetchUserPosts(_profileController!.userOnProfile!.id);
       _fetchPostsLikedByUser(_profileController!.userOnProfile!.id);
     } else {
@@ -66,6 +99,9 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
   @override
   void dispose() {
     _tabController.dispose();
+    _postController.dispose();
+    _repliesController.dispose();
+    _likedController.dispose();
     super.dispose();
   }
 
@@ -118,6 +154,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                         children: [
                           PostList(
                             initialPosts: _posts,
+                            onLoadMore: _loadMorePosts,
                             onPostChanged: (_) { 
                               _fetchUserPosts(_profileController!.userOnProfile!.id);
                               _fetchPostsLikedByUser(_profileController!.userOnProfile!.id);
@@ -125,6 +162,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                           ),
                           PostList(
                             initialPosts: _replies,
+                            onLoadMore: _loadMoreReplies,
                             onPostChanged: (_) {
                               _fetchUserPosts(_profileController!.userOnProfile!.id);
                               _fetchPostsLikedByUser(_profileController!.userOnProfile!.id);
@@ -132,6 +170,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                           ),
                           PostList(
                             initialPosts: _likedPosts,
+                            onLoadMore: _loadMoreLikedPosts,
                             onPostChanged: (_) {
                               _fetchPostsLikedByUser(_profileController!.userOnProfile!.id);
                               _fetchUserPosts(_profileController!.userOnProfile!.id);
