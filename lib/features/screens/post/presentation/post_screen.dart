@@ -4,8 +4,7 @@ import 'package:fleeds/core/utils/date_utils.dart';
 import 'package:fleeds/core/utils/navigation_utils.dart';
 import 'package:fleeds/domain/models/post.dart';
 import 'package:fleeds/data/services/auth_service.dart';
-import 'package:fleeds/data/services/user_service.dart';
-import 'package:fleeds/features/components/post/logic/post_controller.dart';
+import 'package:fleeds/features/screens/post/logic/post_screen_controller.dart';
 import 'package:fleeds/widgets/clickable.dart';
 import 'package:fleeds/widgets/main_scaffold.dart';
 import 'package:fleeds/features/components/post/presentation/post_list.dart';
@@ -30,73 +29,43 @@ class PostScreen extends StatefulWidget {
 }
 
 class _PostScreenState extends State<PostScreen> {
+  
   final currentUser = AuthService.currentUser;
-  late PostController _postController;
-  bool _loading = true;
-  late User user;
-  List<Post> replies = [];
+  late PostScreenController _controller;
 
   final contentTextStyle = const TextStyle(fontSize: 20);
   final textStyle = const TextStyle(fontSize: 16);
-  bool _loadingReplies = false;
 
   final TextEditingController _replyController = TextEditingController();
   final FocusNode _replyFocusNode = FocusNode();
 
-  late bool isLiking = false;
-  late bool isLiked = false;
-  late int likeCount = 0;
-
   @override
   void initState() {
     super.initState();
-    _postController = PostController();
+    _controller = PostScreenController();
+    _controller.addListener(_onControllerUpdate);
+
     if (widget.post != null && widget.user != null) {
-      _postController.post = widget.post!;
-      user = widget.user!;
-      isLiked = widget.post!.isLikedBy(currentUser?.id ?? '');
-      likeCount = widget.post!.likeCount;
-      _loading = false;
-      _loadReplies();
+      _controller.initializeWithPost(widget.post!, widget.user!);
     } else {
-      _loadPost();
+      _controller.loadPost(widget.postId);
+    }
+  }
+
+  void _onControllerUpdate() {
+    setState(() {});
+    if (_controller.post != null) {
+      widget.onPostChanged?.call(_controller.post!);
     }
   }
 
   @override
   void dispose() {
-    _postController.dispose();
+    _controller.removeListener(_onControllerUpdate);
+    _controller.dispose();
     _replyController.dispose();
     _replyFocusNode.dispose();
     super.dispose();
-  }
-
-  Future<void> _loadPost() async {
-    await _postController.fetchPost(widget.postId);
-    final post = _postController.post;
-    if (post == null) {
-      setState(() => _loading = false);
-      return;
-    }  
-    final fetchedUser = await UserService().fetchUser(post.authorId);
-    if (fetchedUser == null) {
-      setState(() => _loading = false);
-      return;
-    }
-    user = fetchedUser;
-    isLiked = post.isLikedBy(currentUser?.id ?? '');
-    likeCount = post.likeCount;
-    await _loadReplies();
-    setState(() => _loading = false);
-  }
-
-  Future<void> _loadReplies() async {
-    setState(() => _loadingReplies = true);
-    replies = await _postController.fetchReplies(
-      postId: _postController.post!.id,
-      refresh: true
-    );
-    setState(() => _loadingReplies = false);
   }
 
   void _toggleReplyFocus() {
@@ -108,43 +77,28 @@ class _PostScreenState extends State<PostScreen> {
   }
 
   Future<void> _toggleLike() async {
-    if (currentUser == null || isLiking) return;
-
-    setState(() {
-      isLiking = true;
-      isLiked = !isLiked; // optimistic update
-      likeCount += isLiked ? 1 : -1;
-    });
-
-    final success = await _postController.toggleLike(currentUser!.id);
-
-    setState(() {
-      isLiking = false;
-    });
-
-    if (success && _postController.post != null) {
-      widget.onPostChanged?.call(_postController.post!); // backend sync
-    }
+    if (currentUser == null) return;
+    await _controller.toggleLike(currentUser!.id);
   }
 
   Future<void> _replyToPost() async {
     if (_replyController.text.isEmpty || currentUser == null) return;
-    final newReplyId = await _postController.replyToPost(
+    
+    final replyId = await _controller.replyToPost(
       _replyController.text,
       currentUser!.id,
-      _postController.post!.id,
     );
-    if (newReplyId != null) {
+
+    if (replyId != null) {
       _replyController.clear();
       _toggleReplyFocus();
-      await _loadReplies();
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final post = _postController.post;
-    if (_loading || post == null) {
+    if (_controller.isLoading || _controller.post == null || _controller.author == null || 
+        (_controller.post!.isReply && (_controller.parentPost == null || _controller.parentPostAuthor == null))) {
       return MainScaffold(
         currentIndex: 0,
         body: Scaffold(
@@ -154,20 +108,27 @@ class _PostScreenState extends State<PostScreen> {
       );
     }
 
+    final post = _controller.post!;
+    final author = _controller.author!;
+
     return MainScaffold(
       currentIndex: 1,
       body: Scaffold(
         appBar: AppBar(),
         body: RefreshIndicator(
-          onRefresh: _loadPost,
+          onRefresh: () => _controller.refresh(widget.postId),
           child: SingleChildScrollView(
             padding: const EdgeInsets.all(16.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildPostHeader(),
+                _buildPostHeader(author),
                 const SizedBox(height: 12),
                 SelectableText(post.content, style: contentTextStyle),
+                if (_controller.parentPost != null && _controller.parentPostAuthor != null) ...[
+                  const SizedBox(height: 12),
+                  _buildParentPostSnippet(),
+                ],
                 const SizedBox(height: 12),
                 Text(
                   DisplayDateUtils.displayDate(post.createdAt),
@@ -191,30 +152,30 @@ class _PostScreenState extends State<PostScreen> {
                 _buildReplies(),
               ],
             ),
-          )
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildPostHeader() {
+  Widget _buildPostHeader(User author) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        ClickableProfilePic(user: user, imageUrl: ''),
+        ClickableProfilePic(user: author, imageUrl: ''),
         const SizedBox(width: 8),
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Clickable(
-              onTap: () => goToProfile(context, user),
+              onTap: () => goToProfile(context, author),
               child: Text(
-                user.displayName,
+                author.displayName,
                 style: textStyle.copyWith(fontWeight: FontWeight.bold),
               ),
             ),
             Text(
-              '@${user.username}',
+              '@${author.username}',
               style: textStyle.copyWith(color: Colors.grey[600]),
             ),
           ],
@@ -223,14 +184,62 @@ class _PostScreenState extends State<PostScreen> {
     );
   }
 
+  Widget _buildParentPostSnippet() {
+    final parentPost = _controller.parentPost!;
+    final parentAuthor = _controller.parentPostAuthor!;
+
+    return Clickable(
+      onTap: () => goToPost(context, post: parentPost, user: parentAuthor),
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: Colors.grey[300]!),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Clickable(
+                  onTap: () => goToProfile(context, parentAuthor),
+                  child: Text(
+                    parentAuthor.displayName,
+                    style: textStyle.copyWith(
+                      fontWeight: FontWeight.bold
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  '@${parentAuthor.username}',
+                  style: textStyle.copyWith(
+                    color: Colors.grey[600],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 4),
+            Text(
+              parentPost.content,
+              style: textStyle,
+              maxLines: 3,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildStats() {
     return Row(
       children: [
-        Text('${_postController.post!.replyCount}', style: textStyle.copyWith(fontWeight: FontWeight.bold)),
+        Text('${_controller.replyCount}', style: textStyle.copyWith(fontWeight: FontWeight.bold)),
         const SizedBox(width: 4),
         Text('Replies', style: textStyle.copyWith(color: Colors.grey[600])),
         const SizedBox(width: 16),
-        Text('$likeCount', style: textStyle.copyWith(fontWeight: FontWeight.bold)),
+        Text('${_controller.likeCount}', style: textStyle.copyWith(fontWeight: FontWeight.bold)),
         const SizedBox(width: 4),
         Text('Likes', style: textStyle.copyWith(color: Colors.grey[600])),
       ],
@@ -238,6 +247,8 @@ class _PostScreenState extends State<PostScreen> {
   }
 
   Widget _buildActions() {
+    final isLiked = _controller.isLikedBy(currentUser?.id ?? '');
+
     return Center(
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -253,13 +264,13 @@ class _PostScreenState extends State<PostScreen> {
           Expanded(
             child: Center(
               child: Clickable(
-                onTap: () => _toggleLike(),
+                onTap: _toggleLike,
                 child: Icon(
                   isLiked ? Icons.favorite : Icons.favorite_border,
                   size: 20,
                   color: isLiked ? Colors.red : Colors.grey[600],
                 ),
-              )
+              ),
             ),
           ),
         ],
@@ -296,29 +307,22 @@ class _PostScreenState extends State<PostScreen> {
   }
 
   Widget _buildReplies() {
-    if (replies.isEmpty && !_loadingReplies) {
+    if (_controller.replies.isEmpty && !_controller.isLoadingReplies) {
       return Center(child: Text('No replies yet.', style: textStyle));
     }
+
     return Column(
       children: [
-        if (_loadingReplies && replies.isEmpty)
+        if (_controller.isLoadingReplies && _controller.replies.isEmpty)
           const Center(child: CircularProgressIndicator())
         else
           PostList(
-            initialPosts: replies,
+            initialPosts: _controller.replies,
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
-            onPostChanged: (updatedPost) {
-              setState(() {
-                final index = replies.indexWhere((p) => p.id == updatedPost.id);
-                if (index != -1) {
-                  replies[index] = updatedPost;
-                }
-              });
-              widget.onPostChanged?.call(updatedPost);
-            },
+            onPostChanged: _controller.updateReply,
           ),
-        if (_loadingReplies && replies.isNotEmpty)
+        if (_controller.isLoadingReplies && _controller.replies.isNotEmpty)
           const Padding(
             padding: EdgeInsets.all(16.0),
             child: CircularProgressIndicator(),
