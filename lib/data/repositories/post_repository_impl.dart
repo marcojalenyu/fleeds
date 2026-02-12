@@ -27,6 +27,7 @@ Future<({List<PostDTO> posts, DocumentSnapshot? lastDoc})> fetchPostsByKeyword({
   try {
     Query query = FirebaseFirestore.instance
       .collection('posts')
+      .where('repliedToPostId', isEqualTo: '') // May include replies in feed in the future
       .where('deleted', isEqualTo: false)
       .orderBy('createdAt', descending: true)
       .limit(limit);
@@ -39,16 +40,17 @@ Future<({List<PostDTO> posts, DocumentSnapshot? lastDoc})> fetchPostsByKeyword({
     
     List<PostDTO> posts = snapshot.docs
         .map((doc) => PostDTO.fromFirestore(doc.id, doc.data() as Map<String, dynamic>))
-        .where((post) => post.repliedToPostId.isEmpty) // May include replies in feed in the future
         .toList();
     
+    // Simple client-side filtering for keywords in content (Firestore doesn't support full-text search)
+    // May result in less efficient queries, consider integrating a search service for production use
     if (keywords.isNotEmpty) {
       posts = posts.where((post) {
         return keywords.any((keyword) => 
           post.content.toLowerCase().contains(keyword.toLowerCase()));
-      }).toList();
+      }).toList(); 
     }
-    
+
     DocumentSnapshot? lastDoc = snapshot.docs.isNotEmpty ? snapshot.docs.last : null;
     
     return (posts: posts, lastDoc: lastDoc);
@@ -143,7 +145,6 @@ Future<({List<PostDTO> posts, DocumentSnapshot? lastDoc})> fetchReplies({
     
     final posts = snapshot.docs
         .map((doc) => PostDTO.fromFirestore(doc.id, doc.data() as Map<String, dynamic>))
-        .where((post) => !post.deleted)
         .toList();
     
     DocumentSnapshot? lastDoc = snapshot.docs.isNotEmpty ? snapshot.docs.last : null;
