@@ -17,6 +17,9 @@ class UserService {
       displayName: dto.displayName,
       bio: dto.bio,
       avatarUrl: dto.avatarUrl,
+      avatarColor: dto.avatarColor,
+      avatarBgColor: dto.avatarBgColor,
+      bannerUrl: dto.bannerUrl,
       followers: List<String>.from(dto.followers),
       following: List<String>.from(dto.following),
       createdAt: dto.createdAt,
@@ -42,8 +45,15 @@ class UserService {
     return dtos.map(_mapDtoToDomain).toList();
   }
 
-  Future<User?> updateUserProfile(String userId, {String? displayName, String? bio, String? avatarUrl}) async {
-    final dto = await _repository.updateUserProfile(userId, displayName: displayName, bio: bio, avatarUrl: avatarUrl);
+  Future<User?> updateUserProfile(String userId, {
+    String? displayName, 
+    String? bio, 
+    String? avatarUrl, 
+    String? avatarColor, 
+    String? avatarBgColor, 
+    String? bannerUrl
+  }) async {
+    final dto = await _repository.updateUserProfile(userId, displayName: displayName, bio: bio, avatarUrl: avatarUrl, avatarColor: avatarColor, avatarBgColor: avatarBgColor, bannerUrl: bannerUrl);
     if (dto == null) return null;
     return _mapDtoToDomain(dto);
   }

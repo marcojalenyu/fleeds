@@ -7,6 +7,9 @@ class User {
   final String displayName;
   final String bio;
   final String avatarUrl; // URL to the user's avatar image
+  final String avatarColor; // Hex color code for avatar background
+  final String avatarBgColor; // Hex color code for avatar background
+  final String bannerUrl; // URL to the user's banner image
   final List<String> followers;
   final List<String> following;
   final DateTime createdAt;
@@ -18,6 +21,9 @@ class User {
     required this.displayName,
     required this.bio,
     required this.avatarUrl,
+    required this.avatarColor,
+    required this.avatarBgColor,
+    required this.bannerUrl,
     required this.followers,
     required this.following,
     required this.createdAt,
@@ -29,6 +35,9 @@ class User {
     String? displayName,
     String? bio,
     String? avatarUrl,
+    String? avatarColor,
+    String? avatarBgColor,
+    String? bannerUrl,
     List<String>? followers,
     List<String>? following,
     DateTime? updatedAt,
@@ -39,6 +48,9 @@ class User {
       displayName: displayName ?? this.displayName,
       bio: bio ?? this.bio,
       avatarUrl: avatarUrl ?? this.avatarUrl,
+      avatarColor: avatarColor ?? this.avatarColor,
+      avatarBgColor: avatarBgColor ?? this.avatarBgColor,
+      bannerUrl: bannerUrl ?? this.bannerUrl,
       followers: followers ?? this.followers,
       following: following ?? this.following,
       createdAt: createdAt,
@@ -60,23 +72,25 @@ class User {
     );
   }
 
-  /// Update the display name of the user.
-  User updateDisplayName(String newDisplayName) {
+  /// Update the profile details of the user, such as avatar and banner URLs and colors.
+  User updateProfile({
+    String newDisplayName = '',
+    String newBio = '',
+    String? avatarUrl,
+    String? avatarColor,
+    String? avatarBgColor,
+    String? bannerUrl,
+  }) {
     return copyWith(
-      displayName: newDisplayName, 
-      updatedAt: DateTime.now()
+      displayName: newDisplayName.isNotEmpty ? newDisplayName : displayName,
+      bio: newBio.isNotEmpty ? newBio : bio,
+      avatarUrl: avatarUrl ?? this.avatarUrl,
+      avatarColor: avatarColor ?? this.avatarColor,
+      avatarBgColor: avatarBgColor ?? this.avatarBgColor,
+      bannerUrl: bannerUrl ?? this.bannerUrl,
+      updatedAt: DateTime.now(),
     );
   }
-
-  /// Update the bio of the user.
-  User updateBio(String newBio) {
-    return copyWith(
-      bio: newBio, 
-      updatedAt: DateTime.now()
-    );
-  }
-
-  /// TODO: Implement avatar URL update method if needed.
 
   User addFollower(String userId) {
     List<String> followers = List.from(this.followers);

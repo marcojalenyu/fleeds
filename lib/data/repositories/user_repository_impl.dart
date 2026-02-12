@@ -62,7 +62,7 @@ class UserRepositoryImpl implements UserRepository {
   @override
   Future<UserDTO?> updateUserProfile(
     String userId, 
-    {String? displayName, String? bio, String? avatarUrl}
+    {String? displayName, String? bio, String? avatarUrl, String? avatarColor, String? avatarBgColor, String? bannerUrl}
   ) async {
     final docRef = FirebaseFirestore.instance.collection('users').doc(userId);
     try {
@@ -70,6 +70,9 @@ class UserRepositoryImpl implements UserRepository {
       if (displayName != null) updates['displayName'] = displayName;
       if (bio != null) updates['bio'] = bio;
       if (avatarUrl != null) updates['avatarUrl'] = avatarUrl;
+      if (avatarColor != null) updates['avatarColor'] = avatarColor;
+      if (avatarBgColor != null) updates['avatarBgColor'] = avatarBgColor;
+      if (bannerUrl != null) updates['bannerUrl'] = bannerUrl;
 
       await docRef.update(updates);
 

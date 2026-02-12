@@ -12,7 +12,12 @@ import 'package:fleeds/features/components/edit_profile/presentation/profile_edi
 class ProfileHeader extends StatelessWidget {
   
   final User user;
-  const ProfileHeader({super.key, required this.user, this.bannerHeight = 120.0, this.profilePicSize = 40.0});
+  const ProfileHeader({
+    super.key, 
+    required this.user, 
+    this.bannerHeight = 120.0, 
+    this.profilePicSize = 40.0,
+  });
 
   final double bannerHeight;
   final double profilePicSize;
@@ -44,8 +49,15 @@ class ProfileButtonRow extends StatelessWidget {
       context: context,
       builder: (context) => ProfileEditDialog(user: user),
     );
-    if (result != null && result['bio'] != null) {
-      controller.updateProfile(result['displayName'], result['bio']);
+    if (result != null) {
+      controller.updateProfile(
+        result['displayName'], 
+        result['bio'],
+        avatarUrl: result['avatarUrl'],
+        avatarColor: result['avatarColor'],
+        avatarBgColor: result['avatarBgColor'],
+        bannerUrl: result['bannerUrl'],
+      );
     }
   }
 

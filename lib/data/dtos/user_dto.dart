@@ -9,6 +9,9 @@ class UserDTO {
   final String displayName;
   final String bio;
   final String avatarUrl;
+  final String avatarColor;
+  final String avatarBgColor;
+  final String bannerUrl;
   final List<String> followers;
   final List<String> following;
   final DateTime createdAt;
@@ -20,6 +23,9 @@ class UserDTO {
     this.displayName = '',
     this.bio = '',
     this.avatarUrl = '',
+    this.avatarColor = '',
+    this.avatarBgColor = '',
+    this.bannerUrl = '',
     this.followers = const [],
     this.following = const [],
     required this.createdAt,
@@ -33,6 +39,9 @@ class UserDTO {
       displayName: data['displayName'] ?? '',
       bio: data['bio'] ?? '',
       avatarUrl: data['avatarUrl'] ?? '',
+      avatarColor: data['avatarColor'] ?? '',
+      avatarBgColor: data['avatarBgColor'] ?? '',
+      bannerUrl: data['bannerUrl'] ?? '',
       followers: List<String>.from(data['followers'] ?? []),
       following: List<String>.from(data['following'] ?? []),
       createdAt: (data['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),

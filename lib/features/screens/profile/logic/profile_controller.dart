@@ -82,13 +82,35 @@ class ProfileController extends ChangeNotifier {
     }
   }
 
-  Future<void> updateProfile(String newDisplayName, String newBio) async {
+  Future<void> updateProfile(
+    String newDisplayName, 
+    String newBio, {
+    String? avatarUrl,
+    String? avatarColor,
+    String? avatarBgColor,
+    String? bannerUrl,
+  }) async {
     final currentUser = AuthService.currentUser;
     if (currentUser == null || !isOwnProfile) return;
     try {
-      userOnProfile = userOnProfile!.updateDisplayName(newDisplayName).updateBio(newBio);
+      userOnProfile = userOnProfile!.updateProfile(
+        newDisplayName: newDisplayName, 
+        newBio: newBio, 
+        avatarUrl: avatarUrl,
+        avatarColor: avatarColor,
+        avatarBgColor: avatarBgColor,
+        bannerUrl: bannerUrl,
+      );
       AuthService.setCurrentUser(userOnProfile!);
-      await _service.updateUserProfile(userOnProfile!.id, displayName: newDisplayName, bio: newBio);
+      await _service.updateUserProfile(
+        userOnProfile!.id, 
+        displayName: newDisplayName, 
+        bio: newBio,
+        avatarUrl: avatarUrl,
+        avatarColor: avatarColor,
+        avatarBgColor: avatarBgColor,
+        bannerUrl: bannerUrl,
+      );
       notifyListeners();
     } catch (e) {
       return;
