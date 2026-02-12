@@ -1,6 +1,6 @@
 import 'package:fleeds/domain/models/user.dart';
+import 'package:fleeds/features/components/profile/presentation/profile.dart';
 import 'package:flutter/material.dart';
-import 'package:fleeds/widgets/profile_pic.dart';
 
 class ProfileEditDialog extends StatefulWidget {
   final User user;
@@ -34,15 +34,15 @@ class _ProfileEditDialogState extends State<ProfileEditDialog> {
 
   @override
   Widget build(BuildContext context) {
+    
     final user = widget.user;
-    const textStyle = TextStyle(fontSize: 16);
+    const inputTextStyle = TextStyle(fontSize: 14);
 
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       constraints: BoxConstraints(maxWidth: 400),
       child: Container(
         margin: const EdgeInsets.all(0),
-        padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
           color: Colors.white,
           boxShadow: [
@@ -59,84 +59,77 @@ class _ProfileEditDialogState extends State<ProfileEditDialog> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // User info row
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                ProfilePic(user: user),
-                Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      SizedBox(
-                        width: 300 - 72 - 16,
-                        child: TextField(
-                          controller: _displayNameController,
-                          autofocus: true,
-                          maxLines: 1,
-                          minLines: 1,
-                          maxLength: 16,
-                          decoration: InputDecoration(
-                            hintText: "Display Name",
-                            border: InputBorder.none,
-                            counterText: '',
-                            isDense: true,
-                            contentPadding: EdgeInsets.all(0)
-                          ),
-                          style: textStyle.copyWith(fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                      Text(
-                        '@${user.username}',
-                        style: textStyle.copyWith(color: Colors.grey[600]),
-                      ),
-                    ],
-                  ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            // Post content field
-            TextField(
-              controller: _bioController,
-              autofocus: true,
-              maxLines: 3,
-              minLines: 3,
-              maxLength: 64,
-              decoration: InputDecoration(
-                hintText: "Tell the world about yourself...",
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+            // AppBar-style header
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+              decoration: BoxDecoration(
+                border: Border(bottom: BorderSide(color: Colors.grey[300]!)),
               ),
-              style: textStyle,
+              child: Row(
+                children: [
+                  IconButton(
+                    icon: Icon(Icons.close),
+                    onPressed: () => Navigator.of(context).pop(),
+                  ),
+                  const SizedBox(width: 4),
+                  Expanded(
+                    child: Text(
+                      'Edit Profile',
+                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      final newBio = _bioController.text.trim();
+                      final newDisplayName = _displayNameController.text.trim();
+                      if (newBio == widget.user.bio && newDisplayName == widget.user.displayName) {
+                        Navigator.of(context).pop();
+                      } else {
+                        Navigator.of(context).pop({
+                          'bio': newBio,
+                          'displayName': newDisplayName,
+                        });
+                      }
+                    },
+                    child: Text('Save'),
+                  ),
+                ],
+              ),
             ),
-            const SizedBox(height: 16),
-            // Actions
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
+            // Content
+            Column(
               children: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                  child: Text('Cancel'),
-                ),
-                const SizedBox(width: 8),
-                ElevatedButton(
-                  onPressed: () {
-                    final newBio = _bioController.text.trim();
-                    final newDisplayName = _displayNameController.text.trim();
-                    if (newBio == widget.user.bio && newDisplayName == widget.user.displayName) {
-                      Navigator.of(context).pop();
-                    } else {
-                      Navigator.of(context).pop({
-                        'bio': newBio,
-                        'displayName': newDisplayName,
-                      });
-                    }
-                  },
-                  child: Text('Save'),
-                ),
+                ProfileHeader(user: user, bannerHeight: 80, profilePicSize: 32),
+                const SizedBox(height: 42),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Column(
+                    children: [
+                      TextField(
+                        controller: _displayNameController,
+                        decoration: InputDecoration(
+                          labelText: 'Display Name',
+                          labelStyle: const TextStyle(fontSize: 16),
+                          contentPadding: const EdgeInsets.symmetric(vertical: 8),
+                        ),
+                        style: inputTextStyle,
+                        maxLength: 16,
+                      ),
+                      TextField(
+                        controller: _bioController,
+                        decoration: InputDecoration(
+                          labelText: 'Bio',
+                          labelStyle: const TextStyle(fontSize: 16),
+                          contentPadding: const EdgeInsets.symmetric(vertical: 8),
+                        ),
+                        style: inputTextStyle,
+                        maxLines: null,
+                        maxLength: 64,
+                      ),
+                      const SizedBox(height: 24),
+                    ]
+                  )
+                )
               ],
             ),
           ],

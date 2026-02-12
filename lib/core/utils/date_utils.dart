@@ -15,6 +15,15 @@ class DisplayDateUtils {
     return "$hour:$minute $period · $dateStr";
   }
 
+  static String displayMonthYear(DateTime date) {
+    List<String> months = [
+      'January', 'February', 'March', 'April', 'May', 'June',
+      'July', 'August', 'September', 'October', 'November', 'December'
+    ];
+    String monthWord = months[date.month - 1];
+    return "$monthWord ${date.year}";
+  }
+
   // now, 30m, 2h, 5d, 3w, 4m, 1y
   static String displayTimeAgo(DateTime date) {
     final now = DateTime.now();
