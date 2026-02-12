@@ -82,10 +82,12 @@ class MainScaffold extends StatelessWidget {
         currentIndex: currentIndex,
         onTap: (index) => _onTap(context, index),
       ),
-      floatingActionButton: FloatingActionButton(
+      floatingActionButton: onAddPost != null
+          ? FloatingActionButton(
         onPressed: onAddPost,
         child: const Icon(Icons.add),
-      ),
+      )
+          : null,
     );
   }
 
