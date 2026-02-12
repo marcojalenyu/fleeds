@@ -43,6 +43,7 @@ class PostScreenController extends ChangeNotifier {
 
   void initializeWithPost(Post post, User user) {
     _post = post;
+    _postController.post = post;
     _author = user;
     _isLoading = false;
     notifyListeners();
@@ -122,16 +123,14 @@ class PostScreenController extends ChangeNotifier {
     return success;
   }
 
-  Future<String?> replyToPost(String content, String authorId) async {
-    if (_post == null || content.isEmpty) return null;
-
+  Future<String?> replyToPost(String content, String authorId) async {    
     final replyId = await _postController.replyToPost(
       content,
       authorId,
       _post!.id,
     );
-
     if (replyId != null) {
+      print(_postController.post);
       _post = _postController.post;
       await _loadReplies();
       notifyListeners();

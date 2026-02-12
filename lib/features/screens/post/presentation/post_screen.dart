@@ -307,22 +307,23 @@ class _PostScreenState extends State<PostScreen> {
   }
 
   Widget _buildReplies() {
-    if (_controller.replies.isEmpty && !_controller.isLoadingReplies) {
+    if (_controller.isLoadingReplies && _controller.replies.isEmpty) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    
+    if (_controller.replies.isEmpty) {
       return Center(child: Text('No replies yet.', style: textStyle));
     }
 
     return Column(
       children: [
-        if (_controller.isLoadingReplies && _controller.replies.isEmpty)
-          const Center(child: CircularProgressIndicator())
-        else
-          PostList(
-            initialPosts: _controller.replies,
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            onPostChanged: _controller.updateReply,
-          ),
-        if (_controller.isLoadingReplies && _controller.replies.isNotEmpty)
+        PostList(
+          initialPosts: _controller.replies,
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          onPostChanged: _controller.updateReply,
+        ),
+        if (_controller.isLoadingReplies)
           const Padding(
             padding: EdgeInsets.all(16.0),
             child: CircularProgressIndicator(),
