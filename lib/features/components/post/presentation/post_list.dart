@@ -48,6 +48,7 @@ class _PostListState extends State<PostList> {
     if (oldWidget.initialPosts != widget.initialPosts) {
       setState(() {
         posts = List.from(widget.initialPosts);
+        _users.clear();
       });
       _loadUsersForPosts(posts);
     }
