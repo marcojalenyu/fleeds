@@ -42,8 +42,8 @@ class UserService {
     return dtos.map(_mapDtoToDomain).toList();
   }
 
-  Future<User?> updateUserProfile(String userId, {String? username, String? bio, String? avatarUrl}) async {
-    final dto = await _repository.updateUserProfile(userId, username: username, bio: bio, avatarUrl: avatarUrl);
+  Future<User?> updateUserProfile(String userId, {String? displayName, String? bio, String? avatarUrl}) async {
+    final dto = await _repository.updateUserProfile(userId, displayName: displayName, bio: bio, avatarUrl: avatarUrl);
     if (dto == null) return null;
     return _mapDtoToDomain(dto);
   }

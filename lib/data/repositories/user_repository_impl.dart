@@ -62,12 +62,12 @@ class UserRepositoryImpl implements UserRepository {
   @override
   Future<UserDTO?> updateUserProfile(
     String userId, 
-    {String? username, String? bio, String? avatarUrl}
+    {String? displayName, String? bio, String? avatarUrl}
   ) async {
     final docRef = FirebaseFirestore.instance.collection('users').doc(userId);
     try {
       final updates = <String, dynamic>{'updatedAt': FieldValue.serverTimestamp()};
-      if (username != null) updates['username'] = username;
+      if (displayName != null) updates['displayName'] = displayName;
       if (bio != null) updates['bio'] = bio;
       if (avatarUrl != null) updates['avatarUrl'] = avatarUrl;
 

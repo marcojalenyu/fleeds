@@ -88,7 +88,7 @@ class ProfileController extends ChangeNotifier {
     try {
       userOnProfile = userOnProfile!.updateDisplayName(newDisplayName).updateBio(newBio);
       AuthService.setCurrentUser(userOnProfile!);
-      await _service.updateUserProfile(userOnProfile!.id, username: newDisplayName, bio: newBio);
+      await _service.updateUserProfile(userOnProfile!.id, displayName: newDisplayName, bio: newBio);
       notifyListeners();
     } catch (e) {
       return;
