@@ -50,7 +50,7 @@ class _UserCardState extends State<UserCard> {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            ClickableProfilePic(imageUrl: '', user: widget.user),
+            ClickableProfilePic(user: widget.user),
             const SizedBox(width: 0),
             Expanded(
               child: Column(

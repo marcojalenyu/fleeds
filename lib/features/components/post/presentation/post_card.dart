@@ -78,7 +78,7 @@ class _PostCardState extends State<PostCard> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          ClickableProfilePic(user: poster, imageUrl: ''),
+          ClickableProfilePic(user: poster),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,

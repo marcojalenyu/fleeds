@@ -130,7 +130,6 @@ class PostScreenController extends ChangeNotifier {
       _post!.id,
     );
     if (replyId != null) {
-      print(_postController.post);
       _post = _postController.post;
       await _loadReplies();
       notifyListeners();

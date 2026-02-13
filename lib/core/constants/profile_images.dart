@@ -19,10 +19,19 @@ class ProfileImages {
   ];
 
   static const List<Color> profilePicColors = [
-    Color(0xFF2196F3),
-    Color(0xFF4CAF50),
-    Color(0xFFFFC107),
-    Color(0xFFE91E63),
-    Color(0xFF9C27B0),
+    Colors.white,
+    Colors.black,
+    Colors.red,
+    Colors.blue,
+    Colors.green,
+  ];
+
+  static const List<Color> profilePicBgColors = [
+    Colors.grey,
+    Colors.white,
+    Colors.black,
+    Colors.red,
+    Colors.blue,
+    Colors.green,
   ];
 }

@@ -12,29 +12,81 @@ import 'package:fleeds/features/components/edit_profile/presentation/profile_edi
 class ProfileHeader extends StatelessWidget {
   
   final User user;
+  final double bannerHeight;
+  final double profilePicSize;
+  final VoidCallback? onAvatarEdit;
+  final VoidCallback? onBannerEdit;
+  
   const ProfileHeader({
     super.key, 
     required this.user, 
     this.bannerHeight = 120.0, 
     this.profilePicSize = 40.0,
+    this.onAvatarEdit,
+    this.onBannerEdit
   });
 
-  final double bannerHeight;
-  final double profilePicSize;
+  bool get canEdit => onAvatarEdit != null || onBannerEdit != null;
 
   @override
   Widget build(BuildContext context) {
     return Stack(
       clipBehavior: Clip.none,
       children: [
-        Container(height: bannerHeight, color: Colors.grey[300]),
+        _buildBanner(),
         Positioned(
           left: 16,
           bottom: -profilePicSize,
-          child: ProfilePic(user: user, size: profilePicSize),
+          child: _buildProfilePic(),
         ),
       ],
     );
+  }
+
+  Widget _buildBanner() {
+    final banner = Stack(
+      children: [
+        Container(
+          height: bannerHeight,
+          decoration: BoxDecoration(
+            color: Colors.grey[300],
+            image: user.bannerUrl.isNotEmpty
+                ? DecorationImage(
+                    image: AssetImage(user.bannerUrl),
+                    fit: BoxFit.cover,
+                  )
+                : null,
+          ),
+        ),
+      ],
+    );
+
+    if (onBannerEdit != null) {
+      return Clickable(
+        onTap: onBannerEdit,
+        child: banner,
+      );
+    }
+    return banner;
+  }
+
+  Widget _buildProfilePic() {
+    final profilePic = Stack(
+      children: [
+        ProfilePic(
+          user: user,
+          size: profilePicSize,
+        ),
+      ],
+    );
+    
+    if (onAvatarEdit != null) {
+      return Clickable(
+        onTap: onAvatarEdit,
+        child: profilePic,
+      );
+    }
+    return profilePic;
   }
 }
 

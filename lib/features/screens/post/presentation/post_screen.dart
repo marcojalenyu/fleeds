@@ -162,7 +162,7 @@ class _PostScreenState extends State<PostScreen> {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        ClickableProfilePic(user: author, imageUrl: ''),
+        ClickableProfilePic(user: author),
         const SizedBox(width: 8),
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,

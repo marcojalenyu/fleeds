@@ -1,3 +1,4 @@
+import 'package:fleeds/domain/models/user.dart';
 import 'package:flutter/material.dart';
 import 'package:fleeds/core/utils/navigation_utils.dart';
 import 'package:fleeds/widgets/clickable.dart';
@@ -6,10 +7,10 @@ import 'package:fleeds/widgets/clickable.dart';
 class ClickableProfilePic extends ProfilePic {
   const ClickableProfilePic({
     super.key,
-    required super.imageUrl,
     super.size,
     super.onTap,
-    super.user,
+    super.noPadding,
+    required super.user,
   });
 
   @override
@@ -26,18 +27,32 @@ class ProfilePic extends StatelessWidget {
 
   static const double defaultSize = 24.0;
   
-  final String _imageUrl;
   final double _size;
   final VoidCallback? onTap;
-  final dynamic user;
+  final User user;
+  final bool noPadding;
 
   const ProfilePic({
     super.key,
-    String imageUrl = '',
     double size = defaultSize,
     this.onTap,
-    this.user,
-  }) : _size = size, _imageUrl = imageUrl;
+    this.noPadding = false,
+    required this.user,
+  }) : _size = size;
+
+  bool get _isDefault => user.avatarUrl.isEmpty;
+  String get _imageUrl => user.avatarUrl;
+  String get _avatarColor => user.avatarColor;
+  String get _avatarBgColor => user.avatarBgColor;
+
+  Color? _parseColor(String? colorString) {
+    if (colorString == null || colorString.isEmpty) return null;
+    try {
+      return Color(int.parse(colorString.replaceFirst('#', '0xFF')));
+    } catch (e) {
+      return null;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -51,14 +66,15 @@ class ProfilePic extends StatelessWidget {
 
   Widget _buildProfilePicture() {
     return Padding(
-      padding: const EdgeInsets.only(top: 4, right: 12),
+      padding: noPadding ? EdgeInsets.zero : const EdgeInsets.only(top: 4, right: 12),
       child: CircleAvatar(
         radius: _size,
-        backgroundColor: Colors.grey,
-        child: _imageUrl.isNotEmpty
+        backgroundColor: _isDefault ? Colors.grey : _parseColor(_avatarBgColor),
+        child: !_isDefault
           ? ClipOval(
               child: Image.network(
                 _imageUrl,
+                color: _parseColor(_avatarColor),
                 width: _size,
                 height: _size,
                 fit: BoxFit.cover,
