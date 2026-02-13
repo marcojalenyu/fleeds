@@ -72,7 +72,7 @@ class ProfilePic extends StatelessWidget {
         backgroundColor: _isDefault ? Colors.grey : _parseColor(_avatarBgColor),
         child: !_isDefault
           ? ClipOval(
-              child: Image.network(
+              child: Image.asset(
                 _imageUrl,
                 color: _parseColor(_avatarColor),
                 width: _size,
