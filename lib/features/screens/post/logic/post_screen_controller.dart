@@ -101,7 +101,7 @@ class PostScreenController extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<bool> toggleLike(String userId) async {
+  Future<bool> toggleLike(String userId, String username) async {
     if (_post == null || _isLiking) return false;
 
     _isLiking = true;
@@ -109,7 +109,7 @@ class PostScreenController extends ChangeNotifier {
     _post = _post!.toggleLike(userId);
     notifyListeners();
 
-    final success = await _postController.toggleLike(userId);
+    final success = await _postController.toggleLike(userId, username);
 
     _isLiking = false;
     if (success) {
@@ -123,11 +123,13 @@ class PostScreenController extends ChangeNotifier {
     return success;
   }
 
-  Future<String?> replyToPost(String content, String authorId) async {    
+  Future<String?> replyToPost(String content, String authorId, String authorUsername) async {    
     final replyId = await _postController.replyToPost(
       content,
       authorId,
+      authorUsername,
       _post!.id,
+      _post!.authorId,
     );
     if (replyId != null) {
       _post = _postController.post;

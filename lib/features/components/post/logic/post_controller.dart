@@ -149,7 +149,7 @@ class PostController extends ChangeNotifier {
     }
   }
 
-  Future<bool> toggleLike(String userId) async {
+  Future<bool> toggleLike(String userId, String username) async {
     if (post == null) {
       error = 'Post not loaded';
       return false;
@@ -159,7 +159,12 @@ class PostController extends ChangeNotifier {
     post = optimisticPost;
     notifyListeners();
     try {
-      final updatedLikes = await _service.toggleLike(post!.id, userId);
+      final updatedLikes = await _service.toggleLike(
+        post!.id, 
+        post!.authorId,
+        userId,
+        username
+      );
       if (updatedLikes == null) {
         // Rollback on failure
         post = post!.toggleLike(userId);
@@ -183,7 +188,13 @@ class PostController extends ChangeNotifier {
     }
   }
 
-  Future<String?> replyToPost(String content, String authorId, String parentPostId) async {
+  Future<String?> replyToPost(
+    String content, 
+    String authorId, 
+    String authorUsername, 
+    String parentPostId,
+    String parentPostAuthorId,
+  ) async {
     if (content.isEmpty) {
       error = 'Content cannot be empty.';
       notifyListeners();
@@ -191,7 +202,13 @@ class PostController extends ChangeNotifier {
     }
     startLoading();
     try {
-      final replyId = await _service.addReply(content: content, authorId: authorId, repliedToPostId: parentPostId);
+      final replyId = await _service.addReply(
+        content: content, 
+        authorId: authorId, 
+        authorUsername: authorUsername, 
+        repliedToPostId: parentPostId,
+        repliedToPostAuthorId: parentPostAuthorId,
+      );
       if (replyId != null && post != null && post!.id == parentPostId) {
         post = post!.addReply(replyId);
       }

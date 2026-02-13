@@ -74,7 +74,7 @@ class ProfileController extends ChangeNotifier {
       User updatedUser = currentUser.toggleFollow(userId);
       userOnProfile = userOnProfile!.addFollower(userId);
       AuthService.setCurrentUser(updatedUser);
-      await _service.toggleFollow(updatedUser.id, userId);
+      await _service.toggleFollow(updatedUser.id, updatedUser.username, userId);
       isFollowing = !isFollowing;
       notifyListeners();
     } catch (e) {

@@ -43,7 +43,11 @@ class UserCardController extends ChangeNotifier {
     _isLoading = true;
     notifyListeners();
     try {
-      final updatedFollowing = await UserService().toggleFollow(_currentUser.id, _userId);
+      final updatedFollowing = await UserService().toggleFollow(
+        _currentUser.id, 
+        _currentUser.username,
+        _userId
+      );
       if (updatedFollowing != null) {
         AuthService.setCurrentUser(_currentUser.copyWith(following: updatedFollowing));
       } else {

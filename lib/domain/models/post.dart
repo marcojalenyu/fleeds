@@ -74,7 +74,6 @@ class Post {
     );
   }  
 
-  // TODO: Implement in Controller
   /// Add a reply to the post.
   Post addReply(String replyId) {
     final updatedReplies = List<String>.from(replies)..add(replyId);

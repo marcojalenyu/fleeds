@@ -78,7 +78,7 @@ class _PostScreenState extends State<PostScreen> {
 
   Future<void> _toggleLike() async {
     if (currentUser == null) return;
-    await _controller.toggleLike(currentUser!.id);
+    await _controller.toggleLike(currentUser!.id, currentUser!.username);
   }
 
   Future<void> _replyToPost() async {
@@ -87,6 +87,7 @@ class _PostScreenState extends State<PostScreen> {
     final replyId = await _controller.replyToPost(
       _replyController.text,
       currentUser!.id,
+      currentUser!.username
     );
 
     if (replyId != null) {

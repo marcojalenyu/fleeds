@@ -52,7 +52,7 @@ class _PostCardState extends State<PostCard> {
       _isLiked = !_isLiked; 
       _likeCount += _isLiked ? 1 : -1;
     });
-    final success = await _postController.toggleLike(user.id);
+    final success = await _postController.toggleLike(user.id, user.username);
     if (!mounted) return;
     setState(() { _isLiking = false; });
     // If the like action in backend failed, revert the optimistic update

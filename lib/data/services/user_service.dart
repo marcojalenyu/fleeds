@@ -1,14 +1,17 @@
 import 'package:fleeds/data/dtos/user_dto.dart';
 import 'package:fleeds/data/repositories/user_repository_impl.dart';
+import 'package:fleeds/data/services/notification_service.dart';
 import 'package:fleeds/domain/models/user.dart';
 import 'package:fleeds/domain/repositories/user_repository.dart';
 
 /// Service layer that handles business logic, maps DTOs to domain models, and orchestrates repository calls.
 class UserService {
   final UserRepository _repository;
+  final NotificationService _notificationService;
 
-  const UserService({UserRepository? repository})
-      : _repository = repository ?? const UserRepositoryImpl();
+  const UserService({UserRepository? repository, NotificationService? notificationService})
+      : _repository = repository ?? const UserRepositoryImpl(),
+        _notificationService = notificationService ?? const NotificationService();
 
   User _mapDtoToDomain(UserDTO dto) {
     return User(
@@ -58,8 +61,17 @@ class UserService {
     return _mapDtoToDomain(dto);
   }
 
-  Future<List<String>?> toggleFollow(String currentUserId, String targetUserId) async {
-    return await _repository.toggleFollow(currentUserId, targetUserId);
+  Future<List<String>?> toggleFollow(String currentUserId, String currentUsername, String targetUserId) async {
+    final result = await _repository.toggleFollow(currentUserId, targetUserId);
+    if (result != null && result.contains(targetUserId)) {
+      await _notificationService.addNotification(
+        type: 'follow', 
+        targetUserId: targetUserId,
+        triggeredByUsername: currentUsername,
+        triggeredByUserId: currentUserId,
+      );
+    }
+    return result;
   }
 
   Future<List<String>?> removeFollower(String userId, String followerId) async {
