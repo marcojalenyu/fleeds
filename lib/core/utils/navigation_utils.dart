@@ -11,12 +11,25 @@ void goToPost(BuildContext context, {required Post post, required User user}) {
   );
 }
 
+void goToPostById(BuildContext context, String postId) {
+  Navigator.of(context).pushNamed('/post/$postId');
+}
+
 void goToProfile(BuildContext context, User user) {
   final isSelf = AuthService.currentUser?.id == user.id;
   if (isSelf) {
     Navigator.of(context).pushNamed('/profile');
   } else {
     Navigator.of(context).pushNamed('/profile/${user.id}');
+  }
+}
+
+void goToProfileById(BuildContext context, String userId) {
+  final currentUserId = AuthService.currentUser?.id;
+  if (currentUserId == userId) {
+    Navigator.of(context).pushNamed('/profile');
+  } else {
+    Navigator.of(context).pushNamed('/profile/$userId');
   }
 }
 

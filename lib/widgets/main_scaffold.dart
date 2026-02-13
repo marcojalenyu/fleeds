@@ -36,6 +36,7 @@ class MainScaffold extends StatelessWidget {
   /// Handles navigation based on the tapped index.
   /// Home: 0, Profile: 1, Search/Notification: 2, Logout: 3
   void _onTap(BuildContext context, int index) {
+    bool isMobile = MediaQuery.of(context).size.width < kDesktopBreakpoint;
     switch (index) {
       case 0:
         Navigator.pushReplacementNamed(context, '/');
@@ -44,19 +45,27 @@ class MainScaffold extends StatelessWidget {
         Navigator.of(context).pushNamed('/profile', arguments: AuthService.currentUser);
         break;
       case 2:
-        if (MediaQuery.of(context).size.width < kDesktopBreakpoint) {
+        if (isMobile) {
           Navigator.of(context).push(
             MaterialPageRoute(builder: (_) => SearchScreen()),
           );
         } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('This feature is not yet available.')),
-          );
+          Navigator.of(context).pushNamed('/notifications', arguments: AuthService.currentUser!.id);
         }
         break;
       case 3:
-        AuthService.logout();
-        Navigator.pushReplacementNamed(context, '/login');
+        if (isMobile) {
+          Navigator.of(context).pushNamed('/notifications', arguments: AuthService.currentUser!.id);
+        } else {
+          AuthService.logout();
+          Navigator.pushReplacementNamed(context, '/login');
+        }
+        break;
+      case 4:
+        if (isMobile) {
+          AuthService.logout();
+          Navigator.pushReplacementNamed(context, '/login');
+        }
         break;
     }
   }

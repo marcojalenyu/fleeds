@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 /// A bottom navigation bar with fixed items: 
-/// Home, Profile, Search, Logout.
+/// Home, Profile, Search, Notifications, Logout.
 class BottomBar extends StatelessWidget {
 
   final int _currentIndex;
@@ -31,6 +31,10 @@ class BottomBar extends StatelessWidget {
         BottomNavigationBarItem(
           icon: Icon(Icons.search),
           label: 'Search',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.notifications),
+          label: 'Alerts',
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.logout),

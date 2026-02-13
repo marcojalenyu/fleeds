@@ -4,17 +4,19 @@ import 'package:flutter/material.dart';
 class CustomCard extends StatelessWidget {
 
   final Widget child;
+  final bool noPadding;
 
   const CustomCard({
     super.key, 
-    required this.child
+    required this.child,
+    this.noPadding = false,
   });
 
   @override
   Widget build(BuildContext context) {
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 0, horizontal: 8),
-      padding: const EdgeInsets.all(8),
+      padding: noPadding ? EdgeInsets.zero : const EdgeInsets.all(8),
       decoration: BoxDecoration(
         color: Colors.white,
         boxShadow: [BoxShadow(
