@@ -42,6 +42,24 @@ class NotificationRepositoryImpl implements NotificationRepository {
   }
 
   @override
+  Future<List<NotificationDTO>> fetchUnreadNotificationsForUser(String userId) async {
+    try {
+      final snapshot = await FirebaseFirestore.instance
+        .collection('notifications')
+        .where('targetUserId', isEqualTo: userId)
+        .where('read', isEqualTo: false)
+        .where('deleted', isEqualTo: false)
+        .orderBy('createdAt', descending: true)
+        .get();
+      return snapshot.docs
+          .map((doc) => NotificationDTO.fromFirestore(doc.id, doc.data()))
+          .toList();
+    } catch (e) {
+      return [];
+    }
+  }
+
+  @override
   Future<void> addNotification({
     required String type,
     required String targetUserId,

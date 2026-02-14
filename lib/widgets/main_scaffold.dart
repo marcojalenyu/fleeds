@@ -3,11 +3,12 @@ import 'package:fleeds/core/constants/constants.dart';
 import 'package:fleeds/data/services/auth_service.dart';
 import 'package:fleeds/features/components/search/presentation/search_panel.dart';
 import 'package:fleeds/features/screens/search/presentation/search_screen.dart';
+import 'package:fleeds/features/screens/notifications/logic/notifications_controller.dart';
 import 'package:fleeds/widgets/bottom_bar.dart';
 import 'package:fleeds/widgets/logo.dart';
 
 /// A main scaffold widget that adapts its layout based on screen size.
-class MainScaffold extends StatelessWidget {
+class MainScaffold extends StatefulWidget {
   
   final int currentIndex;
   final Widget body;
@@ -21,7 +22,44 @@ class MainScaffold extends StatelessWidget {
     this.searchPanel,
     this.onAddPost,
   });
+  @override
+  State<MainScaffold> createState() => _MainScaffoldState();
+}
 
+/// State for MainScaffold, responsible for managing notifications and handling navigation.
+class _MainScaffoldState extends State<MainScaffold> {
+  late final NotificationsController _notificationsController;
+  int _unreadCount = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _notificationsController = NotificationsController();
+    _notificationsController.addListener(() {
+      if (mounted) {
+        setState(() {
+          _unreadCount = _notificationsController.unreadCount;
+        });
+      }
+    });
+    _fetchUnreadCount();
+  }
+
+  Future<void> _fetchUnreadCount() async {
+    final user = AuthService.currentUser;
+    if (user != null) {
+      final count = await _notificationsController.getUnreadCount(user.id);
+      if (mounted) {
+        setState(() => _unreadCount = count);
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    _notificationsController.dispose();
+    super.dispose();
+  }
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(builder: (context, constraints) {
@@ -34,7 +72,6 @@ class MainScaffold extends StatelessWidget {
   }
 
   /// Handles navigation based on the tapped index.
-  /// Home: 0, Profile: 1, Search/Notification: 2, Logout: 3
   void _onTap(BuildContext context, int index) {
     bool isMobile = MediaQuery.of(context).size.width < kDesktopBreakpoint;
     switch (index) {
@@ -70,15 +107,49 @@ class MainScaffold extends StatelessWidget {
     }
   }
 
-  /// Builds a menu item with an icon, label, and tap index.
-  Widget _buildMenuItem(BuildContext context, IconData icon, String label, int index) {
+  /// Builds a menu item with an icon, label, and tap index (used for desktop layout).
+  Widget _buildMenuItemDesktop(BuildContext context, IconData icon, String label, int index) {
+    
+    final isNotificationItem = label == 'Notifications';
+    final hasUnread = _unreadCount > 0 && isNotificationItem;
+
     return Padding(
       padding: const EdgeInsets.all(16.0),
-      child: TextButton.icon(
-        icon: Icon(icon, size: 24),
-        label: Text(label, style: TextStyle(fontSize: 18)),
-        style: TextButton.styleFrom(alignment: Alignment.centerLeft),
-        onPressed: () => _onTap(context, index),
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          TextButton.icon(
+            icon: Icon(icon, size: 24),
+            label: Text(label, style: TextStyle(fontSize: 18)),
+            style: TextButton.styleFrom(alignment: Alignment.centerLeft),
+            onPressed: () => _onTap(context, index),
+          ),
+          if (hasUnread)
+            Positioned(
+              right: 4,
+              top: -12,
+              child: Container(
+                padding: EdgeInsets.all(6),
+                decoration: BoxDecoration(
+                  color: Colors.red,
+                  shape: BoxShape.circle,
+                ),
+                constraints: BoxConstraints(
+                  minWidth: 20,
+                  minHeight: 20,
+                ),
+                child: Text(
+                  _unreadCount > 99 ? '99+' : '$_unreadCount',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            ),
+        ],
       ),
     );
   }
@@ -86,14 +157,15 @@ class MainScaffold extends StatelessWidget {
   /// Builds the mobile layout with a bottom navigation bar.
   Widget _buildMobileLayout(BuildContext context) {
     return Scaffold(
-      body: body,
+      body: widget.body,
       bottomNavigationBar: BottomBar(
-        currentIndex: currentIndex,
+        currentIndex: widget.currentIndex,
+        unreadNotificationCount: _unreadCount,
         onTap: (index) => _onTap(context, index),
       ),
-      floatingActionButton: onAddPost != null
+      floatingActionButton: widget.onAddPost != null
           ? FloatingActionButton(
-        onPressed: onAddPost,
+        onPressed: widget.onAddPost,
         child: const Icon(Icons.add),
       )
           : null,
@@ -117,10 +189,10 @@ class MainScaffold extends StatelessWidget {
                   child: ClickableLogo(),
                 ),
                 const SizedBox(height: 32.0),
-                _buildMenuItem(context, Icons.home, 'Home', 0),
-                _buildMenuItem(context, Icons.person, 'Profile', 1),
-                _buildMenuItem(context, Icons.notifications, 'Notifications', 2),
-                _buildMenuItem(context, Icons.logout, 'Logout', 3),
+                _buildMenuItemDesktop(context, Icons.home, 'Home', 0),
+                _buildMenuItemDesktop(context, Icons.person, 'Profile', 1),
+                _buildMenuItemDesktop(context, Icons.notifications, 'Notifications', 2),
+                _buildMenuItemDesktop(context, Icons.logout, 'Logout', 3),
               ],
             ),
           ),
@@ -134,19 +206,19 @@ class MainScaffold extends StatelessWidget {
                   left: BorderSide(color: Colors.grey, width: 0.5),
                 ),
               ),
-              child: body,
+              child: widget.body,
             ),
           ),
           // Search Panel:
           Flexible(
             flex: 2, /// 30%
-            child: searchPanel ?? SearchPanel(onSearch: (query) {}, results: []),
+            child: widget.searchPanel ?? SearchPanel(onSearch: (query) {}, results: []),
           ),
         ],
       ),
-      floatingActionButton: onAddPost != null
+      floatingActionButton: widget.onAddPost != null
           ? FloatingActionButton(
-              onPressed: onAddPost,
+              onPressed: widget.onAddPost,
               child: const Icon(Icons.add),
             )
           : null,

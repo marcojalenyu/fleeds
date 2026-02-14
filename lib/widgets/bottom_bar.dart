@@ -6,11 +6,13 @@ class BottomBar extends StatelessWidget {
 
   final int _currentIndex;
   final ValueChanged<int> onTap;
+  final int unreadNotificationCount;
 
   const BottomBar({
     super.key,
     required int currentIndex,
     required this.onTap,
+    this.unreadNotificationCount = 0,
   }) : _currentIndex = currentIndex;
 
   @override
@@ -19,24 +21,29 @@ class BottomBar extends StatelessWidget {
       type: BottomNavigationBarType.fixed,
       currentIndex: _currentIndex,
       onTap: onTap,
-      items: const [
-        BottomNavigationBarItem(
+      items: [
+        const BottomNavigationBarItem(
           icon: Icon(Icons.home),
           label: 'Home',
         ),
-        BottomNavigationBarItem(
+        const BottomNavigationBarItem(
           icon: Icon(Icons.person),
           label: 'Profile',
         ),
-        BottomNavigationBarItem(
+        const BottomNavigationBarItem(
           icon: Icon(Icons.search),
           label: 'Search',
         ),
         BottomNavigationBarItem(
-          icon: Icon(Icons.notifications),
+          icon: unreadNotificationCount > 0
+              ? Badge(
+                  label: Text(unreadNotificationCount > 99 ? '99+' : '$unreadNotificationCount'),
+                  child: const Icon(Icons.notifications),
+                )
+              : const Icon(Icons.notifications),
           label: 'Alerts',
         ),
-        BottomNavigationBarItem(
+        const BottomNavigationBarItem(
           icon: Icon(Icons.logout),
           label: 'Logout',
         ),

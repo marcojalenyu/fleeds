@@ -11,6 +11,8 @@ abstract class NotificationRepository {
     String? startAfterId,
   });
 
+  Future<List<NotificationDTO>> fetchUnreadNotificationsForUser(String userId);
+
   Future<void> addNotification({
     required String type,
     required String targetUserId,

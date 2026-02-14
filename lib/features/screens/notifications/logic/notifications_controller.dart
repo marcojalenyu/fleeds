@@ -14,6 +14,7 @@ class NotificationsController extends ChangeNotifier {
   List<Notification> get notifications => _notifications;
   bool get isLoading => _isLoading;
   bool get hasMore => _hasMore;
+  int get unreadCount => _notifications.where((n) => !n.isRead).length;
 
   NotificationsController({NotificationService? service})
       : _service = service ?? const NotificationService();
@@ -68,6 +69,16 @@ class NotificationsController extends ChangeNotifier {
     } catch (e) {
       endLoading();
       return [];
+    }
+  }
+
+  /// Get the count of unread notifications for the user
+  Future<int> getUnreadCount(String userId) async {
+    try {
+      final unreadNotifications = await _service.fetchUnreadNotificationsForUser(userId);
+      return unreadNotifications.length;
+    } catch (e) {
+      return 0;
     }
   }
 

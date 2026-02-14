@@ -12,6 +12,8 @@ class Notification {
   final bool read;
   final DateTime createdAt;
   final bool deleted;
+
+  bool get isRead => read;
   
   Notification({
     required this.id,

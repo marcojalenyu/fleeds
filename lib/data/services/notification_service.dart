@@ -39,6 +39,11 @@ class NotificationService {
     return (notifications: notifications, lastDocId: result.lastDocId);
   }
 
+  Future<List<Notification>> fetchUnreadNotificationsForUser(String userId) async {
+    final dtos = await _repository.fetchUnreadNotificationsForUser(userId);
+    return dtos.map(_mapDtoToDomain).toList();
+  }
+
   Future<void> addNotification({
     required String type,
     required String targetUserId,
