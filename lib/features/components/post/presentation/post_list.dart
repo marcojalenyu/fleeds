@@ -107,7 +107,10 @@ class _PostListState extends State<PostList> {
   @override
   Widget build(BuildContext context) {
     if (_usersLoading) {
-      return const Center(child: CircularProgressIndicator());
+      return SizedBox(
+        height: 200,
+        child: Center(child: CircularProgressIndicator()),
+      );
     }
     return ListView.builder(
       padding: const EdgeInsets.symmetric(vertical: 16.0),

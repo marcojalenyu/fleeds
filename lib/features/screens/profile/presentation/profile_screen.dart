@@ -82,47 +82,60 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
             final user = controller.userOnProfile;
             return RefreshIndicator(
               onRefresh: () async => _refreshProfile(),
-              child: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    ProfileHeader(user: user!),
-                    const SizedBox(height: 16),
-                    ProfileButtonRow(controller: controller),
-                    ProfileStats(user: user),
-                    TabBar(
-                      controller: _tabController,
-                      tabs: const [
-                        Tab(text: 'Posts'),
-                        Tab(text: 'Replies'),
-                        Tab(text: 'Likes'),
+              child: CustomScrollView(
+                slivers: [
+                  SliverToBoxAdapter(
+                    child: Column(
+                      children: [
+                        ProfileHeader(user: user!),
+                        const SizedBox(height: 16),
+                        ProfileButtonRow(controller: controller),
+                        ProfileStats(user: user),
+                        TabBar(
+                          controller: _tabController,
+                          tabs: const [
+                            Tab(text: 'Posts'),
+                            Tab(text: 'Replies'),
+                            Tab(text: 'Likes'),
+                          ],
+                        ),
                       ],
                     ),
-                    SizedBox(
-                      height: 600,
-                      child: TabBarView(
-                        controller: _tabController,
-                        children: [
-                          PostList(
+                  ),
+                  SliverToBoxAdapter(
+                    child: AnimatedBuilder(
+                      animation: _tabController,
+                      builder: (context, _) {
+                        if (_tabController.index == 0) {
+                          return PostList(
                             initialPosts: controller.userPosts,
                             onLoadMore: controller.loadMoreUserPosts,
                             onPostChanged: (_) => controller.fetchUserContent(user.id),
-                          ),
-                          PostList(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                          );
+                        } else if (_tabController.index == 1) {
+                          return PostList(
                             initialPosts: controller.userReplies,
                             onLoadMore: controller.loadMoreUserReplies,
                             onPostChanged: (_) => controller.fetchUserContent(user.id),
-                          ),
-                          PostList(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                          );
+                        } else {
+                          return PostList(
                             initialPosts: controller.likedPosts,
                             onLoadMore: controller.loadMoreLikedPosts,
                             onPostChanged: (_) => controller.fetchUserContent(user.id),
-                          ),
-                        ],
-                      ),
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                          );
+                        }
+                      },
                     ),
-                  ],
-                ),
-              )
+                  ),
+                ],
+              ),
             );
           },
         ),
