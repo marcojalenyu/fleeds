@@ -1,3 +1,4 @@
+import 'package:fleeds/authentication/auth_wrapper.dart';
 import 'package:fleeds/features/screens/notifications/presentation/notifications_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -30,17 +31,18 @@ class MyApp extends StatelessWidget {
       title: 'Fleeds',
       theme: AppTheme.theme,
       initialRoute: '/',
+      home: AuthWrapper(child: HomeScreen()),
       routes: {
         '/login': (context) => LoginScreen(),
-        '/profile': (context) => ProfileScreen(),
-        '/notifications': (context) => NotificationsScreen(userId: AuthService.currentUser!.id),
+        '/profile': (context) => AuthWrapper(child: ProfileScreen()),
+        '/notifications': (context) => AuthWrapper(child: NotificationsScreen()),
       },
       onGenerateRoute: (settings) {
         /// Handle the home screen route with optional keywords argument
         if (settings.name == '/') {
           final keywords = settings.arguments as List<String>?;
           return MaterialPageRoute(
-            builder: (context) => HomeScreen(keywords: keywords),
+            builder: (context) => AuthWrapper(child: HomeScreen(keywords: keywords)),
             settings: settings,
           );
         }
@@ -48,7 +50,7 @@ class MyApp extends StatelessWidget {
         if (settings.name != null && settings.name!.startsWith('/profile/')) {
           final userId = settings.name!.substring('/profile/'.length);
           return MaterialPageRoute(
-            builder: (context) => ProfileScreen(userId: userId),
+            builder: (context) => AuthWrapper(child: ProfileScreen(userId: userId)),
             settings: settings,
           );
         }
@@ -58,16 +60,18 @@ class MyApp extends StatelessWidget {
 
           if (args != null && args['post'] != null && args['user'] != null) {
             return MaterialPageRoute(
-              builder: (context) => PostScreen(
-                postId: postId,
-                post: args['post'],
-                user: args['user'],
+              builder: (context) => AuthWrapper(
+                child: PostScreen(
+                  postId: postId,
+                  post: args['post'],
+                  user: args['user'],
+                ),
               ),
               settings: settings,
             );
           } else {
             return MaterialPageRoute(
-              builder: (context) => PostScreen(postId: postId),
+              builder: (context) => AuthWrapper(child: PostScreen(postId: postId)),
               settings: settings,
             );
           }

@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:fleeds/core/constants/constants.dart';
 import 'package:fleeds/data/services/auth_service.dart';
 import 'package:fleeds/widgets/logo.dart';
-import 'package:fleeds/features/components/authentication/presentation/login_form.dart';
-import 'package:fleeds/features/components/authentication/presentation/signup_form.dart';
+import 'package:fleeds/authentication/login_form.dart';
+import 'package:fleeds/authentication/signup_form.dart';
 
 /// Login/Signup screen for the Fleeds app
 class LoginScreen extends StatefulWidget {

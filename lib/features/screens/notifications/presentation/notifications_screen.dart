@@ -1,3 +1,4 @@
+import 'package:fleeds/data/services/auth_service.dart';
 import 'package:fleeds/features/screens/notifications/logic/notifications_controller.dart';
 import 'package:fleeds/features/components/notification/presentation/notification_card.dart';
 import 'package:fleeds/widgets/main_scaffold.dart';
@@ -6,12 +7,7 @@ import 'package:flutter/material.dart';
 /// Screen to display user notifications, allowing users to view and interact with their notifications
 class NotificationsScreen extends StatefulWidget {
 
-  final String _userId;
-
-  const NotificationsScreen({
-    super.key,
-    required String userId,
-  }) : _userId = userId;
+  const NotificationsScreen({super.key});
   
   @override
   State<NotificationsScreen> createState() => _NotificationsScreenState();
@@ -22,10 +18,12 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
 
   late NotificationsController _controller;
   late ScrollController _scrollController;
+  late String _userId;
 
   @override
   void initState() {
     super.initState();
+    _userId = AuthService.currentUser!.id;
     _controller = NotificationsController();
     _controller.addListener(_onControllerChanged);
     _scrollController = ScrollController();
@@ -34,7 +32,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   }
 
   Future<void> _loadInitialNotifications() async {
-    await _controller.fetchNotifications(userId: widget._userId, refresh: true);
+    await _controller.fetchNotifications(userId: _userId, refresh: true);
   }
 
   void _onControllerChanged() {
@@ -44,7 +42,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   void _onScroll() {
     if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent * 0.9) {
       if (!_controller.isLoading && _controller.hasMore) {
-        _controller.fetchNotifications(userId: widget._userId);
+        _controller.fetchNotifications(userId: _userId, refresh: false);
       }
     }
   }

@@ -26,14 +26,7 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
     _controller = HomeController();
     _controller.addListener(() => setState(() {}));
-    final user = AuthService.currentUser;
-    if (user == null) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        Navigator.pushReplacementNamed(context, '/login');
-      });
-    } else {
-      _controller.fetchPosts(keywords: widget.keywords ?? []);
-    }
+    _controller.fetchPosts(keywords: widget.keywords ?? []);
   }
 
   @override
