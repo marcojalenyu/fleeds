@@ -1,38 +1,95 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <!--
-    If you are serving your web app in a path other than the root, change the
-    href value below to reflect the base path you are serving from.
-
-    The path provided below has to start and end with a slash "/" in order for
-    it to work correctly.
-
-    For more details:
-    * https://developer.mozilla.org/en-US/docs/Web/HTML/Element/base
-
-    This is a placeholder for base href that will be replaced by the value of
-    the `--base-href` argument provided to `flutter build`.
-  -->
   <base href="$FLUTTER_BASE_HREF">
 
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
-  <meta name="description" content="A new Flutter project.">
-
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <!-- Primary Meta Tags -->
+  <title>Fleeds</title>
+  <meta name="title" content="Fleeds - Fleet over Feeds | Social Media Platform">
+  <meta name="description" content="Fleeds is a lightweight Twitter/X-style social media platform. Share your thoughts, engage with others, and build your digital presence. Built with Flutter and Firebase.">
+  <meta name="keywords" content="social media, microblogging, twitter alternative, flutter app, post sharing, social network, fleeds">
+  <meta name="author" content="Marco Jalen Yu">
+  <meta name="robots" content="index, follow">
+  
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://fleeds.web.app/">
+  <meta property="og:title" content="Fleeds - Fleet over Feeds | Social Media Platform">
+  <meta property="og:description" content="A lightweight social media platform where ideas clash and exchange. Share your thoughts, engage with others, and build your digital presence.">
+  <meta property="og:image" content="https://fleeds.web.app/icons/Icon-512.png">
+  <meta property="og:site_name" content="Fleeds">
+  
+  <!-- Twitter -->
+  <meta property="twitter:card" content="summary_large_image">
+  <meta property="twitter:url" content="https://fleeds.web.app/">
+  <meta property="twitter:title" content="Fleeds - Fleet over Feeds">
+  <meta property="twitter:description" content="A lightweight social media platform where ideas clash and exchange.">
+  <meta property="twitter:image" content="https://fleeds.web.app/icons/Icon-512.png">
+  
   <!-- iOS meta tags & icons -->
   <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
   <meta name="apple-mobile-web-app-title" content="Fleeds">
   <link rel="apple-touch-icon" href="icons/Icon-192.png">
 
   <!-- Favicon -->
   <link rel="icon" type="image/png" href="favicon.png"/>
-
-  <title>Fleeds</title>
+  <link rel="shortcut icon" type="image/png" href="favicon.png"/>
+  
+  <!-- Canonical URL -->
+  <link rel="canonical" href="https://fleeds.web.app/">
+  
+  <!-- Preconnect to Firebase -->
+  <link rel="preconnect" href="https://firestore.googleapis.com">
+  <link rel="preconnect" href="https://firebase.googleapis.com">
+  
   <link rel="manifest" href="manifest.json">
+  
+  <!-- Structured Data (JSON-LD) for SEO -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "Fleeds",
+    "alternateName": "Fleet over Feeds",
+    "url": "https://fleeds.web.app/",
+    "description": "A lightweight Twitter/X-style social media platform built with Flutter and Firebase",
+    "applicationCategory": "SocialNetworkingApplication",
+    "operatingSystem": "Web",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
+    },
+    "author": {
+      "@type": "Person",
+      "name": "Marco Jalen Yu"
+    }
+  }
+  </script>
 </head>
 <body>
+  <!-- Loading Screen -->
+  <div id="loading" style="display: flex; justify-content: center; align-items: center; height: 100vh; background-color: #ffffff;">
+    <div style="text-align: center;">
+      <h1 style="color: #14b8a6; font-family: sans-serif; font-size: 3rem; margin: 0;">Fleeds</h1>
+      <p style="color: #666; font-family: sans-serif; margin-top: 1rem;">Loading...</p>
+    </div>
+  </div>
+  
   <script src="flutter_bootstrap.js" async></script>
+  
+  <script>
+    // Hide loading screen once Flutter loads
+    window.addEventListener('flutter-first-frame', function() {
+      const loading = document.getElementById('loading');
+      if (loading) loading.style.display = 'none';
+    });
+  </script>
 </body>
 </html>

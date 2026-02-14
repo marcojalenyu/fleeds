@@ -1,13 +1,14 @@
 {
     "name": "Fleeds",
     "short_name": "Fleeds",
-    "start_url": ".",
+    "start_url": "/",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "Feeds in Flutter",
+    "description": "Fleeds is a lightweight Twitter/X-style social media platform. Share your thoughts, engage with others, and build your digital presence. Built with Flutter and Firebase.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
+    "categories": ["social", "entertainment"],
     "icons": [
         {
             "src": "icons/Icon-192.png",
