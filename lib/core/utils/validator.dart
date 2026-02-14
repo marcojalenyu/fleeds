@@ -3,9 +3,7 @@ class Validators {
   Validators._();
 
   static final usernameRegex = RegExp(r'^[a-zA-Z0-9_]+$');
-  static final emailRegex = RegExp(
-    r"^[a-zA-Z0-9](\.?[a-zA-Z0-9!#$%&'*+/=?^_`{|}~-]{0,63})@[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(\.[a-zA-Z]{2,63})+$"
-  );
+  static final emailRegex = RegExp(r'^[^\s@]+@[^\s@]+\.[^\s@]+$');
   static final passwordRegex = RegExp(
     r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9])[!-~]{6,64}$'
   );
