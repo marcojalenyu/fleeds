@@ -43,11 +43,7 @@ class _NotificationCardState extends State<NotificationCard> {
   }
 
   @override
-  void dispose() async {
-    // Mark as read when leaving the page
-    if (!_notification.read) {
-      await _controller.markAsRead();
-    }
+  void dispose() {
     _controller.removeListener(_onControllerChanged);
     _controller.dispose();
     super.dispose();

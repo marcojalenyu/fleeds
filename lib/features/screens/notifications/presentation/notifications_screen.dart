@@ -51,6 +51,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
 
   @override
   void dispose() {
+    _controller.markAllAsRead();
     _controller.removeListener(_onControllerChanged);
     _scrollController.removeListener(_onScroll);
     _scrollController.dispose();

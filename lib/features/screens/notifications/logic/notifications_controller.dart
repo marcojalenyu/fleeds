@@ -82,6 +82,23 @@ class NotificationsController extends ChangeNotifier {
     }
   }
 
+  /// Marks all notifications as read for the user
+  Future<void> markAllAsRead() async {
+    final unreadNotifications = _notifications.where((n) => !n.isRead).toList();
+    for (var notification in unreadNotifications) {
+      try {
+        await _service.markNotificationAsRead(notification.id);
+        final index = _notifications.indexWhere((n) => n.id == notification.id);
+        if (index != -1) {
+          _notifications[index] = _notifications[index].markAsRead();
+        }
+      } catch (e) {
+        // Silently fail - marking as read is not critical
+      }
+    }
+    notifyListeners();
+  }
+
   /// Removes a notification from the list (called after deletion)
   void removeNotification(String notificationId) {
     _notifications.removeWhere((n) => n.id == notificationId);

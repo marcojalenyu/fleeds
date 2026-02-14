@@ -16,22 +16,6 @@ class NotificationCardController extends ChangeNotifier {
 
   NotificationCardController({required this.notification});
 
-  /// Marks the notification as read
-  Future<void> markAsRead() async {
-    if (AuthService.currentUser == null) return;
-    if (notification.read || _isMarkingAsRead) return;
-    _isMarkingAsRead = true;
-    notifyListeners();    
-    try {
-      await NotificationService().markNotificationAsRead(notification.id);
-    } catch (e) {
-      // Silently fail - marking as read is not critical
-    } finally {
-      _isMarkingAsRead = false;
-      notifyListeners();
-    }
-  }
-
   /// Deletes the notification
   Future<bool> deleteNotification() async {
     if (AuthService.currentUser == null) return false;
