@@ -45,16 +45,6 @@ class _MainScaffoldState extends State<MainScaffold> {
     _fetchUnreadCount();
   }
 
-  Future<void> _fetchUnreadCount() async {
-    final user = AuthService.currentUser;
-    if (user != null) {
-      final count = await _notificationsController.getUnreadCount(user.id);
-      if (mounted) {
-        setState(() => _unreadCount = count);
-      }
-    }
-  }
-
   @override
   void dispose() {
     _notificationsController.dispose();
@@ -69,6 +59,23 @@ class _MainScaffoldState extends State<MainScaffold> {
         return _buildDesktopLayout(context);
       }
     });
+  }
+
+  Future<void> _fetchUnreadCount() async {
+    final user = AuthService.currentUser;
+    if (user != null) {
+      final count = await _notificationsController.getUnreadCount(user.id);
+      if (mounted) {
+        setState(() => _unreadCount = count);
+      }
+    }
+  }
+
+  Future<void> _handleLogout(BuildContext context) async {
+    await AuthService.logout();
+    if (context.mounted) {
+      Navigator.of(context).pushNamedAndRemoveUntil('/login', (route) => false);
+    }
   }
 
   /// Handles navigation based on the tapped index.
@@ -94,14 +101,12 @@ class _MainScaffoldState extends State<MainScaffold> {
         if (isMobile) {
           Navigator.of(context).pushNamed('/notifications', arguments: AuthService.currentUser!.id);
         } else {
-          AuthService.logout();
-          Navigator.pushReplacementNamed(context, '/login');
+          _handleLogout(context);
         }
         break;
       case 4:
         if (isMobile) {
-          AuthService.logout();
-          Navigator.pushReplacementNamed(context, '/login');
+          _handleLogout(context);
         }
         break;
     }
