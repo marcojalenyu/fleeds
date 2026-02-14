@@ -11,7 +11,7 @@ abstract class NotificationRepository {
     String? startAfterId,
   });
 
-  Future<String?> addNotification({
+  Future<void> addNotification({
     required String type,
     required String targetUserId,
     required String triggeredByUsername,

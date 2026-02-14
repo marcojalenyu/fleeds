@@ -39,20 +39,22 @@ class NotificationService {
     return (notifications: notifications, lastDocId: result.lastDocId);
   }
 
-  Future<String?> addNotification({
+  Future<void> addNotification({
     required String type,
     required String targetUserId,
     required String triggeredByUsername,
     required String triggeredByUserId,
     String? relatedPostId,
   }) async {
-    return await _repository.addNotification(
-      type: type,
-      targetUserId: targetUserId,
-      triggeredByUsername: triggeredByUsername,
-      triggeredByUserId: triggeredByUserId,
-      relatedPostId: relatedPostId,
-    );
+    if (targetUserId != triggeredByUserId) {
+      await _repository.addNotification(
+        type: type,
+        targetUserId: targetUserId,
+        triggeredByUsername: triggeredByUsername,
+        triggeredByUserId: triggeredByUserId,
+        relatedPostId: relatedPostId,
+      );
+    }
   }
 
   Future<void> markNotificationAsRead(String notificationId) async {

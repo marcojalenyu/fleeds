@@ -42,7 +42,7 @@ class NotificationRepositoryImpl implements NotificationRepository {
   }
 
   @override
-  Future<String?> addNotification({
+  Future<void> addNotification({
     required String type,
     required String targetUserId,
     required String triggeredByUsername,
@@ -50,7 +50,7 @@ class NotificationRepositoryImpl implements NotificationRepository {
     String? relatedPostId,
   }) async {
     try {
-      final docRef = await FirebaseFirestore.instance.collection('notifications').add({
+      await FirebaseFirestore.instance.collection('notifications').add({
         'type': type,
         'targetUserId': targetUserId,
         'triggeredByUsername': triggeredByUsername,
@@ -60,9 +60,8 @@ class NotificationRepositoryImpl implements NotificationRepository {
         'createdAt': FieldValue.serverTimestamp(),
         'deleted': false,
       });
-      return docRef.id;
     } catch (e) {
-      return null;
+      // Handle error if needed
     }
   }
 
