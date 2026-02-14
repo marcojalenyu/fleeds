@@ -6,13 +6,8 @@ import 'package:flutter/material.dart' hide Notification;
 class NotificationCardController extends ChangeNotifier {
   
   final Notification notification;
-
   bool _isDeleting = false;
-  bool _isMarkingAsRead = false;
-
   bool get isDeleting => _isDeleting;
-  bool get isMarkingAsRead => _isMarkingAsRead;
-  bool get isLoading => _isDeleting || _isMarkingAsRead;
 
   NotificationCardController({required this.notification});
 
