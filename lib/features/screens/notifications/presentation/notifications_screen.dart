@@ -90,6 +90,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                       }
                       final notification = notifications[index];
                       return NotificationCard(
+                        key: ValueKey(notification.id),
                         notification: notification,
                         onDeleted: () => _controller.removeNotification(notification.id),
                       );
