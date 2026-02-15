@@ -75,8 +75,8 @@ class ProfilePic extends StatelessWidget {
               child: Image.asset(
                 _imageUrl,
                 color: _parseColor(_avatarColor),
-                width: _size,
-                height: _size,
+                width: _size*1.5,
+                height: _size*1.5,
                 fit: BoxFit.cover,
                 errorBuilder: (context, error, stackTrace) {
                   return Icon(Icons.person, color: Colors.white, size: _size);
