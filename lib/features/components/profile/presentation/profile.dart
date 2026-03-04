@@ -1,4 +1,5 @@
 import 'package:fleeds/core/utils/date_utils.dart';
+import 'package:fleeds/data/services/auth_service.dart';
 import 'package:fleeds/domain/models/user.dart';
 import 'package:flutter/material.dart';
 import 'package:fleeds/core/utils/navigation_utils.dart';
@@ -97,6 +98,8 @@ class ProfileButtonRow extends StatelessWidget {
   const ProfileButtonRow({super.key, required this.controller});
 
   Future<void> _showProfileEditDialog(BuildContext context, User user) async {
+    if (!await AuthService.requireAuth(context)) return;
+    if (!context.mounted) return;
     final result = await showDialog(
       context: context,
       builder: (context) => ProfileEditDialog(user: user),
@@ -127,7 +130,10 @@ class ProfileButtonRow extends StatelessWidget {
                 label: controller.isFollowing ? 'Unfollow' : 'Follow',
                 isFollowing: controller.isFollowing,
                 showHoverUnfollow: true,
-                onPressed: () => controller.toggleFollowUser(controller.userOnProfile!.id),
+                onPressed: () async {
+                  if (!await AuthService.requireAuth(context)) return;
+                  controller.toggleFollowUser(controller.userOnProfile!.id);
+                },
               ),
         const SizedBox(width: 16),
       ],

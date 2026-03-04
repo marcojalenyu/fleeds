@@ -90,8 +90,7 @@ class ProfileController extends ChangeNotifier {
     String? avatarBgColor,
     String? bannerUrl,
   }) async {
-    final currentUser = AuthService.currentUser;
-    if (currentUser == null || !isOwnProfile) return;
+    if (!AuthService.isAuthenticated() || !isOwnProfile) return;
     try {
       userOnProfile = userOnProfile!.updateProfile(
         newDisplayName: newDisplayName, 

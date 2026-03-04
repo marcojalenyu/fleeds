@@ -18,17 +18,7 @@ class _AuthWrapperState extends State<AuthWrapper> {
   @override
   void initState() {
     super.initState();
-    _checkAuthentication();
-  }
-
-  void _checkAuthentication() {
-    if (AuthService.currentUser == null) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) {
-          Navigator.of(context).pushNamedAndRemoveUntil('/login', (route) => false);
-        }
-      });
-    }
+    AuthService.requireAuth(context);
   }
 
   @override

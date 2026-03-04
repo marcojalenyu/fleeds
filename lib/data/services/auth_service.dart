@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart' as fb;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fleeds/data/services/user_service.dart';
 import 'package:fleeds/domain/models/user.dart';
+import 'package:flutter/widgets.dart';
 
 /// Service layer that handles authentication logic, user session management, and interaction with Firebase Auth.
 class AuthService {
@@ -22,6 +23,26 @@ class AuthService {
     if (fbUser != null) {
       _currentUser = await _userService.fetchUser(fbUser.uid);
     }
+  }
+
+  /// Checks if a user is currently authenticated
+  static bool isAuthenticated() {
+    return _currentUser != null;
+  }
+
+  /// Ensures the user is authenticated before accessing certain features
+  /// If not authenticated, redirects to the login screen
+  static Future<bool> requireAuth(BuildContext context) async {
+    if (isAuthenticated()) {
+      return true;
+    } else {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (context.mounted) {
+          Navigator.of(context).pushNamedAndRemoveUntil('/login', (route) => false);
+        }
+      });
+      return false;
+    } 
   }
 
   /// Logs in a user with the provided username and password.
@@ -45,7 +66,7 @@ class AuthService {
         password: password,
       );
       _currentUser = await _userService.fetchUser(credential.user!.uid);
-      return _currentUser != null;
+      return isAuthenticated();
     } catch (e) {
       return false;
     }
@@ -92,7 +113,7 @@ class AuthService {
       });
 
       _currentUser = await _userService.fetchUser(credential.user!.uid);
-      return _currentUser != null;
+      return isAuthenticated();
       
     } catch (e) {
       return false;

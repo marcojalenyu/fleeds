@@ -37,6 +37,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   /// Show the dialog for adding a new post.
   Future<void> _showAddPostDialog(BuildContext context) async {
+    if (!await AuthService.requireAuth(context)) return;
+    if (!context.mounted) return;
     await showDialog<bool>(
       context: context,
       builder: (context) => AddPostDialog(

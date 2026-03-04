@@ -77,19 +77,17 @@ class _PostScreenState extends State<PostScreen> {
   }
 
   Future<void> _toggleLike() async {
-    if (currentUser == null) return;
+    if (!await AuthService.requireAuth(context)) return;
     await _controller.toggleLike(currentUser!.id, currentUser!.username);
   }
 
   Future<void> _replyToPost() async {
-    if (_replyController.text.isEmpty || currentUser == null) return;
-    
+    if (!await AuthService.requireAuth(context)) return;
     final replyId = await _controller.replyToPost(
       _replyController.text,
       currentUser!.id,
       currentUser!.username
     );
-
     if (replyId != null) {
       _replyController.clear();
       _toggleReplyFocus();

@@ -45,6 +45,7 @@ class _PostCardState extends State<PostCard> {
 
   /// Toggles the like status of the post for the current user, with optimistic UI update
   void _toggleLike(User? user) async {
+    if (!await (AuthService.requireAuth(context))) return;
     if (user == null || _isLiking) return;
     // Optimistically update UI
     setState(() {
