@@ -5,31 +5,31 @@ import 'package:fleeds/data/services/auth_service.dart';
 import 'package:fleeds/features/screens/userlist/presentation/userslist_screen.dart';
 
 void goToPost(BuildContext context, {required Post post, required User user}) {
-  Navigator.of(context).pushNamed(
+  Navigator.of(context).pushReplacementNamed(
     '/post/${post.id}',
     arguments: {'post': post, 'user': user},
   );
 }
 
 void goToPostById(BuildContext context, String postId) {
-  Navigator.of(context).pushNamed('/post/$postId');
+  Navigator.of(context).pushReplacementNamed('/post/$postId');
 }
 
 void goToProfile(BuildContext context, User user) {
   final isSelf = AuthService.currentUser?.id == user.id;
   if (isSelf) {
-    Navigator.of(context).pushNamed('/profile');
+    Navigator.of(context).pushReplacementNamed('/profile');
   } else {
-    Navigator.of(context).pushNamed('/profile/${user.id}');
+    Navigator.of(context).pushReplacementNamed('/user/${user.id}');
   }
 }
 
 void goToProfileById(BuildContext context, String userId) {
   final currentUserId = AuthService.currentUser?.id;
   if (currentUserId == userId) {
-    Navigator.of(context).pushNamed('/profile');
+    Navigator.of(context).pushReplacementNamed('/profile');
   } else {
-    Navigator.of(context).pushNamed('/profile/$userId');
+    Navigator.of(context).pushReplacementNamed('/user/$userId');
   }
 }
 

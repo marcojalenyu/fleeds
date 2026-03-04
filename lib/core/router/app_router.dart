@@ -14,18 +14,19 @@ class AppRouter {
 
   static const String home = '/';
   static const String login = '/login';
+  static const String profile = '/profile';
   static const String notifications = '/notifications';
 
   /// Static routes without dynamic parameters
   static Map<String, WidgetBuilder> get routes => {
     login: (context) => LoginScreen(),
+    profile: (context) => AuthWrapper(child: ProfileScreen()),
     notifications: (context) => AuthWrapper(child: NotificationsScreen()),
   };
 
   /// Handle dynamic routes with parameters (posts, other profiles, etc.)
   /// This is used in the onGenerateRoute callback of MaterialApp
   static Route<dynamic>? onGenerateRoute(RouteSettings settings) {
-    
     /// Home route with optional keywords argument (for search results) 
     if (settings.name == home) {
       final keywords = settings.arguments as List<String>?;
@@ -36,25 +37,17 @@ class AppRouter {
     }
 
     /// Dynamic profile route (e.g. /profile/12345)
-    if (settings.name != null && settings.name!.startsWith('/profile')) {
-      /// Extract userId from the route (if present) and pass it to ProfileScreen
-      final userId = settings.name!.startsWith('/profile/') 
-        ? _extractPathParameter(settings.name!, '/profile/') 
-        : '';
-      /// If no userId in path, show current user's profile (handled by ProfileScreen)
-      if (userId.isEmpty) {
-        return MaterialPageRoute(
-          builder: (context) => AuthWrapper(child: ProfileScreen()),
-          settings: settings,
-        );
-      } else {
-        return MaterialPageRoute(
-          builder: (context) => ProfileScreen(userId: userId),
-          settings: settings,
-        );
-      }
+    if (settings.name != null && settings.name!.startsWith('/user')) {
+      /// Extract userId from route if present
+      final userId = settings.name == '/user' 
+          ? '' 
+          : _extractPathParameter(settings.name!, '/user/');
+      return MaterialPageRoute(
+        builder: (context) => ProfileScreen(userId: userId.isEmpty ? null : userId),
+        settings: settings,
+      );
     }
-
+  
     /// Dynamic post route (e.g. /post/67890)
     if (settings.name != null && settings.name!.startsWith('/post/')) {
       final postId = _extractPathParameter(settings.name!, '/post/');
