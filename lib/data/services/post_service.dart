@@ -78,6 +78,20 @@ Future<({List<Post> posts, DocumentSnapshot? lastDoc})> fetchPostsLikedByUser({
   return (posts: posts, lastDoc: result.lastDoc);
 }
 
+Future<({List<Post> posts, DocumentSnapshot? lastDoc})> fetchRepliesByUser({
+  required String userId,
+  int limit = 20,
+  DocumentSnapshot? startAfter,
+}) async {
+  final result = await _repository.fetchRepliesByUser(
+    userId: userId,
+    limit: limit,
+    startAfter: startAfter,
+  );
+  final posts = result.posts.map(_mapDtoToDomain).toList();
+  return (posts: posts, lastDoc: result.lastDoc);
+}
+
 Future<({List<Post> posts, DocumentSnapshot? lastDoc})> fetchReplies({
   required String postId,
   int limit = 20,

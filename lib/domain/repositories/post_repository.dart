@@ -27,6 +27,12 @@ abstract class PostRepository {
     DocumentSnapshot? startAfter,
   });
 
+  Future<({List<PostDTO> posts, DocumentSnapshot? lastDoc})> fetchRepliesByUser({
+    required String userId,
+    int limit = 20,
+    DocumentSnapshot? startAfter,
+  });
+
   Future<({List<PostDTO> posts, DocumentSnapshot? lastDoc})> fetchReplies({
     required String postId,
     int limit = 20,

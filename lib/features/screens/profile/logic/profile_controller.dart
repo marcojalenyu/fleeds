@@ -37,27 +37,24 @@ class ProfileController extends ChangeNotifier {
   }
 
   Future<void> fetchUserContent(String userId) async {
-    final posts = await postController.fetchPostsByUser(userId: userId, refresh: true);
-    userPosts = posts.where((post) => !post.isReply).toList();
-    userReplies = posts.where((post) => post.isReply).toList();
-    likedPosts = await postController.fetchPostsLikedByUser(userId: userId, refresh: true);
+    userPosts = await postController.fetchPostsByUser(userId: userId, refresh: true);
+    userReplies = await repliesController.fetchRepliesByUser(userId: userId, refresh: true);
+    likedPosts = await likedController.fetchPostsLikedByUser(userId: userId, refresh: true);
     notifyListeners();
   }
 
    Future<List<Post>> loadMoreUserPosts() async {
-    final posts = await postController.fetchPostsByUser(userId: userOnProfile!.id, refresh: false);
-    final newPosts = posts.where((post) => !post.isReply).toList();
-    userPosts.addAll(newPosts);
+    final morePosts = await postController.fetchPostsByUser(userId: userOnProfile!.id, refresh: false);
+    userPosts.addAll(morePosts);
     notifyListeners();
-    return newPosts;
+    return morePosts;
   }
 
   Future<List<Post>> loadMoreUserReplies() async {
-    final posts = await repliesController.fetchPostsByUser(userId: userOnProfile!.id, refresh: false);
-    final newReplies = posts.where((post) => post.isReply).toList();
-    userReplies.addAll(newReplies);
+    final moreReplies = await repliesController.fetchRepliesByUser(userId: userOnProfile!.id, refresh: false);
+    userReplies.addAll(moreReplies);
     notifyListeners();
-    return newReplies;
+    return moreReplies;
   }
 
   Future<List<Post>> loadMoreLikedPosts() async {

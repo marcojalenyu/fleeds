@@ -69,6 +69,7 @@ Future<({List<PostDTO> posts, DocumentSnapshot? lastDoc})> fetchPostsByUser({
     Query query = FirebaseFirestore.instance
         .collection('posts')
         .where('authorId', isEqualTo: userId)
+        .where('repliedToPostId', isEqualTo: '') // Replies have a separate fetch method
         .where('deleted', isEqualTo: false)
         .orderBy('createdAt', descending: true)
         .limit(limit);
@@ -101,6 +102,39 @@ Future<({List<PostDTO> posts, DocumentSnapshot? lastDoc})> fetchPostsLikedByUser
     Query query = FirebaseFirestore.instance
         .collection('posts')
         .where('likes', arrayContains: userId)
+        .where('deleted', isEqualTo: false)
+        .orderBy('createdAt', descending: true)
+        .limit(limit);
+    
+    if (startAfter != null) {
+      query = query.startAfterDocument(startAfter);
+    }
+    
+    final snapshot = await query.get();
+    
+    final posts = snapshot.docs
+        .map((doc) => PostDTO.fromFirestore(doc.id, doc.data() as Map<String, dynamic>))
+        .toList();
+    
+    DocumentSnapshot? lastDoc = snapshot.docs.isNotEmpty ? snapshot.docs.last : null;
+    
+    return (posts: posts, lastDoc: lastDoc);
+  } catch (e) {
+    return (posts: <PostDTO>[], lastDoc: null);
+  }
+}
+
+@override
+Future<({List<PostDTO> posts, DocumentSnapshot? lastDoc})> fetchRepliesByUser({
+  required String userId,
+  int limit = 20,
+  DocumentSnapshot? startAfter,
+}) async {
+  try {
+    Query query = FirebaseFirestore.instance
+        .collection('posts')
+        .where('authorId', isEqualTo: userId)
+        .where('repliedToPostId', isNotEqualTo: '') // Only fetch replies
         .where('deleted', isEqualTo: false)
         .orderBy('createdAt', descending: true)
         .limit(limit);

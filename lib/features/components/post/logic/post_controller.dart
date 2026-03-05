@@ -123,6 +123,32 @@ class PostController extends ChangeNotifier {
     }
   }
 
+  Future<List<Post>> fetchRepliesByUser({
+    required String userId,
+    int limit = 20,
+    bool refresh = false,
+  }) async {
+    if (refresh) resetPagination();
+    if (!hasMore) return [];
+    startLoading();
+    try {
+      final result = await _service.fetchRepliesByUser(
+        userId: userId,
+        limit: limit,
+        startAfter: _lastDocument
+      );
+      _lastDocument = result.lastDoc;
+      final posts = result.posts;
+      if (posts.length < limit) hasMore = false;
+      endLoading();
+      return posts;
+    } catch (e) {
+      error = 'Failed to fetch user replies: $e';
+      endLoading();
+      return [];
+    }
+  }
+
   Future<List<Post>> fetchReplies({
     required String postId,
     int limit = 20,
