@@ -131,6 +131,7 @@ class _MainScaffoldState extends State<MainScaffold> {
       bottomNavigationBar: BottomBar(
         currentIndex: widget.currentIndex,
         unreadNotificationCount: _unreadCount,
+        isAuthenticated: AuthService.isAuthenticated(),
         onTap: (index) => _onTap(context, index),
       ),
       floatingActionButton: widget.onAddPost != null
@@ -163,7 +164,7 @@ class _MainScaffoldState extends State<MainScaffold> {
                 _buildMenuItemDesktop(context, Icons.person, 'Profile', 1),
                 _buildMenuItemDesktop(context, Icons.notifications, 'Notifications', 2),
                 _buildMenuItemDesktop(context, Icons.settings, 'Settings', 3),
-                _buildMenuItemDesktop(context, Icons.logout, 'Logout', 4),
+                _buildMenuItemDesktop(context, Icons.logout, AuthService.isAuthenticated() ? 'Logout' : 'Login', 4),
               ],
             ),
           ),

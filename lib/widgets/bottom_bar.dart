@@ -7,12 +7,14 @@ class BottomBar extends StatelessWidget {
   final int _currentIndex;
   final ValueChanged<int> onTap;
   final int unreadNotificationCount;
+  final bool isAuthenticated;
 
   const BottomBar({
     super.key,
     required int currentIndex,
     required this.onTap,
     this.unreadNotificationCount = 0,
+    this.isAuthenticated = false,
   }) : _currentIndex = currentIndex;
 
   @override
@@ -47,9 +49,9 @@ class BottomBar extends StatelessWidget {
           icon: Icon(Icons.settings),
           label: 'Settings',
         ),
-        const BottomNavigationBarItem(
-          icon: Icon(Icons.logout),
-          label: 'Logout',
+        BottomNavigationBarItem(
+          icon: const Icon(Icons.logout),
+          label: isAuthenticated ? 'Logout' : 'Login',
         ),
       ],
     );
