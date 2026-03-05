@@ -112,6 +112,12 @@ class _PostListState extends State<PostList> {
         child: Center(child: CircularProgressIndicator()),
       );
     }
+    if (posts.isEmpty) {
+      return SizedBox(
+        height: 200,
+        child: Center(child: Text('No posts to display')),
+      );
+    }
     return ListView.builder(
       padding: const EdgeInsets.symmetric(vertical: 16.0),
       controller: _controller,
