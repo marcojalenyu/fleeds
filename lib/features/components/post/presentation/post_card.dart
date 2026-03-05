@@ -88,7 +88,7 @@ class _PostCardState extends State<PostCard> {
                 Row(
                   children: [
                     Clickable(
-                      onTap: () => goToProfile(context, poster),
+                      onTap: () => NavigationUtils.goToProfile(context, poster),
                       child: Text(
                         poster.displayName,
                         style: textStyle.copyWith(fontWeight: FontWeight.bold),
@@ -107,7 +107,7 @@ class _PostCardState extends State<PostCard> {
                 Row(
                   children: [
                     Clickable(
-                      onTap: () => goToPost(context, post: post, user: poster),
+                      onTap: () => NavigationUtils.goToPost(context, post: post, user: poster),
                       child: Icon(Icons.chat_bubble_outline, size: 20, color: Colors.grey[600]),
                     ),
                     const SizedBox(width: 4),

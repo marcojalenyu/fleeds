@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart' as fb;
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:fleeds/core/utils/navigation_utils.dart';
 import 'package:fleeds/data/services/user_service.dart';
 import 'package:fleeds/domain/models/user.dart';
 import 'package:flutter/widgets.dart';
@@ -38,7 +39,7 @@ class AuthService {
     } else {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (context.mounted) {
-          Navigator.of(context).pushNamedAndRemoveUntil('/login', (route) => false);
+          NavigationUtils.goToLogin(context);
         }
       });
       return false;

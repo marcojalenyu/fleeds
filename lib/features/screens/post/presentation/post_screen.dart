@@ -167,7 +167,7 @@ class _PostScreenState extends State<PostScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Clickable(
-              onTap: () => goToProfile(context, author),
+              onTap: () => NavigationUtils.goToProfile(context, author),
               child: Text(
                 author.displayName,
                 style: textStyle.copyWith(fontWeight: FontWeight.bold),
@@ -188,7 +188,7 @@ class _PostScreenState extends State<PostScreen> {
     final parentAuthor = _controller.parentPostAuthor!;
 
     return Clickable(
-      onTap: () => goToPost(context, post: parentPost, user: parentAuthor),
+      onTap: () => NavigationUtils.goToPost(context, post: parentPost, user: parentAuthor),
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
@@ -201,7 +201,7 @@ class _PostScreenState extends State<PostScreen> {
             Row(
               children: [
                 Clickable(
-                  onTap: () => goToProfile(context, parentAuthor),
+                  onTap: () => NavigationUtils.goToProfile(context, parentAuthor),
                   child: Text(
                     parentAuthor.displayName,
                     style: textStyle.copyWith(

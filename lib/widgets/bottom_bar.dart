@@ -44,6 +44,10 @@ class BottomBar extends StatelessWidget {
           label: 'Alerts',
         ),
         const BottomNavigationBarItem(
+          icon: Icon(Icons.settings),
+          label: 'Settings',
+        ),
+        const BottomNavigationBarItem(
           icon: Icon(Icons.logout),
           label: 'Logout',
         ),

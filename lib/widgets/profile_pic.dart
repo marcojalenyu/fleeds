@@ -16,7 +16,7 @@ class ClickableProfilePic extends ProfilePic {
   @override
   Widget build(BuildContext context) {
     return Clickable(
-      onTap: onTap ?? () => goToProfile(context, user),
+      onTap: onTap ?? () => NavigationUtils.goToProfile(context, user),
       child: super.build(context),
     );
   }
@@ -58,7 +58,7 @@ class ProfilePic extends StatelessWidget {
   Widget build(BuildContext context) {
     return onTap != null
         ? Clickable(
-            onTap: onTap ?? () => goToProfile(context, user),
+            onTap: onTap ?? () => NavigationUtils.goToProfile(context, user),
             child: _buildProfilePicture(),
           )
         : _buildProfilePicture();

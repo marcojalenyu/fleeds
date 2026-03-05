@@ -61,13 +61,13 @@ class _NotificationCardState extends State<NotificationCard> {
   void _handleTap() {
     switch(type) {
       case 'like':
-        goToPostById(context, _notification.relatedPostId!);
+        NavigationUtils.goToPostById(context, _notification.relatedPostId!);
         break;
       case 'reply':
-        goToPostById(context, _notification.relatedPostId!);
+        NavigationUtils.goToPostById(context, _notification.relatedPostId!);
         break;
       case 'follow':
-        goToProfileById(context, _notification.triggeredByUserId);
+        NavigationUtils.goToProfileById(context, _notification.triggeredByUserId);
         break;
       default:
         break;

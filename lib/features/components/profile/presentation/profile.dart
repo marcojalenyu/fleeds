@@ -181,7 +181,7 @@ class ProfileStats extends StatelessWidget {
           Row(
             children: [
               Clickable(
-                onTap: () => goToUsersList(context, user.id, 'Followers'),
+                onTap: () => NavigationUtils.goToUsersList(context, user.id, 'Followers'),
                 child: RichText(
                   text: TextSpan(
                     style: DefaultTextStyle.of(context).style,
@@ -197,7 +197,7 @@ class ProfileStats extends StatelessWidget {
               ),
               const SizedBox(width: 16),
               Clickable(
-                onTap: () => goToUsersList(context, user.id, 'Following'),
+                onTap: () => NavigationUtils.goToUsersList(context, user.id, 'Following'),
                 child: RichText(
                   text: TextSpan(
                     style: DefaultTextStyle.of(context).style,

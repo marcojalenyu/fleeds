@@ -1,8 +1,8 @@
+import 'package:fleeds/core/utils/navigation_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:fleeds/core/constants/constants.dart';
 import 'package:fleeds/data/services/auth_service.dart';
 import 'package:fleeds/features/components/search/presentation/search_panel.dart';
-import 'package:fleeds/features/screens/search/presentation/search_screen.dart';
 import 'package:fleeds/features/screens/notifications/logic/notifications_controller.dart';
 import 'package:fleeds/widgets/bottom_bar.dart';
 import 'package:fleeds/widgets/logo.dart';
@@ -71,45 +71,10 @@ class _MainScaffoldState extends State<MainScaffold> {
     }
   }
 
-  Future<void> _handleLogout(BuildContext context) async {
-    await AuthService.logout();
-    if (context.mounted) {
-      Navigator.of(context).pushNamedAndRemoveUntil('/login', (route) => false);
-    }
-  }
-
   /// Handles navigation based on the tapped index.
   void _onTap(BuildContext context, int index) {
     bool isMobile = MediaQuery.of(context).size.width < kDesktopBreakpoint;
-    switch (index) {
-      case 0:
-        Navigator.pushReplacementNamed(context, '/');
-        break;
-      case 1:
-        Navigator.of(context).pushNamed('/profile', arguments: AuthService.currentUser);
-        break;
-      case 2:
-        if (isMobile) {
-          Navigator.of(context).push(
-            MaterialPageRoute(builder: (_) => SearchScreen()),
-          );
-        } else {
-          Navigator.of(context).pushNamed('/notifications', arguments: AuthService.currentUser!.id);
-        }
-        break;
-      case 3:
-        if (isMobile) {
-          Navigator.of(context).pushNamed('/notifications', arguments: AuthService.currentUser!.id);
-        } else {
-          _handleLogout(context);
-        }
-        break;
-      case 4:
-        if (isMobile) {
-          _handleLogout(context);
-        }
-        break;
-    }
+    NavigationUtils.goToByIndex(context, index, isMobile);
   }
 
   /// Builds a menu item with an icon, label, and tap index (used for desktop layout).
@@ -197,7 +162,8 @@ class _MainScaffoldState extends State<MainScaffold> {
                 _buildMenuItemDesktop(context, Icons.home, 'Home', 0),
                 _buildMenuItemDesktop(context, Icons.person, 'Profile', 1),
                 _buildMenuItemDesktop(context, Icons.notifications, 'Notifications', 2),
-                _buildMenuItemDesktop(context, Icons.logout, 'Logout', 3),
+                _buildMenuItemDesktop(context, Icons.settings, 'Settings', 3),
+                _buildMenuItemDesktop(context, Icons.logout, 'Logout', 4),
               ],
             ),
           ),

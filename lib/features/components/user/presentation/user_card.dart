@@ -58,11 +58,11 @@ class _UserCardState extends State<UserCard> {
                 children: [
                   Clickable(
                     child: Text(widget.user.displayName, style: TextStyle(fontWeight: FontWeight.bold)),
-                    onTap: () => goToProfile(context, widget.user),
+                    onTap: () => NavigationUtils.goToProfile(context, widget.user),
                   ),
                   Clickable(
                     child: Text('@${widget.user.username}', style: TextStyle(color: Colors.grey[600])),
-                    onTap: () => goToProfile(context, widget.user),
+                    onTap: () => NavigationUtils.goToProfile(context, widget.user),
                   ),
                   widget.user.bio.isNotEmpty
                       ? Text(
