@@ -5,6 +5,7 @@ import 'package:fleeds/features/screens/login/presentation/login_screen.dart';
 import 'package:fleeds/features/screens/notifications/presentation/notifications_screen.dart';
 import 'package:fleeds/features/screens/post/presentation/post_screen.dart';
 import 'package:fleeds/features/screens/profile/presentation/profile_screen.dart';
+import 'package:fleeds/features/screens/settings/presentation/settings_screen.dart';
 import 'package:flutter/material.dart';
 
 /// Centralized router for the Fleeds app, 
@@ -16,12 +17,14 @@ class AppRouter {
   static const String login = '/login';
   static const String profile = '/profile';
   static const String notifications = '/notifications';
+  static const String settings = '/settings';
 
   /// Static routes without dynamic parameters
   static Map<String, WidgetBuilder> get routes => {
     login: (context) => LoginScreen(),
     profile: (context) => AuthWrapper(child: ProfileScreen()),
     notifications: (context) => AuthWrapper(child: NotificationsScreen()),
+    settings: (context) => AuthWrapper(child: SettingsScreen()),
   };
 
   /// Handle dynamic routes with parameters (posts, other profiles, etc.)

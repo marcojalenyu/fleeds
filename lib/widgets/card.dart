@@ -5,17 +5,19 @@ class CustomCard extends StatelessWidget {
 
   final Widget child;
   final bool noPadding;
+  final bool noMargin;
 
   const CustomCard({
     super.key, 
     required this.child,
     this.noPadding = false,
+    this.noMargin = false,
   });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.symmetric(vertical: 0, horizontal: 8),
+      margin: noMargin ? EdgeInsets.zero : const EdgeInsets.symmetric(vertical: 0, horizontal: 8),
       padding: noPadding ? EdgeInsets.zero : const EdgeInsets.all(8),
       decoration: BoxDecoration(
         color: Colors.white,

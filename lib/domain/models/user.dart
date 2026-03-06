@@ -72,6 +72,14 @@ class User {
     );
   }
 
+  /// Update the user's username
+  User updateUsername(String newUsername) {
+    return copyWith(
+      username: newUsername,
+      updatedAt: DateTime.now(),
+    );
+  }
+
   /// Update the profile details of the user, such as avatar and banner URLs and colors.
   User updateProfile({
     String newDisplayName = '',

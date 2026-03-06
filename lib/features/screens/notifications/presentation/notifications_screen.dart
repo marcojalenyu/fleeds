@@ -64,7 +64,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     final hasMore = _controller.hasMore;
 
     return MainScaffold(
-      currentIndex: 0,
+      currentIndex: 3,
       body: Scaffold(
         appBar: AppBar(title: Text('Notifications')),
         body: Padding(
