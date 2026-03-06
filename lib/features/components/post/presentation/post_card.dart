@@ -6,6 +6,7 @@ import 'package:fleeds/core/utils/navigation_utils.dart';
 import 'package:fleeds/data/services/auth_service.dart';
 import 'package:fleeds/features/components/post/logic/post_controller.dart';
 import 'package:fleeds/widgets/card.dart';
+import 'package:fleeds/widgets/post_media.dart';
 import 'package:fleeds/widgets/clickable.dart';
 import 'package:fleeds/widgets/profile_pic.dart';
 
@@ -102,6 +103,7 @@ class _PostCardState extends State<PostCard> {
                 ),
                 const SizedBox(height: 2),
                 SelectableText(post.content, style: textStyle),
+                post.mediaUrl != null ? PostMedia(mediaUrl: post.mediaUrl!) : const SizedBox.shrink(),
                 const SizedBox(height: 4),
                 /// Action buttons: Reply and Like
                 Row(
@@ -129,6 +131,22 @@ class _PostCardState extends State<PostCard> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildMedia(Post post) {
+    if (post.mediaUrl == null) return const SizedBox.shrink();
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 8.0),
+      alignment: Alignment.centerLeft,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(8),
+        child: Image.network(
+          post.mediaUrl!,
+          height: 240,
+          fit: BoxFit.fitHeight,
+        )
       ),
     );
   }

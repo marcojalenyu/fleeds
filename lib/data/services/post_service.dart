@@ -21,7 +21,7 @@ class PostService {
       authorId: dto.authorId,
       repliedToPostId: dto.repliedToPostId,
       content: dto.content,
-      imageUrl: dto.imageUrl,
+      mediaUrl: dto.mediaUrl,
       createdAt: dto.createdAt,
       updatedAt: dto.updatedAt,
       deleted: dto.deleted,
@@ -106,8 +106,8 @@ Future<({List<Post> posts, DocumentSnapshot? lastDoc})> fetchReplies({
   return (posts: posts, lastDoc: result.lastDoc);
 }
 
-  Future<String?> addPost({required String content, required String authorId}) async {
-    return await _repository.addPost(content, authorId);
+  Future<String?> addPost({required String content, required String authorId, String? mediaUrl}) async {
+    return await _repository.addPost(content, authorId, mediaUrl);
   }
 
   Future<String?> addReply({

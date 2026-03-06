@@ -39,7 +39,7 @@ abstract class PostRepository {
     DocumentSnapshot? startAfter,
   });
 
-  Future<String?> addPost(String content, String authorId);
+  Future<String?> addPost(String content, String authorId, String? mediaUrl);
   Future<String?> addReply(String content, String authorId, String repliedToPostId);
   Future<List<String>?> toggleLike(String postId, String userId);
 }

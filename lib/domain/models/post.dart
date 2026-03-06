@@ -6,7 +6,7 @@ class Post {
   final String authorId;
   final String repliedToPostId; /// ID of the post this is replying to, if any.
   final String content;
-  final String? imageUrl;
+  final String? mediaUrl;
   final DateTime createdAt;
   final DateTime? updatedAt;
   final bool deleted;
@@ -18,7 +18,7 @@ class Post {
     required this.authorId,
     required this.repliedToPostId,
     required this.content,
-    this.imageUrl,
+    this.mediaUrl,
     required this.createdAt,
     this.updatedAt,
     this.deleted = false,
@@ -30,7 +30,7 @@ class Post {
     String? authorId,
     String? repliedToPostId,
     String? content,
-    String? imageUrl,
+    String? mediaUrl,
     DateTime? createdAt,
     DateTime? updatedAt,
     bool? deleted,
@@ -42,7 +42,7 @@ class Post {
       authorId: authorId ?? this.authorId,
       repliedToPostId: repliedToPostId ?? this.repliedToPostId,
       content: content ?? this.content,
-      imageUrl: imageUrl ?? this.imageUrl,
+      mediaUrl: mediaUrl ?? this.mediaUrl,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       deleted: deleted ?? this.deleted,

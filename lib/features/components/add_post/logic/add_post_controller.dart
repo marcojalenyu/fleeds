@@ -1,3 +1,5 @@
+import 'package:file_picker/file_picker.dart';
+import 'package:fleeds/data/services/media_service.dart';
 import 'package:fleeds/data/services/post_service.dart';
 import 'package:fleeds/domain/models/post.dart';
 import 'package:flutter/material.dart';
@@ -6,11 +8,21 @@ import 'package:flutter/material.dart';
 class AddPostController extends ChangeNotifier {
   
   final PostService _service;
+  final MediaService _mediaService;
   bool isLoading = false;
   String? error;
 
-  AddPostController({PostService? service})
-      : _service = service ?? const PostService();
+  PlatformFile? _cachedFile;
+  String? _cachedMediaUrl;
+
+  AddPostController({PostService? service, MediaService? mediaService})
+      : _service = service ?? const PostService(),
+        _mediaService = mediaService ?? MediaService();
+
+  void clearMediaCache() {
+    _cachedFile = null;
+    _cachedMediaUrl = null;
+  }
 
   /// Sanitizes post content by trimming whitespace.
   String _sanitizeContent(String content) {
@@ -39,7 +51,7 @@ class AddPostController extends ChangeNotifier {
 
   /// Adds a new post with the given content and author ID.
   /// Returns the new post ID on success, or null on failure.
-  Future<String?> addPost(String content, String authorId) async {
+  Future<String?> addPost(String content, String authorId, PlatformFile? mediaFile) async {
 
     String sanitizedContent = _sanitizeContent(content);
 
@@ -52,11 +64,30 @@ class AddPostController extends ChangeNotifier {
     isLoading = true;
     error = null;
     notifyListeners();
+
+    String? mediaUrl;
+    if (mediaFile != null) {
+      // Reuse cached URL if retrying with the same file
+      if (identical(_cachedFile, mediaFile) && _cachedMediaUrl != null) {
+        mediaUrl = _cachedMediaUrl;
+      } else {
+        mediaUrl = await _mediaService.uploadMedia(mediaFile.bytes!, mediaFile.name);
+        if (mediaUrl == null) {
+          error = 'Your media file may be too large or of an unsupported format. Please try again with a different file.';
+          isLoading = false;
+          notifyListeners();
+          return null;
+        }
+        _cachedFile = mediaFile;
+        _cachedMediaUrl = mediaUrl;
+      }
+    }
     
     try {
       final success = await _service.addPost(
         content: sanitizedContent, 
-        authorId: authorId
+        authorId: authorId,
+        mediaUrl: mediaUrl,
       );
       isLoading = false;
       notifyListeners();

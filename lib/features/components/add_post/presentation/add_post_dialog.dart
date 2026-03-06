@@ -1,3 +1,5 @@
+import 'package:file_picker/file_picker.dart';
+import 'package:fleeds/data/services/media_service.dart';
 import 'package:fleeds/domain/models/user.dart';
 import 'package:fleeds/features/components/add_post/logic/add_post_controller.dart';
 import 'package:flutter/material.dart';
@@ -23,8 +25,11 @@ class _AddPostDialogState extends State<AddPostDialog> {
 
   final _contentController = TextEditingController();
   final _addPostController = AddPostController();
+  final _mediaService = MediaService();
+
   bool _isPosting = false;
   String? _errorMessage;
+  PlatformFile? _pickedFile;
 
   static const _maxContentLength = 128;
   static const _textStyle = TextStyle(fontSize: 16);
@@ -35,14 +40,33 @@ class _AddPostDialogState extends State<AddPostDialog> {
     super.dispose();
   }
 
+  Future<void> _pickMedia() async {
+    final file = await _mediaService.pickMedia();
+    if (file != null) {
+      setState(() {
+        _pickedFile = file;
+        _errorMessage = null;
+      });
+    } else {
+      setState(() {
+        _errorMessage = 'Image files must be under 5MB. Supported formats: png, jpg, jpeg, gif, webp.';
+      });
+    }
+  }
+
+  void _removeMedia() {
+    _addPostController.clearMediaCache();
+    setState(() => _pickedFile = null);
+  }
+
   /// Handles the post submission process, including validation and providing user feedback.
   Future<void> _addPost() async {
-    final content = _contentController.text;
-    setState(() {
-      _isPosting = true;
-      _errorMessage = null;
-    });
-    final success = await _addPostController.addPost(content, widget.user.id);
+    setState(() { _isPosting = true; _errorMessage = null; });
+    final success = await _addPostController.addPost(
+      _contentController.text, 
+      widget.user.id, 
+      _pickedFile
+    );
     if (!mounted) return;
     if (success != null) {
       widget.onPostAdded?.call();
@@ -72,6 +96,11 @@ class _AddPostDialogState extends State<AddPostDialog> {
               _buildUserInfo(),
               const SizedBox(height: 16),
               _buildContentField(),
+              if (_pickedFile != null) ...[
+                const SizedBox(height: 8),
+                _buildMediaPreview(),
+                const SizedBox(height: 8),
+              ],
               _buildErrorMessage(),
               const SizedBox(height: 16),
               _buildActions(),
@@ -128,20 +157,51 @@ class _AddPostDialogState extends State<AddPostDialog> {
     );
   }
 
+  /// Builds a preview of the picked media file with a remove button.
+  Widget _buildMediaPreview() {
+    return Stack(
+      alignment: Alignment.topRight,
+      children: [
+        ClipRRect(
+          borderRadius: BorderRadius.circular(8),
+          child: Image.memory(
+            _pickedFile!.bytes!,
+            height: 150,
+            width: double.infinity,
+            fit: BoxFit.fitHeight,
+          ),
+        ),
+        IconButton(
+          onPressed: _isPosting ? null : _removeMedia,
+          icon: const Icon(Icons.cancel, color: Colors.black),
+        ),
+      ],
+    );
+  }
+
   /// Builds the Error Message display
   Widget _buildErrorMessage() {
     if (_errorMessage == null) return const SizedBox.shrink();
-    return Text(
+    return Padding(
+      padding: const EdgeInsets.only(top: 4),
+      child: Text(
         _errorMessage!,
         style: const TextStyle(color: Colors.red, fontSize: 12.0),
-      );
+      ),
+    );
   }
 
-  /// Builds the Cancel and Post buttons
+  /// Builds the Cancel and Post buttons, plus the media picker button.
   Widget _buildActions() {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.end,
       children: [
+        IconButton(
+          onPressed: _isPosting ? null : _pickMedia,
+          icon: const Icon(Icons.photo),
+          tooltip: 'Attach photo (png, jpg, jpeg, webp, gif)',
+          color: Colors.grey[700],
+        ),
+        const Spacer(),
         TextButton(
           onPressed: _isPosting ? null : () => Navigator.of(context).pop(),
           child: const Text('Cancel'),

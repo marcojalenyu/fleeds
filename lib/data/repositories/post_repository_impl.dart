@@ -190,12 +190,13 @@ Future<({List<PostDTO> posts, DocumentSnapshot? lastDoc})> fetchReplies({
 }
 
   @override
-  Future<String?> addPost(String content, String authorId) async {
+  Future<String?> addPost(String content, String authorId, String? mediaUrl) async {
     final docRef = FirebaseFirestore.instance.collection('posts').doc();
     try {
       await docRef.set({
         'authorId': authorId,
         'content': content,
+        'mediaUrl': mediaUrl,
         'createdAt': FieldValue.serverTimestamp(),
         'updatedAt': FieldValue.serverTimestamp(),
         'likes': [],
@@ -217,6 +218,7 @@ Future<({List<PostDTO> posts, DocumentSnapshot? lastDoc})> fetchReplies({
       await docRef.set({
         'authorId': authorId,
         'content': content,
+        'mediaUrl': null,
         'createdAt': FieldValue.serverTimestamp(),
         'updatedAt': FieldValue.serverTimestamp(),
         'likes': [],

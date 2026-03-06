@@ -1,4 +1,5 @@
 import 'package:fleeds/domain/models/user.dart';
+import 'package:fleeds/widgets/post_media.dart';
 import 'package:flutter/material.dart';
 import 'package:fleeds/core/utils/date_utils.dart';
 import 'package:fleeds/core/utils/navigation_utils.dart';
@@ -124,6 +125,7 @@ class _PostScreenState extends State<PostScreen> {
                 _buildPostHeader(author),
                 const SizedBox(height: 12),
                 SelectableText(post.content, style: contentTextStyle),
+                post.mediaUrl != null ? PostMedia(mediaUrl: post.mediaUrl!) : const SizedBox.shrink(),
                 if (_controller.parentPost != null && _controller.parentPostAuthor != null) ...[
                   const SizedBox(height: 12),
                   _buildParentPostSnippet(),

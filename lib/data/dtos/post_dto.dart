@@ -8,7 +8,7 @@ class PostDTO {
   final String authorId;
   final String repliedToPostId;
   final String content;
-  final String? imageUrl;
+  final String? mediaUrl;
   final DateTime createdAt;
   final DateTime? updatedAt;
   final bool deleted;
@@ -20,7 +20,7 @@ class PostDTO {
     required this.authorId,
     this.repliedToPostId = '',
     this.content = '',
-    this.imageUrl,
+    this.mediaUrl,
     required this.createdAt,
     this.updatedAt,
     this.deleted = false,
@@ -35,7 +35,7 @@ class PostDTO {
       authorId: data['authorId'] ?? '',
       repliedToPostId: data['repliedToPostId'] ?? '',
       content: data['content'] ?? '',
-      imageUrl: data['imageUrl'],
+      mediaUrl: data['mediaUrl'],
       createdAt: (data['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
       updatedAt: (data['updatedAt'] as Timestamp?)?.toDate(),
       deleted: data['deleted'] ?? false,
