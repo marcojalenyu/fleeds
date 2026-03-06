@@ -134,22 +134,6 @@ class _PostCardState extends State<PostCard> {
       ),
     );
   }
-
-  Widget _buildMedia(Post post) {
-    if (post.mediaUrl == null) return const SizedBox.shrink();
-    return Container(
-      margin: const EdgeInsets.symmetric(vertical: 8.0),
-      alignment: Alignment.centerLeft,
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(8),
-        child: Image.network(
-          post.mediaUrl!,
-          height: 240,
-          fit: BoxFit.fitHeight,
-        )
-      ),
-    );
-  }
 }
 
 

@@ -28,7 +28,7 @@ class PostMedia extends StatelessWidget {
           child: const Center(child: CircularProgressIndicator()),
         );
       },
-      errorBuilder: (context, _, __) {
+      errorBuilder: (context, _, _) {
         return Container(
           height: height,
           color: Colors.grey[200],
