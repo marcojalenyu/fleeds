@@ -18,7 +18,6 @@ class SettingsController extends ChangeNotifier {
     if (!AuthService.isAuthenticated()) return '';
     try {
       if (!await AuthService.reauthenticate(currentPassword)) {
-        notifyListeners();
         return 'Incorrect password. Please try again.';
       } else {
         final updatedUser = currentUser.updateUsername(newUsername);
@@ -33,9 +32,21 @@ class SettingsController extends ChangeNotifier {
     }
   }
 
-  void updatePassword(String newPassword) {
-    // Implement logic to update the password
-    // After updating, call notifyListeners() to update the UI
-    notifyListeners();
+  Future<String> updatePassword(String currentPassword, String newPassword) async {
+    if (!AuthService.isAuthenticated()) return '';
+    try {
+      if (!await AuthService.reauthenticate(currentPassword)) {
+        return 'Incorrect password. Please try again.';
+      } else {
+        final result = await AuthService.updatePassword(currentPassword, newPassword);
+        if (result) {
+          return 'Password updated successfully.';
+        } else {
+          return 'Failed to update password. Please try again.';
+        }
+      }
+    } catch (e) {
+      return 'An error occurred while updating the password. Please try again.';
+    }
   }
 }

@@ -10,8 +10,7 @@ import 'package:flutter/material.dart';
 /// This includes options for changing username and password.
 class SettingsScreen extends StatefulWidget {
 
-    final String? userId;
-    const SettingsScreen({super.key, this.userId});
+    const SettingsScreen({super.key});
 
     @override
     State<SettingsScreen> createState() => _SettingsScreenState();
@@ -21,6 +20,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
     SettingsController? _settingsController;
     bool _loading = true;
+    bool _saving = false;
     bool _editingUsername = false;
     bool _editingPassword = false;
     String? _response;
@@ -53,21 +53,22 @@ class _SettingsScreenState extends State<SettingsScreen> {
     Future<void> _saveUsername() async {
       final newUsername = _newUsernameController.text.trim();
       final currentPassword = _currentPasswordController.text;
-      _response = Validators.validateUsername(newUsername);
+      final validationError = Validators.validateUsername(newUsername);
       if (newUsername.isEmpty || currentPassword.isEmpty) {
           setState(() => _response = 'Please fill in all fields.');
           return;
-      } else if (_response != null) {
-          setState(() => _response = _response);
+      } else if (validationError != null) {
+          setState(() => _response = validationError);
           return;
       } else if (newUsername == currentUser.username) {
           setState(() => _response = null);
           return;
       }
       if (!await AuthService.requireAuth(context)) return;
+      setState(() => _saving = true);
       _response = await _settingsController!.updateUsername(newUsername, currentPassword);
       _currentPasswordController.clear();
-      setState(() {});
+      setState(() => _saving = false);
     }
 
     Future<void> _savePassword() async {
@@ -78,9 +79,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
           setState(() => _response = 'Please fill in all fields.');
           return;
       }
-      _response = Validators.validatePassword(newPassword);
-      if (_response != null) {
-          setState(() => _response = _response);
+      final validationError = Validators.validatePassword(newPassword);
+      if (validationError != null) {
+          setState(() => _response = validationError);
           return;
       } else if (newPassword != confirmPassword) {
           setState(() => _response = 'Passwords do not match.');
@@ -90,15 +91,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
           return;
       }
       if (!await AuthService.requireAuth(context)) return;
-      final success = await AuthService.updatePassword(currentPassword, newPassword);
-      if (!success) {
-        setState(() => _response = 'Current password is incorrect.');
-        return;
+      setState(() => _saving = true);
+      _response = await _settingsController!.updatePassword(currentPassword, newPassword);
+      if (_response == 'Password updated successfully.') {
+        _currentPasswordController.clear();
+        _newPasswordController.clear();
+        _passwordConfirmController.clear();
       }
-      _currentPasswordController.clear();
-      _newPasswordController.clear();
-      _passwordConfirmController.clear();
-      setState(() => _response = "Password updated successfully.");
+      setState(() => _saving = false);
     }
 
     /// Toggles the visibility of the edit card for username or password, 
@@ -133,8 +133,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 body: const Center(child: CircularProgressIndicator()),
             );
         }
-        final settingsController = _settingsController!;
-        final currentUser = settingsController.currentUser;
         return MainScaffold(
             currentIndex: 4, 
             body: Scaffold(
@@ -210,8 +208,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                                     SizedBox(height: (_response != null) ? 12 : 0),
                                                     Center(
                                                         child: ElevatedButton(
-                                                            onPressed: _saveUsername,
-                                                            child: _loading 
+                                                            onPressed: _saving ? null : _saveUsername,
+                                                            child: _saving 
                                                             ? const SizedBox(
                                                                 height: 20,
                                                                 width: 20,
@@ -296,8 +294,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                                     SizedBox(height: (_response != null) ? 12 : 0),
                                                     Center(
                                                         child: ElevatedButton(
-                                                            onPressed: _savePassword,
-                                                            child: _loading 
+                                                            onPressed: _saving ? null : _savePassword,
+                                                            child: _saving 
                                                             ? const SizedBox(
                                                                 height: 20,
                                                                 width: 20,
