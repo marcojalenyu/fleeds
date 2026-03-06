@@ -137,15 +137,17 @@ class AuthService {
     }
   }
 
-  static Future<void> updatePassword(String newPassword) async {
+  /// Updates the password for the currently authenticated user.
+  static Future<bool> updatePassword(String currentPassword, String newPassword) async {
     try {
       final fbUser = fb.FirebaseAuth.instance.currentUser;
-      if (fbUser != null) {
+      if (fbUser != null && await reauthenticate(currentPassword)) {
         await fbUser.updatePassword(newPassword);
+        return true;
       }
+      return false;
     } catch (e) {
-      print(e);
-      return;
+      return false;
     }
   }
 

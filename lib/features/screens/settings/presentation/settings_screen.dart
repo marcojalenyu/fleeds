@@ -23,7 +23,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     bool _loading = true;
     bool _editingUsername = false;
     bool _editingPassword = false;
-    String? _error;
+    String? _response;
 
     final _newUsernameController = TextEditingController();
     final _currentPasswordController = TextEditingController();
@@ -45,32 +45,61 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
 
     Future<void> _initSettingsController() async {
-        _settingsController = SettingsController();
-        _settingsController!.addListener(() => setState(() {}));
-        setState(() => _loading = false);
+      _settingsController = SettingsController();
+      _settingsController!.addListener(() => setState(() {}));
+      setState(() => _loading = false);
     }
 
     Future<void> _saveUsername() async {
-        final newUsername = _newUsernameController.text.trim();
-        final currentPassword = _currentPasswordController.text;
-        _error = Validators.validateUsername(newUsername);
-        if (newUsername.isEmpty || currentPassword.isEmpty) {
-            setState(() => _error = 'Please fill in all fields.');
-            return;
-        } else if (_error != null) {
-            setState(() => _error = _error);
-            return;
-        } else if (newUsername == currentUser.username) {
-            setState(() => _error = null);
-            return;
-        }
-        if (!await AuthService.requireAuth(context)) return;
-        _error = await _settingsController!.updateUsername(newUsername, currentPassword);
-        _currentPasswordController.clear();
-        setState(() {});
+      final newUsername = _newUsernameController.text.trim();
+      final currentPassword = _currentPasswordController.text;
+      _response = Validators.validateUsername(newUsername);
+      if (newUsername.isEmpty || currentPassword.isEmpty) {
+          setState(() => _response = 'Please fill in all fields.');
+          return;
+      } else if (_response != null) {
+          setState(() => _response = _response);
+          return;
+      } else if (newUsername == currentUser.username) {
+          setState(() => _response = null);
+          return;
+      }
+      if (!await AuthService.requireAuth(context)) return;
+      _response = await _settingsController!.updateUsername(newUsername, currentPassword);
+      _currentPasswordController.clear();
+      setState(() {});
     }
 
-    /// TODO: Implement save functionality for password
+    Future<void> _savePassword() async {
+      final currentPassword = _currentPasswordController.text;
+      final newPassword = _newPasswordController.text;
+      final confirmPassword = _passwordConfirmController.text;
+      if (currentPassword.isEmpty || newPassword.isEmpty || confirmPassword.isEmpty) {
+          setState(() => _response = 'Please fill in all fields.');
+          return;
+      }
+      _response = Validators.validatePassword(newPassword);
+      if (_response != null) {
+          setState(() => _response = _response);
+          return;
+      } else if (newPassword != confirmPassword) {
+          setState(() => _response = 'Passwords do not match.');
+          return;
+      } else if (currentPassword == newPassword) {
+          setState(() => _response = 'New password cannot be the same as current password.');
+          return;
+      }
+      if (!await AuthService.requireAuth(context)) return;
+      final success = await AuthService.updatePassword(currentPassword, newPassword);
+      if (!success) {
+        setState(() => _response = 'Current password is incorrect.');
+        return;
+      }
+      _currentPasswordController.clear();
+      _newPasswordController.clear();
+      _passwordConfirmController.clear();
+      setState(() => _response = "Password updated successfully.");
+    }
 
     /// Toggles the visibility of the edit card for username or password, 
     /// ensuring that only one can be edited at a time.
@@ -83,7 +112,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 _currentPasswordController.clear();
                 _newPasswordController.clear();
                 _passwordConfirmController.clear();
-                _error = null;
+                _response = null;
             } else if (field == 'password') {
                 _editingPassword = !_editingPassword;
                 _editingUsername = false;
@@ -91,7 +120,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 _currentPasswordController.clear();
                 _newPasswordController.clear();
                 _passwordConfirmController.clear();
-                _error = null;
+                _response = null;
             }
         });
     }
@@ -177,8 +206,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                                         ]
                                                     ),
                                                     SizedBox(height: 8),
-                                                    SelectableText(_error ?? '', style: const TextStyle(color: Colors.red)),
-                                                    SizedBox(height: (_error != null) ? 12 : 0),
+                                                    SelectableText(_response ?? '', style: const TextStyle(color: Colors.red)),
+                                                    SizedBox(height: (_response != null) ? 12 : 0),
                                                     Center(
                                                         child: ElevatedButton(
                                                             onPressed: _saveUsername,
@@ -262,10 +291,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                                             )
                                                         ),
                                                     ),
-                                                    SizedBox(height: (_error != null) ? 32 : 16),
+                                                    SizedBox(height: 8),
+                                                    SelectableText(_response ?? '', style: const TextStyle(color: Colors.red)),
+                                                    SizedBox(height: (_response != null) ? 12 : 0),
                                                     Center(
                                                         child: ElevatedButton(
-                                                            onPressed: () {},
+                                                            onPressed: _savePassword,
                                                             child: _loading 
                                                             ? const SizedBox(
                                                                 height: 20,
