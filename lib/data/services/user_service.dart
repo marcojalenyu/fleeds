@@ -48,6 +48,12 @@ class UserService {
     return dtos.map(_mapDtoToDomain).toList();
   }
 
+  Future<User?> updateUsername(String userId, String newUsername) async {
+    final dto = await _repository.updateUsername(userId, newUsername);
+    if (dto == null) return null;
+    return _mapDtoToDomain(dto);
+  }
+
   Future<User?> updateUserProfile(String userId, {
     String? displayName, 
     String? bio, 

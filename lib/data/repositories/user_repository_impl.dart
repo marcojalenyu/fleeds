@@ -60,6 +60,36 @@ class UserRepositoryImpl implements UserRepository {
   }
 
   @override
+  Future<UserDTO?> updateUsername(String userId, String newUsername) async {
+    final docRef = FirebaseFirestore.instance.collection('users').doc(userId);
+    try {
+      // Check if the new username is already taken by another user
+      final query = await FirebaseFirestore.instance
+          .collection('users')
+          .where('username', isEqualTo: newUsername)
+          .where(FieldPath.documentId, isNotEqualTo: userId)
+          .limit(1)
+          .get();
+
+      if (query.docs.isNotEmpty) {
+        // Username is already taken
+        return null;
+      }
+
+      await docRef.update({
+        'username': newUsername,
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
+
+      final updatedDoc = await docRef.get();
+      if (!updatedDoc.exists) return null;
+      return UserDTO.fromFirestore(updatedDoc.id, updatedDoc.data()!);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  @override
   Future<UserDTO?> updateUserProfile(
     String userId, 
     {String? displayName, String? bio, String? avatarUrl, String? avatarColor, String? avatarBgColor, String? bannerUrl}

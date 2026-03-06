@@ -31,6 +31,22 @@ class AuthService {
     return _currentUser != null;
   }
 
+  /// Reauthenticate the user with their current password before allowing sensitive actions
+  static Future<bool> reauthenticate(String currentPassword) async {
+    try {
+      final fbUser = fb.FirebaseAuth.instance.currentUser;
+      if (fbUser == null) return false;
+      final credential = fb.EmailAuthProvider.credential(
+        email: fbUser.email!,
+        password: currentPassword,
+      );
+      await fbUser.reauthenticateWithCredential(credential);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
   /// Ensures the user is authenticated before accessing certain features
   /// If not authenticated, redirects to the login screen
   static Future<bool> requireAuth(BuildContext context) async {
@@ -118,6 +134,18 @@ class AuthService {
       
     } catch (e) {
       return false;
+    }
+  }
+
+  static Future<void> updatePassword(String newPassword) async {
+    try {
+      final fbUser = fb.FirebaseAuth.instance.currentUser;
+      if (fbUser != null) {
+        await fbUser.updatePassword(newPassword);
+      }
+    } catch (e) {
+      print(e);
+      return;
     }
   }
 

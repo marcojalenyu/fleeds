@@ -4,6 +4,7 @@ abstract class UserRepository {
   Future<UserDTO?> fetchUser(String userId);
   Future<List<UserDTO>?> fetchFollowers(String userId);
   Future<List<UserDTO>?> fetchFollowing(String userId);
+  Future<UserDTO?> updateUsername(String userId, String newUsername);
   Future<UserDTO?> updateUserProfile(String userId, {
     String? displayName, 
     String? bio, 

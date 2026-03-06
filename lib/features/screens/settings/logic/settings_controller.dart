@@ -6,18 +6,31 @@ import 'package:flutter/material.dart';
 class SettingsController extends ChangeNotifier {
 
   final UserService _userService;
-  final User currentUser;
   final String userId;
 
-  SettingsController({String? userId}) :
-    _userService = const UserService(),
-    userId = userId ?? '',
-    currentUser = AuthService.currentUser!; 
+  User get currentUser => AuthService.currentUser!;
 
-  void updateUsername(String newUsername) {
-    // Implement logic to update the username
-    // After updating, call notifyListeners() to update the UI
-    notifyListeners();
+  SettingsController() :
+    _userService = const UserService(),
+    userId = AuthService.currentUser?.id ?? '';
+
+  Future<String> updateUsername(String newUsername, String currentPassword) async {
+    if (!AuthService.isAuthenticated()) return '';
+    try {
+      if (!await AuthService.reauthenticate(currentPassword)) {
+        notifyListeners();
+        return 'Incorrect password. Please try again.';
+      } else {
+        final updatedUser = currentUser.updateUsername(newUsername);
+        final result = await _userService.updateUsername(userId, newUsername);
+        if (result == null) return 'Username already exists.';
+        AuthService.setCurrentUser(updatedUser);
+        notifyListeners();
+        return 'Username updated successfully.';
+      }
+    } catch (e) {
+      return 'An error occurred while updating the username. Please try again.';
+    }
   }
 
   void updatePassword(String newPassword) {

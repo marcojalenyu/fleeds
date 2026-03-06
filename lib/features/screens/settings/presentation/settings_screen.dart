@@ -1,3 +1,5 @@
+import 'package:fleeds/core/utils/validator.dart';
+import 'package:fleeds/data/services/auth_service.dart';
 import 'package:fleeds/domain/models/user.dart';
 import 'package:fleeds/features/screens/settings/logic/settings_controller.dart';
 import 'package:fleeds/widgets/card.dart';
@@ -43,14 +45,30 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
 
     Future<void> _initSettingsController() async {
-        final userId = widget.userId ?? '';
-        _settingsController = SettingsController(userId: userId);
+        _settingsController = SettingsController();
         _settingsController!.addListener(() => setState(() {}));
         setState(() => _loading = false);
     }
 
-    /// TODO: Implement save functionality for username
-
+    Future<void> _saveUsername() async {
+        final newUsername = _newUsernameController.text.trim();
+        final currentPassword = _currentPasswordController.text;
+        _error = Validators.validateUsername(newUsername);
+        if (newUsername.isEmpty || currentPassword.isEmpty) {
+            setState(() => _error = 'Please fill in all fields.');
+            return;
+        } else if (_error != null) {
+            setState(() => _error = _error);
+            return;
+        } else if (newUsername == currentUser.username) {
+            setState(() => _error = null);
+            return;
+        }
+        if (!await AuthService.requireAuth(context)) return;
+        _error = await _settingsController!.updateUsername(newUsername, currentPassword);
+        _currentPasswordController.clear();
+        setState(() {});
+    }
 
     /// TODO: Implement save functionality for password
 
@@ -65,6 +83,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 _currentPasswordController.clear();
                 _newPasswordController.clear();
                 _passwordConfirmController.clear();
+                _error = null;
             } else if (field == 'password') {
                 _editingPassword = !_editingPassword;
                 _editingUsername = false;
@@ -72,6 +91,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 _currentPasswordController.clear();
                 _newPasswordController.clear();
                 _passwordConfirmController.clear();
+                _error = null;
             }
         });
     }
@@ -156,10 +176,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                                             ),
                                                         ]
                                                     ),
-                                                    SizedBox(height: (_error != null) ? 32 : 16),
+                                                    SizedBox(height: 8),
+                                                    SelectableText(_error ?? '', style: const TextStyle(color: Colors.red)),
+                                                    SizedBox(height: (_error != null) ? 12 : 0),
                                                     Center(
                                                         child: ElevatedButton(
-                                                            onPressed: () {},
+                                                            onPressed: _saveUsername,
                                                             child: _loading 
                                                             ? const SizedBox(
                                                                 height: 20,
